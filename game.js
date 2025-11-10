@@ -77,6 +77,7 @@ const GAME_CONFIG = {
   OBSTACLE_SPAWN_INTERVAL: 1000, // ms between spawns
   OBSTACLE_FALL_SPEED: 100, // pixels per second
   OBSTACLE_START_ROW: 10, // Obstacles only start falling after this row
+  OBSTACLE_DUAL_CHANCE: 0.3, // 30% chance both players get obstacles when both alive
 
   // Guard AI
   GUARD_CLIMB_MIN_DELAY: 700, // Min ms between climb steps
@@ -87,7 +88,10 @@ const GAME_CONFIG = {
 
   // Camera
   CAMERA_SMOOTH: 0.08,
-  CAMERA_OFFSET: 20 // pixels below center
+  CAMERA_OFFSET: 20, // pixels below center
+
+  // Audio
+  DIALOG_BEEP_VOLUME: 0.05, // Volume for dialog beeps (0-1)
 };
 
 // =============================================================================
@@ -486,7 +490,7 @@ class Character {
     this.animIndex = 0;
     this.animTimer = 0;
     this.isClimbing = false;
-    
+
     // Collision box (14x26 centered in 30x30 sprite)
     this.colliderWidth = 14;
     this.colliderHeight = 26;
@@ -590,7 +594,7 @@ class Player extends Character {
     // Override graphics depth for players
     this.graphics.setDepth(10);
   }
-  
+
   // Check collision with another player (player-specific)
   checkPlayerCollision(otherPlayer) {
     if (otherPlayer.isDead || this.isDead) return false;
@@ -649,7 +653,7 @@ class Player extends Character {
       this.fallVelocity += 500 * (delta / 1000); // Gravity acceleration
       this.y += this.fallVelocity * (delta / 1000);
       this.fallRotation += (delta / 1000) * 5; // Rotate while falling
-      
+
       // Keep target positions synced to prevent interpolation from pulling player back
       this.targetX = this.x;
       this.targetY = this.y;
@@ -883,18 +887,18 @@ class Player extends Character {
     this.isFalling = true;
     this.fallVelocity = -200; // Initial upward velocity (Mario bounce)
     this.fallRotation = 0;
-    
+
     // Ensure target positions don't interfere with fall animation
     // Set them to current position so interpolation doesn't pull player back
     this.targetX = this.x;
     this.targetY = this.y;
-    
+
     // Stop all other animations and states
     this.isClimbing = false;
     this.isMovingHorizontal = false;
     this.isFallingOneRow = false;
     this.isCaught = false;
-    
+
     console.log(`Player ${this.playerNum} isFalling: ${this.isFalling}, fallVelocity: ${this.fallVelocity}, position locked at (${this.x}, ${this.y})`);
   }
 }
@@ -963,16 +967,16 @@ class Guard extends Character {
 
     // Calculate speed multipliers based on game state
     let speedMultiplier = 1.0;
-    
+
     // 1. Initial slow multiplier (before row 10)
     if (this.targetPlayer.row < GAME_CONFIG.OBSTACLE_START_ROW) {
       speedMultiplier *= GAME_CONFIG.GUARD_INITIAL_SLOW_MULTIPLIER;
     }
-    
+
     // 2. Off-screen boost (when guard is below camera view)
     const cameraBottomY = this.scene.cameraTargetY + (GAME_CONFIG.GAME_HEIGHT / 2);
     const guardY = this.getWorldY();
-    
+
     if (guardY > cameraBottomY) {
       // Guard is below camera (off-screen) - boost speed to catch up
       speedMultiplier *= GAME_CONFIG.GUARD_OFFSCREEN_BOOST;
@@ -1059,7 +1063,7 @@ class Guard extends Character {
 
   draw() {
     this.graphics.clear();
-    
+
     // Get sprite data for current animation state
     const spriteString = GUARD_SPRITES[this.animState] || GUARD_SPRITES.IDLE;
     const spriteData = parseSprite(spriteString, GAME_CONFIG.PLAYER_WIDTH);
@@ -1079,7 +1083,7 @@ class Guard extends Character {
       );
     }
   }
-  
+
   destroy() {
     if (this.graphics) {
       this.graphics.destroy();
@@ -1101,6 +1105,22 @@ class Dialog {
     this.boxPadding = 8;
     this.portraitSize = 44; // 44x44 portrait (scaled from 30x30)
     this.portraitPadding = 4;
+
+    // Text animation state
+    this.fullText = '';
+    this.displayedText = '';
+    this.charIndex = 0;
+    this.charDelay = 30; // ms per character
+    this.charTimer = 0;
+    this.isTextComplete = false;
+
+    // Audio context for beep sounds
+    this.audioContext = null;
+    try {
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) {
+      console.warn('Web Audio API not supported, dialog sounds disabled');
+    }
 
     // Create graphics objects - use Graphics for everything for consistency
     this.graphics = scene.add.graphics();
@@ -1137,7 +1157,13 @@ class Dialog {
     this.isActive = true;
     this.currentDialog = { type, text, sprites };
     this.textObject.setVisible(true);
-    // Render will be called every frame
+
+    // Initialize text animation
+    this.fullText = text;
+    this.displayedText = '';
+    this.charIndex = 0;
+    this.charTimer = 0;
+    this.isTextComplete = false;
   }
 
   hide() {
@@ -1147,9 +1173,77 @@ class Dialog {
     this.portraitGraphics.clear();
     this.textObject.setText('');
     this.textObject.setVisible(false);
+
+    // Reset text animation
+    this.fullText = '';
+    this.displayedText = '';
+    this.charIndex = 0;
+    this.isTextComplete = false;
   }
 
-  render() {
+  playBeep(voiceType = 'PLAYER') {
+    if (!this.audioContext) return;
+
+    // Create a short beep sound
+    const oscillator = this.audioContext.createOscillator();
+    const gainNode = this.audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(this.audioContext.destination);
+
+    // Different pitch ranges for different voices
+    let baseFreq, variation;
+    if (voiceType === 'GUARD') {
+      // Deeper voice for guard (250-350 Hz)
+      baseFreq = 275;
+      variation = 75;
+    } else {
+      // Higher voice for players (450-600 Hz)
+      baseFreq = 450;
+      variation = 150;
+    }
+
+    oscillator.frequency.value = baseFreq + Math.random() * variation;
+    oscillator.type = 'square';
+
+    // Quick fade out
+    gainNode.gain.setValueAtTime(GAME_CONFIG.DIALOG_BEEP_VOLUME, this.audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.05);
+
+    // Play for 50ms
+    oscillator.start(this.audioContext.currentTime);
+    oscillator.stop(this.audioContext.currentTime + 0.05);
+  }
+
+  updateTextAnimation(delta) {
+    if (this.isTextComplete || !this.fullText) return;
+
+    this.charTimer += delta;
+
+    if (this.charTimer >= this.charDelay) {
+      this.charTimer = 0;
+
+      if (this.charIndex < this.fullText.length) {
+        // Add next character
+        this.displayedText += this.fullText[this.charIndex];
+        this.charIndex++;
+
+        // Play beep (skip spaces) with voice type
+        if (this.fullText[this.charIndex - 1] !== ' ') {
+          const voiceType = this.currentDialog ? this.currentDialog.type : 'PLAYER';
+          this.playBeep(voiceType);
+        }
+      } else {
+        // Text complete
+        this.isTextComplete = true;
+      }
+    }
+  }
+
+  render(delta = 16) {
+    // Update text animation
+    this.updateTextAnimation(delta);
+
     // Clear graphics every frame
     this.graphics.clear();
     this.portraitGraphics.clear();
@@ -1160,7 +1254,7 @@ class Dialog {
       return;
     }
 
-    const { type, text, sprites } = this.currentDialog;
+    const { type, sprites } = this.currentDialog;
 
     const screenHeight = GAME_CONFIG.GAME_HEIGHT;
     const screenWidth = GAME_CONFIG.GAME_WIDTH;
@@ -1179,15 +1273,18 @@ class Dialog {
     // Make sure text is visible
     this.textObject.setVisible(true);
 
+    // Use displayed text (animated) instead of full text
+    const displayText = this.displayedText;
+
     if (type === 'PLAYER') {
       // Player dialog: portrait on right, text on left
-      this.renderPlayerDialog(text, sprites[0], boxY, boxX, screenWidth);
+      this.renderPlayerDialog(displayText, sprites[0], boxY, boxX, screenWidth);
     } else if (type === 'GUARD') {
       // Guard dialog: portrait on left, text on right
-      this.renderGuardDialog(text, sprites[0], boxY, boxX, screenWidth);
+      this.renderGuardDialog(displayText, sprites[0], boxY, boxX, screenWidth);
     } else if (type === 'UNISON') {
       // Unison dialog: both portraits on right, text on left
-      this.renderUnisonDialog(text, sprites, boxY, boxX, screenWidth);
+      this.renderUnisonDialog(displayText, sprites, boxY, boxX, screenWidth);
     }
   }
 
@@ -1301,7 +1398,7 @@ class CinematicController {
     this.isActive = false;
     this.currentStep = 0;
     this.autoClimbProgress = 0;
-    this.autoClimbTarget = 4; // Climb 4 rows
+    this.autoClimbTarget = 5; // Climb 5 rows
   }
 
   start() {
@@ -1312,22 +1409,29 @@ class CinematicController {
     // Step 0: Players walk in from the right (0-2s)
     this.walkInPlayers();
 
-    // Step 1: Show guard dialog after players arrive (at 2s)
+    // Step 1: Show players greeting after they arrive (at 2s)
     this.scene.time.delayedCall(2000, () => {
       this.currentStep = 1;
+      const playerSprites = this.scene.players.map(p => p.sprites.FRONT);
+      this.scene.dialog.show('UNISON', 'Hola, venimos para la platanus hack 2025 🍌', playerSprites);
+    });
+
+    // Step 2: Show guard dialog (at 5s)
+    this.scene.time.delayedCall(5000, () => {
+      this.currentStep = 2;
       this.scene.dialog.show('GUARD', 'La hackathon ya ha iniciado, no estamos recibiendo más participantes', [GUARD_SPRITES.FRONT]);
     });
 
-    // Step 2: After 5 seconds total, show players' unison dialog
-    this.scene.time.delayedCall(5000, () => {
-      this.currentStep = 2;
-      const playerSprites = this.scene.players.map(p => p.sprites.FRONT);
-      this.scene.dialog.show('UNISON', 'Tenemos que participar!!', playerSprites);
-    });
-
-    // Step 3: After 8 seconds, hide dialog and start auto-climb
+    // Step 3: Show players' response (at 8s)
     this.scene.time.delayedCall(8000, () => {
       this.currentStep = 3;
+      const playerSprites = this.scene.players.map(p => p.sprites.FRONT);
+      this.scene.dialog.show('UNISON', 'Cómo? Tenemos que entrar!!', playerSprites);
+    });
+
+    // Step 4: After 11 seconds, hide dialog and start auto-climb
+    this.scene.time.delayedCall(11000, () => {
+      this.currentStep = 4;
       this.scene.dialog.hide();
       this.startAutoClimb();
     });
@@ -1336,21 +1440,21 @@ class CinematicController {
   walkInPlayers() {
     // Move players from far right to building entrance over 2 seconds
     console.log('Players walking in from right...');
-    
+
     const startCol = GAME_CONFIG.BUILDING_ACTUAL_COLUMNS + 3; // Start off-screen right
     const walkDuration = 2000; // 2 seconds
-    
+
     // Destination positions based on number of players
     const numPlayers = this.scene.players.length;
     const destinations = numPlayers === 1 ? [9] : [9, 10.5];
-    
+
     this.scene.players.forEach((player, index) => {
       // Start players off-screen to the right
       player.col = startCol + index;
       player.x = player.colToX(player.col);
       player.targetX = player.x;
       player.animState = 'FRONT'; // Use FRONT sprite for walking
-      
+
       // Animate walking to destination
       this.scene.tweens.add({
         targets: player,
@@ -1362,7 +1466,7 @@ class CinematicController {
           player.targetX = player.x;
           // Keep FRONT state, add vertical "jump" for walking effect
           player.animState = 'FRONT';
-          
+
           // Add small vertical bounce to simulate walking
           const progress = tween.progress;
           const walkCycle = Math.sin(progress * Math.PI * 8) * 2; // 8 steps, 2 pixel bounce
@@ -1409,10 +1513,10 @@ class CinematicController {
 
   showGuardReaction() {
     console.log('Guard reacts to players climbing...');
-    
+
     // Show guard's angry dialog
     this.scene.dialog.show('GUARD', 'A dónde van, vuelvan!!', [GUARD_SPRITES.FRONT]);
-    
+
     // After 2 seconds, end cinematic and start the chase
     this.scene.time.delayedCall(2000, () => {
       this.scene.dialog.hide();
@@ -1430,7 +1534,7 @@ class CinematicController {
       player.animState = 'IDLE';
       player.animIndex = 0;
     });
-    
+
     // Guard starts chasing now!
     console.log('Guard begins chase!');
   }
@@ -1650,7 +1754,7 @@ class GameScene extends Phaser.Scene {
       // Another player is still alive
       // Show dialog WHILE player falls (use caught player's sprite)
       this.dialog.show('PLAYER', 'Continúa sin mí!!!', [player.sprites.FRONT]);
-      
+
       // IMMEDIATELY start death fall animation
       player.die();
 
@@ -1663,12 +1767,12 @@ class GameScene extends Phaser.Scene {
       // No players left - game over, freeze game
       console.log('Game Over - All players caught!');
       this.gameState = GAME_STATES.GAME_OVER;
-      
+
       // Freeze player with LOST animation
       player.isCaught = true;
       player.lostAnimTimer = 0;
       player.lostAnimState = 'LUP0';
-      
+
       // Keep obstacles paused, game is frozen
     }
   }
@@ -1685,32 +1789,46 @@ class GameScene extends Phaser.Scene {
       const alivePlayers = this.players.filter(p => !p.isDead && !p.isFalling);
       if (alivePlayers.length === 0) return;
 
-      const targetPlayer = Phaser.Utils.Array.GetRandom(alivePlayers);
-
       // Only spawn obstacles if highest player has reached the start row
       const highestPlayer = alivePlayers.reduce((highest, player) =>
         player.row > highest.row ? player : highest
       );
-      
+
       if (highestPlayer.row < GAME_CONFIG.OBSTACLE_START_ROW) {
         // Players haven't reached obstacle start row yet
         return;
       }
 
-      // Choose random obstacle type
-      const types = Object.values(OBSTACLE_TYPES);
-      const type = Phaser.Utils.Array.GetRandom(types);
+      // Determine target players
+      let targetPlayers = [];
 
-      // Spawn at player's X position, above the camera view
-      const spawnX = targetPlayer.x;
-      // Camera center is at this.cameraTargetY, top of view is center - height/2
+      if (alivePlayers.length === 2) {
+        // Both players alive - 30% chance to target both
+        if (Math.random() < GAME_CONFIG.OBSTACLE_DUAL_CHANCE) {
+          targetPlayers = alivePlayers;
+          console.log('Dual obstacle spawn - targeting both players!');
+        } else {
+          targetPlayers = [Phaser.Utils.Array.GetRandom(alivePlayers)];
+        }
+      } else {
+        // Only one player alive - target them
+        targetPlayers = [alivePlayers[0]];
+      }
+
+      // Spawn one obstacle per target player
+      const types = Object.values(OBSTACLE_TYPES);
       const cameraTopY = this.cameraTargetY - (GAME_CONFIG.GAME_HEIGHT / 2);
       const spawnY = cameraTopY - 50; // Spawn 50px above visible area
 
-      console.log(`Spawning ${type.name} at (${spawnX}, ${spawnY})`);
+      targetPlayers.forEach(targetPlayer => {
+        const type = Phaser.Utils.Array.GetRandom(types);
+        const spawnX = targetPlayer.x;
 
-      const obstacle = new Obstacle(this, spawnX, spawnY, type);
-      this.obstacles.push(obstacle);
+        console.log(`Spawning ${type.name} at (${spawnX}, ${spawnY}) targeting Player ${targetPlayer.playerNum}`);
+
+        const obstacle = new Obstacle(this, spawnX, spawnY, type);
+        this.obstacles.push(obstacle);
+      });
 
       console.log(`Total obstacles: ${this.obstacles.length}`);
     } catch (error) {
@@ -1894,7 +2012,7 @@ class GameScene extends Phaser.Scene {
     try {
       // Render dialog AFTER everything else (needs to be called every frame)  <-- SEPARATED INTO OWN BLOCK
       if (this.dialog) {
-        this.dialog.render();
+        this.dialog.render(delta);
       }
     } catch (error) {
       console.error('Error rendering dialog:', error);
