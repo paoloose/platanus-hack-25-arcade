@@ -4,7 +4,7 @@
 // =============================================================================
 // ARCADE BUTTON MAPPING - COMPLETE TEMPLATE
 // =============================================================================
-const ARCADE_CONTROLS = {
+const CTRLS = {
   // ===== PLAYER 1 CONTROLS =====
   'P1U': ['w'],
   'P1D': ['s'],
@@ -39,12 +39,12 @@ const ARCADE_CONTROLS = {
 };
 
 // Build reverse lookup: keyboard key → arcade button code
-const KEYBOARD_TO_ARCADE = {};
-for (const [arcadeCode, keyboardKeys] of Object.entries(ARCADE_CONTROLS)) {
+const KBD_TO_ARC = {};
+for (const [arcadeCode, keyboardKeys] of Object.entries(CTRLS)) {
   if (keyboardKeys) {
     const keys = Array.isArray(keyboardKeys) ? keyboardKeys : [keyboardKeys];
     keys.forEach(key => {
-      KEYBOARD_TO_ARCADE[key] = arcadeCode;
+      KBD_TO_ARC[key] = arcadeCode;
     });
   }
 }
@@ -52,7 +52,7 @@ for (const [arcadeCode, keyboardKeys] of Object.entries(ARCADE_CONTROLS)) {
 // =============================================================================
 // GAME CONSTANTS
 // =============================================================================
-const GAME_CONFIG = {
+const CONF = {
   // Display (320x240 scaled to 800x600)
   GAME_WIDTH: 320,
   GAME_HEIGHT: 240,
@@ -98,34 +98,34 @@ const GAME_CONFIG = {
 // PC-66 COLOR PALETTE
 // =============================================================================
 // PC-66 Palette from Lospec - 66 colors for retro arcade feel
-const PALETTE = [
+const P = [
   0x000000, 0x24222a, 0x4e4b5b, 0x7b768e, 0xaba4c1, 0xd3cde7, 0xfefdfe, 0xffefa8,
   0xe2b35a, 0x9f5611, 0x6e2100, 0x390800, 0x5e2e00, 0x915f01, 0xe6c429, 0xeceab7,
   0xd2fe7d, 0xc1e12c, 0x989800, 0x5b4d00, 0x362400, 0x004d03, 0x0c6d00, 0x2b9200,
-  0x7ec43f, 0xb2da73, 0xc8feae, 0x83fe6b, 0x00fe00, 0x00cb22, 0x006d45, 0x004d3d,
+  0x7ec43f, 0xb2da73, 0xc8feae, 0x83fe6b, 0xff6600, 0x00cb22, 0x006d45, 0x004d3d,
   0x206100, 0x019000, 0x0bba3d, 0x2eda91, 0x4fffca, 0xd0fff6, 0xa9fbee, 0x01ffff,
   0x009cbe, 0x006092, 0x004373, 0x006cdc, 0x6dd0ff, 0xb6f3ff, 0xa4dbff, 0x687aff,
   0x0147ff, 0x0017c5, 0x140c81, 0x4200a5, 0x8d00f9, 0xc84ff5, 0xea9bf3, 0xf8dcf7,
   0xf49fb3, 0xf6629d, 0xff0092, 0xcc0095, 0xa30092, 0x920030, 0xc1003f, 0xff0000,
   0xf5765d, 0xd11717, 0xa41c1c, 0xab8169, 0x7c6822, 0xffc7ba, 0x254c93, 0xdeac92,
-  0x18171a,
+  0x18171a, 0xf7bb1b,
 ];
 
 // Environment color palette from PC-66
-const ENV_COLORS = {
-  SKY: PALETTE[46],             // 0xa9fbee - sky blue
-  GLASSB: PALETTE[41],      // 0x006092 - dark blue glass
-  GLASSSTR: PALETTE[43],    // 0x006cdc - blue streaks
-  GLASSW1: PALETTE[44],  // 0x6dd0ff - light blue windows
-  GLASSW2: PALETTE[46],  // 0xa4dbff - alternate blue windows
-  GLASSREF: PALETTE[45],// 0xb6f3ff - window highlights
-  METAL1: PALETTE[4],      // 0xaba4c1 - metallic structure
-  METAL2: PALETTE[5],  // 0xd3cde7 - metallic highlights
-  BASE1: PALETTE[3],    // 0x7b768e - sidewalk base
-  BASE2: PALETTE[2],    // 0x4e4b5b - dark concrete
-  BASE3: PALETTE[3],   // 0x7b768e - light concrete
-  PANEL_LINE: PALETTE[2],       // 0x4e4b5b - panel divisions
-  GOAL_MARKER: PALETTE[53],     // 0xc84ff5 - magenta goal
+const COLORS = {
+  SKY: P[46],             // 0xa9fbee - sky blue
+  GLASSB: P[41],      // 0x006092 - dark blue glass
+  GLASSSTR: P[43],    // 0x006cdc - blue streaks
+  GLASSW1: P[44],  // 0x6dd0ff - light blue windows
+  GLASSW2: P[46],  // 0xa4dbff - alternate blue windows
+  GLASSREF: P[45],// 0xb6f3ff - window highlights
+  METAL1: P[4],      // 0xaba4c1 - metallic structure
+  METAL2: P[5],  // 0xd3cde7 - metallic highlights
+  BASE1: P[3],    // 0x7b768e - sidewalk base
+  BASE2: P[2],    // 0x4e4b5b - dark concrete
+  BASE3: P[3],   // 0x7b768e - light concrete
+  PANEL_LINE: P[2],       // 0x4e4b5b - panel divisions
+  GOAL_MARKER: P[53],     // 0xc84ff5 - magenta goal
 };
 
 // Color character mapping (~ and ^ are semantic codes, not colors)
@@ -134,8 +134,8 @@ const COLOR_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%&*
 // Build color lookup from character to actual color
 const COLOR_MAP = {};
 for (let i = 0; i < COLOR_CHARS.length; i++) {
-  if (i < PALETTE.length) {
-    COLOR_MAP[COLOR_CHARS[i]] = PALETTE[i];
+  if (i < P.length) {
+    COLOR_MAP[COLOR_CHARS[i]] = P[i];
   }
 }
 COLOR_MAP['.'] = null; // Dot is transparent/empty
@@ -148,73 +148,92 @@ const CHARACTERS = [
   // Character 1: Default hacker (existing sprite)
   {
     name: 'Bodoque',
-    sprites: {
-      IDLE: '~~9.4.1[9.7.9.4.1[2.2[9.3.9.2[2.1[2.1[2.2[9.8.2[3.1[2.1[3.2[8.8.3[2.1[2.1[2.3[8.8.2A3.4[3.2A8.7.1A1G3.6[3.1G1A7.6.2A1G3.6[3.1G2A6.6.1A1G4.6[4.1G1A6.6.1A1G1A1G1A2.4[2.1A1G1A1G1A6.8.1A1G1A1G6A1G1A1G1A8.9.1.1A1G1A4G1A1G1A9.1.9.4.5A9.3.9.4.4G9.4.9.3.6A9.3.9.3.6G9.3.9.3.6A9.3.9.2.8[9.2.9.2.9[9.1.9.1.2[7.1[9.1.9.2[8.2[9.^^^9.1.2[6.2[9.1.9.3[6.3[9.~~',
-      LUP0: null, // Will be created as horizontal mirror of RUP0
-      LUP1: null, // Will be created as horizontal mirror of RUP1
-      RUP0: '9.4.1[9.7.9.4.1[2.2[9.3.9.4.1[2.1[9.4.9.4.1[2.1[2.3[8.9.4.1[2.1[3.2[8.9.4.4[3.2A8.9.3.6[2.3G7.9.3.6[3.2A7.9.3.6[3.2G7.9.4.4[3.2A8.9.1.1A1G6A1G1A2G8.9.1G1A1G1A4G1A1G1A9.1.8.1A1G1A2.5A9.3.8.3A2.4G9.4.9.2G2.4A9.4.9.1.2A1.4G9.4.9.1.3[5A9.3.9.1.1[1.6G1.2[9.9.3.5A5[8.9.2.8[1.2[8.9.2.7[2.2[8.9.1.3[7.2[8.9.1.2[8.2[8.9.1.1[9.3[7.9.1.1[9.9.1.9.1.2[9.9.9.3[9.9.~~~',
-      RUP1: '9.4.1[9.7.9.4.1[2.2[1.3[8.9.4.1[2.1[3.2[8.9.4.1[2.1[3.2A8.9.4.1[2.1[3.1A2G7.9.4.4[4.2A7.9.3.6[3.2G7.9.3.6[3.2A7.9.3.6[2.2G8.9.4.4[2.2A9.9.4.6A2G9.9.1.1A1G1A5G1A9.2.9.1G1A1G6A9.3.9.1G1A2.4G9.4.9.2A2.4A9.4.9.1.2G1.4G9.4.9.1.2A1.4A9.4.9.1.3[4G9.4.9.1.1[2.4A9.4.9.4.4G9.4.9.4.4A9.4.9.4.4[9.4.9.3.6[9.3.9.2.3[2.2[9.3.9.2.2[4.2[9.2.^9.2.1[5.2[9.2.9.1.2[6.1[9.2.9.3[6.2[9.1.~',
-      FRONT: '9.3.2[3.2[9.2.9.3.2[2.3[9.2.9.3.2[2.2[9.3.^^9.3.7[9.2.9.3.1[1A2[1A2[9.2.^9.3.2[2O3[9.2.9.4.5[9.3.9.4.5A9.3.9.3.7G9.2.9.2.1G7A1G9.1.9.2.1A1.5G1.1A9.1.9.2.1G1.5A1.1G9.1.9.2.1A1.5G1.1A9.1.9.2.1G1.5A1.1G9.1.9.2.1A1.5G1.1A9.1.9.1.2[1.5A1.2[9.9.1.2[1.5G1.2[9.9.4.5A9.3.9.4.5[9.3.^9.4.1[3.1[9.3.^^^^9.3.2[2.2[9.3.^',
+    rawSprites: {
+      IDLE: '~~9.4.1[9.7.9.4.1[2.2[9.3.9.2[2.1[1.>8.2[3.1[1.>8.3[2.1[1.>8.2A3.2[>7.1A1G3.3[>6.2A1G3.3[>6.1A1G4.3[>6.1A1G1A1G1A2.2[>8.1A1G1A1G3A>9.1.1A1G1A2G>9.4.5A9.3.9.4.2G>9.3.3A>9.3.3G>9.3.3A>9.2.4[>9.2.9[9.1.9.1.2[7.1[9.1.9.2[4.>^^^9.1.2[3.>9.3[3.>~~',
+      // LUP0: null, // Will be created as horizontal mirror of RUP0
+      // LUP1: null, // Will be created as horizontal mirror of RUP1
+      RUP0: '9.4.1[9.7.9.4.1[2.2[9.3.9.4.1[1.>9.4.1[2.1[2.3[8.9.4.1[2.1[3.2[8.9.4.4[3.2A8.9.3.6[2.3G7.9.3.6[3.2A7.9.3.6[3.2G7.9.4.4[3.2A8.9.1.1A1G6A1G1A2G8.9.1G1A1G1A4G1A1G1A9.1.8.1A1G1A2.5A9.3.8.3A2.4G9.4.9.2G2.4A9.4.9.1.2A1.4G9.4.9.1.3[5A9.3.9.1.1[1.6G1.2[9.9.3.5A5[8.9.2.8[1.2[8.9.2.7[2.2[8.9.1.3[7.2[8.9.1.2[8.2[8.9.1.1[9.3[7.9.1.1[9.9.1.9.1.2[9.9.9.3[9.9.~~~',
+      RUP1: '9.4.1[9.7.9.4.1[2.2[1.3[8.9.4.1[2.1[3.2[8.9.4.1[2.1[3.2A8.9.4.1[2.1[3.1A2G7.9.4.4[4.2A7.9.3.6[3.2G7.9.3.6[3.2A7.9.3.6[2.2G8.9.4.4[2.2A9.9.4.6A2G9.9.1.1A1G1A5G1A9.2.9.1G1A1G6A9.3.9.1G1A2.4G9.4.9.2A2.4A9.4.9.1.2G1.4G9.4.9.1.2A1.4A9.4.9.1.3[4G9.4.9.1.1[2.4A9.4.9.4.2G>9.4.2A>9.4.2[>9.3.3[>9.2.3[2.2[9.3.9.2.2[2.>^9.2.1[5.2[9.2.9.1.2[6.1[9.2.9.3[6.2[9.1.~',
+      FRONT: '9.3.2[3.2[9.2.9.3.2[2.3[9.2.9.3.2[1.>^^9.3.7[9.2.9.3.1[1A2[1A2[9.2.^9.3.2[2O3[9.2.9.4.5[9.3.9.4.5A9.3.9.3.7G9.2.9.2.1G7A1G9.1.9.2.1A1.5G1.1A9.1.9.2.1G1.5A1.1G9.1.9.2.1A1.5G1.1A9.1.9.2.1G1.5A1.1G9.1.9.2.1A1.5G1.1A9.1.9.1.2[1.5A1.2[9.9.1.2[1.5G1.2[9.9.4.5A9.3.9.4.5[9.3.^9.4.1[3.1[9.3.^^^^9.3.2[1.>^',
     }
   },
   // Character 2: Empty (to be designed)
   {
     name: 'Condorito',
-    sprites: {
-      IDLE: '~~~~9.2;3.2[3.2;9.8.2;3.4;3.2;8.8.3;1.6;1.3;8.8.2;1.8;1.2;8.7.2;2.8;2.2;7.6.3;2.8;2.3;6.6.2;4.6;4.2;6.6.4;1[3.3=2.1[4;6.8.2;3[4G3[2;8.9.1.9[1[9.1.9.3.6[9.3.9.4.4[9.4.9.3.6[9.3.^9.3.6A9.3.9.2.8A9.2.9.2.9A9.1.9.1.2A7.1A9.1.9.2A8.2A9.9.2;8.2;9.^^9.1.2[6.2[9.1.9.3[6.3[9.~~',
-      LUP0: null,
-      LUP1: null,
-      RUP0: '~~9.5.2[9.5.9.4.4;2.3;8.9.3.6;2.2;8.9.2.8;1.2;8.9.2.8;1.3;7.9.2.8;2.2;7.9.3.6;3.2;7.9.5.3=3.1[1;8.9.1.3[4G4[1;8.9.1;9[1[9.1.8.2;3.5[9.3.8.2;3.4[9.4.9.2;2.4[9.4.9.1.2;1.4[9.4.9.1.3;4[1A9.3.9.1.1;1.6A1.2;9.9.3.7A3;8.9.2.8A1.2;8.9.2.7A2.2;8.9.1.1;2A7.2;8.9.1.2;8.1[1;8.9.1.1;9.3[7.9.1.1;9.9.1.9.1.2[9.9.9.3[9.9.~~~',
-      RUP1: '~9.9.1.3;8.9.5.2[4.2;8.9.4.4;3.2;8.9.3.6;3.2;7.9.2.8;2.2;7.^9.2.8;2.1;8.9.3.6;2.2;8.9.5.3=2.2;9.9.4.4G2[2;9.9.1.9[9.2.9.1;8[9.3.9.2;2.4[9.4.^9.1.1;2.4[9.4.^9.1.2;1.4[9.4.9.1.1;2.4[9.4.9.4.4A9.4.^^9.3.6A9.3.9.2.3A2.2A9.3.9.2.2;4.2;9.2.^9.2.1;5.2;9.2.9.1.2[6.1[9.2.9.3[6.2[9.1.~',
-      FRONT: '~~9.3.5[9.4.9.2.6[9.4.9.2.2[5;9.3.9.3.2;1A1G3;9.2.9.1.4;1A1G3;9.2.9.1.9;9.2.9.1.2;3]4;9.2.9.2.1;1.1]4;9.3.9.5.3=9.4.9.4.5G9.3.9.3.7[9.2.9.2.9[9.1.^9.2.1;1.5[1.1;9.1.^^^9.1.2;1.5A1.2;9.^9.4.5A9.3.^9.4.1A3.1A9.3.^9.4.1;3.1;9.3.^^9.3.1[1;2.1[1;9.3.9.3.2[2.2[9.3.',
+    rawSprites: {
+      IDLE:'~~~~9.2;3.1[>8.2;3.2;>8.3;1.3;>8.2;1.4;>7.2;2.4;>6.3;2.4;>6.2;4.3;>6.4;1[3.3=2.1[4;6.8.2;3[2G>9.1.5[>9.3.3[>9.4.2[>9.3.3[>^9.3.3A>9.2.4A>9.2.9A9.1.9.1.2A7.1A9.1.9.2A4.>9.2;4.>^^9.1.2[3.>9.3[3.>~~',
+      // LUP0: null,
+      // LUP1: null,
+      RUP0: '~~9.5.1[>9.4.4;2.3;8.9.3.6;2.2;8.9.2.8;1.2;8.9.2.8;1.3;7.9.2.8;2.2;7.9.3.6;3.2;7.9.5.3=3.1[1;8.9.1.3[4G4[1;8.9.1;9[1[9.1.8.2;3.5[9.3.8.2;3.4[9.4.9.2;2.4[9.4.9.1.2;1.4[9.4.9.1.3;4[1A9.3.9.1.1;1.6A1.2;9.9.3.7A3;8.9.2.8A1.2;8.9.2.7A2.2;8.9.1.1;2A7.2;8.9.1.2;8.1[1;8.9.1.1;9.3[7.9.1.1;9.9.1.9.1.2[9.9.9.3[9.9.~~~',
+      RUP1: '~9.9.1.3;8.9.5.2[4.2;8.9.4.4;3.2;8.9.3.6;3.2;7.9.2.8;2.2;7.^9.2.8;2.1;8.9.3.6;2.2;8.9.5.3=2.2;9.9.4.4G2[2;9.9.1.9[9.2.9.1;8[9.3.9.2;2.4[9.4.^9.1.1;2.4[9.4.^9.1.2;1.4[9.4.9.1.1;2.4[9.4.9.4.2A>^^9.3.3A>9.2.3A2.2A9.3.9.2.2;2.>^9.2.1;5.2;9.2.9.1.2[6.1[9.2.9.3[6.2[9.1.~',
+      FRONT: '~~9.3.5[9.4.9.2.6[9.4.9.2.2[5;9.3.9.3.2;1A1G3;9.2.9.1.4;1A1G3;9.2.9.1.9;9.2.9.1.2;3]4;9.2.9.2.1;1.1]4;9.3.9.5.3=9.4.9.4.5G9.3.9.3.7[9.2.9.2.9[9.1.^9.2.1;1.5[1.1;9.1.^^^9.1.2;1.5A1.2;9.^9.4.5A9.3.^9.4.1A3.1A9.3.^9.4.1;3.1;9.3.^^9.3.1[1;2.1[1;9.3.9.3.2[1.>',
     }
   },
   // Character 3: Empty (to be designed)
   {
     name: 'Arturo Vidal',
-    sprites: {
-      IDLE: '~~~9.5.2A9.5.8.2{2.2{2A2{2.2{8.7.2{2.3{2A3{2.2{7.7.3{1.3{2A3{1.3{7.7.2{2.3{2A3{2.3{6.6.3{2.8{3.2{6.5.3{3.8{3.3{5.5.3{1:3.1J4{1J3.4{5.5.1{3:3.6[2.3:1{6.6.1:9[6[1:7.7.9[6[8.9.9[2[9.1.9.2.8[9.2.^^^^9.2.8:9.2.^9.1.9:1:9.1.9.1.3{1:2.1:3{9.1.9.4{4.4{9.9.3:6.3:9.^^9.3A6.3A9.8.4A6.4A8.',
-      LUP0: null,
-      LUP1: null,
-      RUP0: '~9.5.2A9.5.9.3.2{2A2{9.3.9.2.3{2A3{1.3{7.9.2.3{2A3{2.3{6.9.2.3{2A3{3.2{6.9.2.8{3.2{6.9.2.8{2.3{6.9.3.1J4{1J3.3{6.9.3.6:2.2:1{7.9.9[3[2:7.8.9[6[7.7.3:9[3[8.7.3{1.8[9.2.^8.2{1.8[9.2.8.3{8[9.2.8.2{1.9:1{9.9.2.9:2{8.^9.2.3:5.2{1:8.9.1.4{5.3:8.9.1.3{6.3:8.9.1.3:6.3A8.9.1.3:6.4A7.9.1.3:9.8.9.1.3A9.8.9.4A9.8.~~',
-      RUP1: '9.9.3.3{6.9.5.2A6.3{5.9.3.2{2A2{4.3{5.9.2.3{2A3{4.2{5.^^9.2.8{3.3{5.9.2.8{2.1:3{5.9.3.1J4{1J2.1[2:1{6.9.3.6:1.3[1:7.9.2.9[2[8.9.9[3[9.8.9[2[9.2.7.3:9[9.2.7.3{1.8[9.2.^^^^7.2{2.8:9.2.9.2.8:9.2.9.2.3:2.3:9.2.9.2.3{2.3{9.2.^9.1.3{4.3{9.1.9.1.3:4.3:9.1.^^9.1.3A4.3A9.1.9.4A4.4A9.',
-      FRONT: '9.5.2A9.5.9.3.2{2A2{9.3.9.2.8{9.2.9.2.3U2{3U9.2.9.2.1{2A2{2A1{9.2.9.2.8{9.2.9.2.3{2U3{9.2.9.2.1U1{1U2F1U1{1U9.2.9.3.6U9.3.9.1.2[6:2[9.1.9.9[3[9.^9.7[2F3[9.9.2:5[2F1[2:9.9.2{5[2F1[2{9.9.2{8[2{9.^^^9.2{8:2{9.9.2.8:9.2.^9.2.3:2.3:9.2.9.2.3{2.3{9.2.^9.2.3:2.3:9.2.^^9.2.3A2.3A9.2.^',
+    rawSprites: {
+      IDLE: '~~~9.5.1A>8.2{2.2{1A>7.2{2.3{1A>7.3{1.3{1A>7.2{2.3{2A3{2.3{6.6.3{2.8{3.2{6.5.3{3.4{>5.3{1:3.1J4{1J3.4{5.5.1{3:3.6[2.3:1{6.6.1:9[6[1:7.7.9[6[8.9.9[2[9.1.9.2.4[>^^^^9.2.4:>^9.1.5:>9.1.3{1:1.>9.4{2.>9.3:3.>^^9.3A3.>8.4A3.>',
+      // LUP0: null,
+      // LUP1: null,
+      RUP0: '~9.5.1A>9.3.2{1A>9.2.3{2A3{1.3{7.9.2.3{2A3{2.3{6.9.2.3{2A3{3.2{6.9.2.8{3.2{6.9.2.8{2.3{6.9.3.1J4{1J3.3{6.9.3.6:2.2:1{7.9.9[3[2:7.8.9[6[7.7.3:9[3[8.7.3{1.8[9.2.^8.2{1.8[9.2.8.3{8[9.2.8.2{1.9:1{9.9.2.9:2{8.^9.2.3:5.2{1:8.9.1.4{5.3:8.9.1.3{6.3:8.9.1.3:6.3A8.9.1.3:6.4A7.9.1.3:9.8.9.1.3A9.8.9.4A9.8.~~',
+      RUP1: '9.9.3.3{6.9.5.2A6.3{5.9.3.2{2A2{4.3{5.9.2.3{2A3{4.2{5.^^9.2.8{3.3{5.9.2.8{2.1:3{5.9.3.1J4{1J2.1[2:1{6.9.3.6:1.3[1:7.9.2.9[2[8.9.6[>8.9[2[9.2.7.3:9[9.2.7.3{1.8[9.2.^^^^7.2{2.8:9.2.9.2.4:>9.2.3:1.>9.2.3{1.>^9.1.3{2.>9.1.3:2.>^^9.1.3A2.>9.4A2.>',
+      FRONT: '9.5.1A>9.3.2{1A>9.2.4{>9.2.3U1{>9.2.1{2A1{>9.2.4{>9.2.3{1U>9.2.1U1{1U1F>9.3.3U>9.1.2[3:>9.6[>^9.7[2F3[9.9.2:5[2F1[2:9.9.2{5[2F1[2{9.9.2{4[>^^^9.2{4:>9.2.4:>^9.2.3:1.>9.2.3{1.>^9.2.3:1.>^^9.2.3A1.>^',
     }
   },
   // Character 4: Empty (to be designed)
   {
     name: 'Hacker 1',
-    sprites: {
+    rawSprites: {
       IDLE: '~~~~8.2,2.6U2.2,8.7.2,2.8U2.2,7.7.3,1.8U1.3,7.7.2B2.8U2.3B6.6.3B2.8U3.2B6.5.3B3.1{6U1{3.3B5.5.4B3.6,3.4B5.5.4B3.6B2.4B6.6.9B8B7.7.9B6B8.9.9B2B9.1.9.3.6B9.3.^^^^9.2.8:9.2.^9.1.9:1:9.1.9.1.4:2.4:9.1.9.4:4.4:9.9.3:6.3:9.^^9.3A6.3A9.8.4A6.4A8.',
-      LUP0: null,
-      LUP1: null,
+      // LUP0: null,
+      // LUP1: null,
       RUP0: '~~9.3.6U9.3.9.2.8U1.3,7.9.2.8U2.3,6.9.2.8U3.2B6.^9.2.1{6U1{2.3B6.9.3.6,3.3B6.9.3.6B2.3B7.9.9B5B7.8.9B6B7.7.9B6B8.7.3B2.6B9.3.^8.2B2.6B9.3.8.3,1.6B9.3.8.2,1.9:1:9.9.2.9:2:8.^9.2.3:5.3:8.9.1.4:5.3:8.9.1.3:6.3:8.9.1.3:6.3A8.9.1.3:6.4A7.9.1.3:9.8.9.1.3A9.8.9.4A9.8.~~',
       RUP1: '9.9.3.3,6.9.9.4.3,5.9.3.6U4.1,2B5.9.2.8U4.2B5.^^9.2.8U3.3B5.9.2.1{6U1{2.4B5.9.3.6,2.4B6.9.3.6B1.4B7.9.2.9B2B8.9.9B3B9.8.9B1B9.3.7.4B1.6B9.3.7.3B2.6B9.3.^^^7.3,2.6B9.3.7.2,2.8:9.2.9.2.8:9.2.9.2.3:2.3:9.2.^^9.1.3:4.3:9.1.^^^9.1.3A4.3A9.1.9.4A4.4A9.',
       FRONT: '~9.3.6U9.3.9.2.8U9.2.^9.2.1U6,1U9.2.9.2.1,2A2,2A1,9.2.^9.2.3,2{3,9.2.9.3.6,9.3.9.1.4B2{4B9.1.9.9B3B9.^9.2B1.6B1.2B9.^^^^^9.2,1.6B1.2,9.9.2,8:2,9.9.2.8:9.2.^9.2.3:2.3:9.2.^^^^^9.2.3A2.3A9.2.^',
     }
   },
+  {
+    name: 'Engineer',
+    rawSprites: {
+      IDLE: '~~~9.3.5A9.4.8.2,1.4A>7.2,2.4A>7.3,5A>7.2/1.9A1A1.3/6.6.3/1.9A1A2.2/6.5.3/3.1{3A>5.4/3.1,2A>5.4/3.6/2.4/6.6.9/8/7.7.9/6/8.9.9/2/9.1.9.2.1}3/>^^^^9.2.4A>^9.1.5A>9.1.4A1.>9.4A2.>9.3A3.>^^^8.4A3.>',
+      // LUP0: null,
+      // LUP1: null,
+      RUP0: '~9.3.3A>9.2.4A>9.1.9A1.3,7.9.1.9A1A1.3,6.9.1.9A1A2.2/6.^9.1.1A1{6A1{1A1.3/6.9.3.1,4A1,3.3/6.9.3.6/2.3/7.9.9/5/7.8.9/6/7.7.9/6/8.7.3/1.1}6/1}9.2.^8.2/1.1}6/1}9.2.8.3,1}6/1}9.2.8.2,1.9A1A9.9.2.9A2A8.^9.2.3A5.3A8.9.1.4A5.3A8.9.1.3A6.3A8.^9.1.3A6.4A7.9.1.3A9.8.^9.4A9.8.~~',
+      RUP1: '9.9.3.3,6.9.3.6A4.3,5.9.2.8A3.1,2/5.9.1.9A1A3.2/5.9.1.9A2A2.2/5.9.1.9A1A3.2/5.9.1.9A1A2.3/5.9.1.1A1{6A1{1A1.4/5.9.3.1,4A1,2.4/6.9.3.6/1.4/7.9.2.9/2/8.9.6/>8.9/1/1}9.2.7.4/1}6/1}9.2.7.3/1.1}6/1}9.2.^^^7.3,1.1}6/1}9.2.7.2,2.8A9.2.9.2.4A>9.2.3A1.>^^9.1.3A2.>^^^^9.4A2.>',
+      FRONT: '9.2.7A9.3.9.9A1A9.2.9.1.5A>9.3A2,1A3,3A9.9.2A1,2A1,>^9.1.1A4{>9.2.3{1K>9.3.3{>9.2.3/1,>9.1.5/>9.4/1G7/9.9.2/1}2/1G3/1}2/9.9.2/1}2/1G>^^9.2/1}1/2G3/1}2/9.9.2/1}3/>9.2,1}3/>9.2,4A>9.2.4A>^9.2.3A1.>^^^^^^^',
+    }
+  },
+  {
+    name: 'VC',
+    rawSprites: {
+      IDLE: '~~9.4.2,>8.2,2.3,>5.2Y3,1.4,>5.2Y2,2Y8,2Y2,1Y1i5.6.1i3,1i4,>7.2G2.8,2.3G6.6.3G2.1{6,1{3.2G6.5.3G3.4{>5.4G3.3{>5.4G3.6G2.4G6.6.9G8G7.7.6G1c2G1c5G8.9.4G1c2G1c3G9.1.9.2.1F1G2c>9.2.1F2G1c>^^9.2.1F3G>9.2.4:>^9.1.5:>9.1.4:1.>9.4:2.>9.3:3.>^^9.3q3.>8.4q3.>',
+      // LUP0: null,
+      // LUP1: null,
+      RUP0: '9.4.2,>9.3.3,>9.2.4,>9.2.8,1.3,2i5.9.2.8,2Y3,1Y5.9.2.8,3i2G6.9.2.1{6,1{3.2G6.9.2.8{2.3G6.9.3.6{3.3G6.9.3.6G2.3G7.9.4G1c2G1c6G7.8.5G1c2G1c6G7.7.6G4c5G8.7.3G1.1F2G2c2G1F9.2.^8.2G1.1F2G2c2G1F9.2.6.2Y3,1Y6G1F9.2.6.2i2,2i9:9.9.2.9:2:8.^9.2.3:5.3:8.9.1.4:5.3:8.9.1.3:6.3:8.9.1.3:6.3q8.9.1.3:6.4q7.9.1.3:9.8.9.1.3q9.8.9.4q9.8.~~',
+      RUP1: '9.4.4,4.3,2i4.9.3.6,2.2Y3,1Y4.9.2.8,1.2i1,2G5.9.2.8,4.2G5.^^9.2.1{6,1{3.3G5.9.2.8{2.4G5.9.3.6{2.4G6.9.3.6G1.4G7.9.2.9G2G8.9.4G1c1G>8.5G1c2G1c1G1F9.2.7.4G1F1G4c1G1F9.2.7.3G1.1F2G2c2G1F9.2.^^7.3G1.1F6G1F9.2.5.2Y3,1Y1F6G1F9.2.5.2i2,2i8:9.2.9.2.4:>9.2.3:1.>^^9.1.3:2.>^^^9.1.3q2.>9.4q2.>',
+      FRONT: '9.4.2,>9.3.3,>9.2.4,>^9.2.1,2A1,>9.2.4,>9.2.2{1G1{>9.2.3{1G>9.3.3{>9.1.4G2,3G3.3,5.9.9G2G1.6Y3.9.2G1F5c3G1.2i2,2i3.9.2G1F1c1G1c1G1c1G1F2G2.2G5.9.2G1F1c3G1c1G1F6G5.9.2G1F2c1G2c1G1F5G6.9.2G1F2c1G2c1G1F1.3G7.9.2G1F5c1G1F9.2.9.2G1F6G1F9.2.7.2i3,1Y5G1F9.2.7.2Y2,2i6:9.2.9.2.4:>^9.2.3:1.>^^^^^9.2.3q1.>^',
+    }
+  },
 ];
 
 // Guard sprites (reuses player sprites for now)
-const GUARD_SPRITES = {
-  IDLE: '~~~9.2.8A9.2.8.2{1.8A1.2{8.7.2{2.8A2.2{7.7.3{1.8U1.3{7.7.2D2.8U2.2D7.6.3A2.8U2.3A6.5.3A3.1{6U1{3.3A5.5.4A3.6{3.4A5.5.4A3.6A2.5A5.6.9A8A7.7.9A6A8.9.9A2A9.1.9.2.8A9.2.^^9.2.1B2}5B9.2.^9.2.8A9.2.^9.1.9A1A9.1.9.1.4A2.4A9.1.9.4A4.4A9.9.3A6.3A9.^^9.3B6.3B9.8.4B6.4B8.',
+const RAW_GUARD_SPRITES = {
+  IDLE: '~~~9.2.4A>8.2{1.4A>7.2{2.4A>7.3{1.4U>7.2D2.4U>6.3A2.4U>5.3A3.1{3U>5.4A3.3{>5.4A3.6A2.5A5.6.9A8A7.7.9A6A8.9.9A2A9.1.9.2.4A>^^9.2.1B2}5B9.2.^9.2.4A>^9.1.5A>9.1.4A1.>9.4A2.>9.3A3.>^^9.3B3.>8.4B3.>',
   LUP0: null, // Will be mirrored from RUP0 below
   LUP1: null, // Will be mirrored from RUP1 below
-  RUP0: '~9.2.8A9.2.^9.2.8A1.4{6.9.2.8U2.3{6.9.2.8U2.3D6.9.2.8U2.3A6.9.2.1{6U1{2.3A6.9.3.6{3.3A6.9.3.6A2.4A6.9.9A5A7.8.9A6A7.7.9A6A8.7.3A1.8A9.2.^8.2D1.8A9.2.8.3{1B2}5B9.2.8.2{1.1B2}5B2A9.9.2.9A2A8.^9.2.6A2.3A8.9.1.4A5.3A8.9.1.3A6.3A8.9.1.3A6.3B8.9.1.3A6.4B7.9.1.3A9.8.9.1.3B9.8.9.4B9.8.~~',
-  RUP1: '9.9.3.4{5.9.2.8A3.3{5.9.2.8A3.3D5.9.2.8A3.3A5.9.2.8U3.3A5.^9.2.8U2.4A5.9.2.1{6U1{2.4A5.9.3.6{3.3A6.9.3.6A1.4A7.9.2.9A2A8.9.9A3A9.8.9A2A9.2.7.9A3A9.2.7.3A1.8A9.2.^^7.3D1.1B2}5B9.2.7.3{1.1B2}5B9.2.7.2{2.8A9.2.9.2.8A9.2.^^9.1.4A2.4A9.1.^9.1.3A4.3A9.1.^^9.1.3B4.3B9.1.9.4B4.4B9.',
-  FRONT: '9.2.8A9.2.9.2.2A4O2A9.2.^9.2.3U2O3U9.2.9.2.8q9.2.9.2.3q2{3q9.2.9.2.3{2U3{9.2.9.2.2{1U2J1U2{9.2.9.3.6{9.3.9.1.2A2D2A2D2A9.1.9.4A1D2A1D4A9.^9.9A3A9.^^^^9.2D3B2O3B2D9.9.2{3B2O3B2{9.9.2{8A2{9.9.2.8A9.2.^9.2.3A2.3A9.2.^^^^^^^',
+  RUP0: '~9.2.4A>^9.2.8A1.4{6.9.2.8U2.3{6.9.2.8U2.3D6.9.2.8U2.3A6.9.2.1{6U1{2.3A6.9.3.6{3.3A6.9.3.6A2.4A6.9.9A5A7.8.9A6A7.7.9A6A8.7.3A1.8A9.2.^8.2D1.8A9.2.8.3{1B2}5B9.2.8.2{1.1B2}5B2A9.9.2.9A2A8.^9.2.6A2.3A8.9.1.4A5.3A8.9.1.3A6.3A8.9.1.3A6.3B8.9.1.3A6.4B7.9.1.3A9.8.9.1.3B9.8.9.4B9.8.~~',
+  RUP1: '9.9.3.4{5.9.2.8A3.3{5.9.2.8A3.3D5.9.2.8A3.3A5.9.2.8U3.3A5.^9.2.8U2.4A5.9.2.1{6U1{2.4A5.9.3.6{3.3A6.9.3.6A1.4A7.9.2.9A2A8.9.6A>8.9A2A9.2.7.9A3A9.2.7.3A1.8A9.2.^^7.3D1.1B2}5B9.2.7.3{1.1B2}5B9.2.7.2{2.8A9.2.9.2.4A>^^9.1.4A1.>^9.1.3A2.>^^9.1.3B2.>9.4B2.>',
+  FRONT: '9.2.4A>9.2.2A2O>^9.2.3U1O>9.2.4q>9.2.3q1{>9.2.3{1U>9.2.2{1U1J>9.3.3{>9.1.2A2D1A>9.4A1D1A>^9.6A>^^^^9.2D3B1O>9.2{3B1O>9.2{4A>9.2.4A>^9.2.3A1.>^^^^^9.2.3B1.>^',
 };
 
-// Mirror sprites for guard (must be done after GUARD_SPRITES is defined)
-GUARD_SPRITES.LUP0 = mirrorSpriteHorizontally(GUARD_SPRITES.RUP0);
-GUARD_SPRITES.LUP1 = mirrorSpriteHorizontally(GUARD_SPRITES.RUP1);
-
-// Initialize LUP0 and LUP1 as mirrored versions to save space
-// Mirror sprites to create LUP0 and LUP1 from RUP0 and RUP1 for all characters
-CHARACTERS.forEach(char => {
-  char.sprites.LUP0 = mirrorSpriteHorizontally(char.sprites.RUP0);
-  char.sprites.LUP1 = mirrorSpriteHorizontally(char.sprites.RUP1);
-});
+// Mirror sprites for guard (must be done after RAW_GUARD_SPRITES is defined)
+if (RAW_GUARD_SPRITES.RUP0 && !RAW_GUARD_SPRITES.LUP0) {
+  RAW_GUARD_SPRITES.LUP0 = mirrorSpriteHorizontally(RAW_GUARD_SPRITES.RUP0);
+}
+if (RAW_GUARD_SPRITES.RUP1 && !RAW_GUARD_SPRITES.LUP1) {
+  RAW_GUARD_SPRITES.LUP1 = mirrorSpriteHorizontally(RAW_GUARD_SPRITES.RUP1);
+}
 
 // Player animation cycle for climbing
 const CLIMB_CYCLE = ['IDLE', 'RUP0', 'RUP1', 'RUP0', 'IDLE', 'LUP0', 'LUP1', 'LUP0', 'IDLE'];
@@ -238,12 +257,20 @@ const GAME_STATES = {
 // Semantic codes:
 //   ~ = full row of empty pixels (must appear at row boundary)
 //   ^ = repeat previous row
+//   > = horizontal symmetry marker (mirrors left half to right half, only for even widths)
 function parseCSEF(s, w) {
   const r = [], p = [];
   for (let i = 0; i < s.length;) {
     if (!p.length) {
       if (s[i] === '~') { r.push(Array(w).fill('.')); i++; continue; }
       if (s[i] === '^') { if (r.length) r.push([...r.at(-1)]); i++; continue; }
+    }
+    if (s[i] === '>' && p.length >= w / 2 && w % 2 === 0) {
+      const h = p.slice(0, w / 2);
+      r.push([...h, ...h.toReversed()]);
+      p.length = 0;
+      i++;
+      continue;
     }
     const n = +s[i], c = s[i + 1];
     if (!n || n > 9) { i++; continue; }
@@ -265,7 +292,7 @@ function parseSprite(spriteData, width = 30) {
   return parseCSEF(spriteData, width);
 }
 
-function mirrorSpriteHorizontally(spriteString, width = GAME_CONFIG.PLAYER_WIDTH) {
+function mirrorSpriteHorizontally(spriteString, width = CONF.PLAYER_WIDTH) {
   // Parse sprite and mirror each row
   const spriteData = parseCSEF(spriteString, width);
 
@@ -279,6 +306,24 @@ function mirrorSpriteHorizontally(spriteString, width = GAME_CONFIG.PLAYER_WIDTH
   // Return the 2D array directly (no need to encode back to string)
   return mirrored;
 }
+
+function buildSpriteSet(rawMap, width = CONF.PLAYER_WIDTH) {
+  const parsed = {};
+  for (const key in rawMap) {
+    const value = rawMap[key];
+    parsed[key] = value ? parseSprite(value, width) : null;
+  }
+  return parsed;
+}
+
+CHARACTERS.forEach(char => {
+  const raw = char.rawSprites;
+  if (raw.RUP0 && !raw.LUP0) raw.LUP0 = mirrorSpriteHorizontally(raw.RUP0);
+  if (raw.RUP1 && !raw.LUP1) raw.LUP1 = mirrorSpriteHorizontally(raw.RUP1);
+  char.sprites = buildSpriteSet(raw);
+});
+
+const GUARD_SPRITES = buildSpriteSet(RAW_GUARD_SPRITES);
 
 function drawSprite(graphics, spriteData, x, y, options = {}) {
   // Draw sprite pixel by pixel using global COLOR_MAP
@@ -303,7 +348,7 @@ function drawSprite(graphics, spriteData, x, y, options = {}) {
         const color = COLOR_MAP[char];
 
         if (color !== null && color !== undefined) {
-          graphics.fillStyle(PALETTE[0], 0.3); // Black shadow
+          graphics.fillStyle(P[0], 0.3); // Black shadow
           graphics.fillRect(
             Math.floor(x - centerOffsetX + col + shadowOffsetX),
             Math.floor(y - centerOffsetY + row + shadowOffsetY),
@@ -380,7 +425,7 @@ class Obstacle {
       this.active = true;
 
       // Collider
-      this.size = GAME_CONFIG.OBSTACLE_SIZE;
+      this.size = CONF.OBSTACLE_SIZE;
 
       // Graphics
       this.graphics = scene.add.graphics();
@@ -411,13 +456,13 @@ class Obstacle {
       if (!this.active) return;
 
       // Fall down
-      this.y += GAME_CONFIG.OBSTACLE_FALL_SPEED * (delta / 1000);
+      this.y += CONF.OBSTACLE_FALL_SPEED * (delta / 1000);
 
       // Rotate while falling
       this.rotation += (delta / 1000) * 3; // 3 radians per second
 
       // Remove if fallen far below camera view
-      const cameraBottomY = this.scene.cameraTargetY + (GAME_CONFIG.GAME_HEIGHT / 2);
+      const cameraBottomY = this.scene.cameraTargetY + (CONF.GAME_HEIGHT / 2);
       if (this.y > cameraBottomY + 200) {
         this.destroy();
       }
@@ -446,7 +491,7 @@ class Obstacle {
       }
 
       // Get sprite data
-      const spriteData = parseSprite(this.type.sprite, GAME_CONFIG.OBSTACLE_SIZE);
+      const spriteData = parseSprite(this.type.sprite, CONF.OBSTACLE_SIZE);
 
       if (spriteData && spriteData.length > 0) {
         // Draw without rotation first (simpler)
@@ -498,14 +543,14 @@ class Character {
   }
 
   colToX(col) {
-    const buildingStartX = (GAME_CONFIG.GAME_WIDTH - GAME_CONFIG.BUILDING_WIDTH) / 2;
-    const colWidth = GAME_CONFIG.BUILDING_WIDTH / (GAME_CONFIG.BUILDING_ACTUAL_COLUMNS - 1);
+    const buildingStartX = (CONF.GAME_WIDTH - CONF.BUILDING_WIDTH) / 2;
+    const colWidth = CONF.BUILDING_WIDTH / (CONF.BUILDING_ACTUAL_COLUMNS - 1);
     return buildingStartX + col * colWidth;
   }
 
   rowToY(row) {
-    const startY = GAME_CONFIG.GAME_HEIGHT - 20;
-    return startY - (row * GAME_CONFIG.ROW_HEIGHT);
+    const startY = CONF.GAME_HEIGHT - 20;
+    return startY - (row * CONF.ROW_HEIGHT);
   }
 
   getColliderBounds() {
@@ -585,8 +630,8 @@ class Player extends Character {
     this.fallOneRowDuration = 600; // 600ms fall animation (climbing down animation)
 
     // Collision box offsets (colliderWidth/Height already set by Character)
-    this.colliderOffsetX = (GAME_CONFIG.PLAYER_WIDTH - this.colliderWidth) / 2; // 8
-    this.colliderOffsetY = (GAME_CONFIG.PLAYER_HEIGHT - this.colliderHeight) / 2; // 2
+    this.colliderOffsetX = (CONF.PLAYER_WIDTH - this.colliderWidth) / 2; // 8
+    this.colliderOffsetY = (CONF.PLAYER_HEIGHT - this.colliderHeight) / 2; // 2
 
     // Override graphics depth for players
     this.graphics.setDepth(10);
@@ -656,7 +701,7 @@ class Player extends Character {
       this.targetY = this.y;
 
       // Check if hit the ground (floor level)
-      const floorLevel = GAME_CONFIG.GAME_HEIGHT;
+      const floorLevel = CONF.GAME_HEIGHT;
       if (this.y >= floorLevel) {
         this.y = floorLevel;
         this.targetY = this.y; // Lock position
@@ -678,7 +723,7 @@ class Player extends Character {
 
       // Continue the climbing down animation
       this.animTimer += delta;
-      if (this.animTimer >= GAME_CONFIG.CLIMB_STEP_DURATION) {
+      if (this.animTimer >= CONF.CLIMB_STEP_DURATION) {
         this.animTimer = 0;
         this.advanceClimbAnimation(true); // going down
       }
@@ -720,7 +765,7 @@ class Player extends Character {
       }
 
       // Move continuously (smooth movement)
-      const newCol = Phaser.Math.Clamp(this.col + dir * 0.06, 0, GAME_CONFIG.BUILDING_ACTUAL_COLUMNS - 1);
+      const newCol = Phaser.Math.Clamp(this.col + dir * 0.06, 0, CONF.BUILDING_ACTUAL_COLUMNS - 1);
       if (newCol !== this.col) {
         this.col = newCol;
         this.targetX = this.colToX(this.col);
@@ -728,7 +773,7 @@ class Player extends Character {
 
       // Animate between LUP0 and RUP0 for visual climbing feel
       this.animTimer += delta;
-      if (this.animTimer >= GAME_CONFIG.CLIMB_STEP_DURATION) {
+      if (this.animTimer >= CONF.CLIMB_STEP_DURATION) {
         this.animTimer = 0;
         this.horizontalAnimIndex = (this.horizontalAnimIndex + 1) % HORIZONTAL_CYCLE.length;
       }
@@ -753,7 +798,7 @@ class Player extends Character {
 
         // Advance through climb animation
         this.animTimer += delta;
-        if (this.animTimer >= GAME_CONFIG.CLIMB_STEP_DURATION) {
+        if (this.animTimer >= CONF.CLIMB_STEP_DURATION) {
           this.animTimer = 0;
           this.advanceClimbAnimation();
         }
@@ -765,7 +810,7 @@ class Player extends Character {
         }
 
         this.animTimer += delta;
-        if (this.animTimer >= GAME_CONFIG.CLIMB_STEP_DURATION) {
+        if (this.animTimer >= CONF.CLIMB_STEP_DURATION) {
           this.animTimer = 0;
           this.advanceClimbAnimation(true); // going down
         }
@@ -793,7 +838,7 @@ class Player extends Character {
       const newRow = goingDown ? this.row - 1 : this.row + 1;
 
       // Clamp to valid rows
-      if (newRow >= 0 && newRow <= GAME_CONFIG.TOTAL_ROWS) {
+      if (newRow >= 0 && newRow <= CONF.TOTAL_ROWS) {
         // Check if this movement would cause a collision
         const wouldCollide = this.wouldCollideAtRow(newRow, this.scene.players);
 
@@ -812,19 +857,18 @@ class Player extends Character {
       this.graphics.clear();
 
       // Get sprite data for current animation state
-      const spriteString = this.sprites[this.animState] || this.sprites.IDLE;
-      const spriteData = parseSprite(spriteString, GAME_CONFIG.PLAYER_WIDTH);
+      const spriteData = this.sprites[this.animState] || this.sprites.IDLE;
 
       // Draw the sprite (rotation effect is visual only, we just flip/mirror for falling)
       if (this.isCaught) {
         // LOST animation - alternate between LUP0 and RUP0
-        const lostSpriteData = parseSprite(this.sprites[this.lostAnimState], GAME_CONFIG.PLAYER_WIDTH);
+        const lostSpriteData = this.sprites[this.lostAnimState] || this.sprites.IDLE;
         drawSprite(this.graphics, lostSpriteData, this.x, this.y, { showSpriteBorder: DEBUG });
       } else if (this.isFalling) {
         // For death fall, we'll alternate the sprite for a tumbling effect
         const tumbleFrame = Math.floor(this.fallRotation * 2) % 2;
         const tumbleSprite = tumbleFrame === 0 ? 'LUP1' : 'RUP1';
-        const fallingSpriteData = parseSprite(this.sprites[tumbleSprite], GAME_CONFIG.PLAYER_WIDTH);
+        const fallingSpriteData = this.sprites[tumbleSprite] || this.sprites.IDLE;
         drawSprite(this.graphics, fallingSpriteData, this.x, this.y, { showSpriteBorder: false, noShadow: false });
       } else {
         // Use normal sprite (includes climbing down animation when isFallingOneRow)
@@ -914,8 +958,8 @@ class Guard extends Character {
   }
 
   getRandomClimbDelay() {
-    const min = GAME_CONFIG.GUARD_CLIMB_MIN_DELAY;
-    const max = GAME_CONFIG.GUARD_CLIMB_MAX_DELAY;
+    const min = CONF.GUARD_CLIMB_MIN_DELAY;
+    const max = CONF.GUARD_CLIMB_MAX_DELAY;
     return min + Math.random() * (max - min);
   }
 
@@ -966,17 +1010,17 @@ class Guard extends Character {
     let speedMultiplier = 1.0;
 
     // 1. Initial slow multiplier (before row 10)
-    if (this.targetPlayer.row < GAME_CONFIG.OBSTACLE_START_ROW) {
-      speedMultiplier *= GAME_CONFIG.GUARD_INITIAL_SLOW_MULTIPLIER;
+    if (this.targetPlayer.row < CONF.OBSTACLE_START_ROW) {
+      speedMultiplier *= CONF.GUARD_INITIAL_SLOW_MULTIPLIER;
     }
 
     // 2. Off-screen boost (when guard is below camera view)
-    const cameraBottomY = this.scene.cameraTargetY + (GAME_CONFIG.GAME_HEIGHT / 2);
+    const cameraBottomY = this.scene.cameraTargetY + (CONF.GAME_HEIGHT / 2);
     const guardY = this.getWorldY();
 
     if (guardY > cameraBottomY) {
       // Guard is below camera (off-screen) - boost speed to catch up
-      speedMultiplier *= GAME_CONFIG.GUARD_OFFSCREEN_BOOST;
+      speedMultiplier *= CONF.GUARD_OFFSCREEN_BOOST;
       console.log(`Guard off-screen! Boosting speed (multiplier: ${speedMultiplier})`);
     }
 
@@ -1014,7 +1058,7 @@ class Guard extends Character {
     // Continue climbing animation if climbing
     if (this.isClimbing) {
       this.animTimer += delta * speedMultiplier;
-      if (this.animTimer >= GAME_CONFIG.CLIMB_STEP_DURATION) {
+      if (this.animTimer >= CONF.CLIMB_STEP_DURATION) {
         this.animTimer = 0;
         const goingDown = this.row > targetRow;
         this.advanceClimbAnimation(goingDown);
@@ -1027,10 +1071,10 @@ class Guard extends Character {
     if (Math.abs(colDifference) > 0.5) {
       // Move horizontally with chase speed and multiplier
       const direction = colDifference > 0 ? 1 : -1;
-      this.col += direction * GAME_CONFIG.GUARD_CHASE_SPEED * speedMultiplier;
+      this.col += direction * CONF.GUARD_CHASE_SPEED * speedMultiplier;
 
       // Clamp to valid columns
-      this.col = Math.max(0, Math.min(GAME_CONFIG.BUILDING_ACTUAL_COLUMNS - 1, this.col));
+      this.col = Math.max(0, Math.min(CONF.BUILDING_ACTUAL_COLUMNS - 1, this.col));
 
       this.targetX = this.colToX(this.col);
     }
@@ -1046,7 +1090,7 @@ class Guard extends Character {
       const newRow = goingDown ? this.row - 1 : this.row + 1;
 
       // Clamp to valid rows
-      if (newRow >= 0 && newRow <= GAME_CONFIG.TOTAL_ROWS) {
+      if (newRow >= 0 && newRow <= CONF.TOTAL_ROWS) {
         this.row = newRow;
         this.targetY = this.rowToY(this.row);
       }
@@ -1062,8 +1106,7 @@ class Guard extends Character {
     this.graphics.clear();
 
     // Get sprite data for current animation state
-    const spriteString = GUARD_SPRITES[this.animState] || GUARD_SPRITES.IDLE;
-    const spriteData = parseSprite(spriteString, GAME_CONFIG.PLAYER_WIDTH);
+    const spriteData = GUARD_SPRITES[this.animState] || GUARD_SPRITES.IDLE;
 
     // Draw the guard sprite (different color tint would be nice, but we'll use same for now)
     drawSprite(this.graphics, spriteData, this.x, this.y, { showSpriteBorder: DEBUG });
@@ -1135,7 +1178,7 @@ class Dialog {
     this.textObject = scene.add.text(0, 0, '', {
       fontFamily: 'Courier New, monospace',
       fontSize: '11px',
-      color: '#ffffff',
+      color: '#fff',
       stroke: '#000000',
       strokeThickness: 2,
       wordWrap: { width: 200 }
@@ -1204,7 +1247,7 @@ class Dialog {
     oscillator.type = 'square';
 
     // Quick fade out
-    gainNode.gain.setValueAtTime(GAME_CONFIG.DIALOG_BEEP_VOLUME, this.audioContext.currentTime);
+    gainNode.gain.setValueAtTime(CONF.DIALOG_BEEP_VOLUME, this.audioContext.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.05);
 
     // Play for 50ms
@@ -1253,8 +1296,8 @@ class Dialog {
 
     const { type, sprites } = this.currentDialog;
 
-    const screenHeight = GAME_CONFIG.GAME_HEIGHT;
-    const screenWidth = GAME_CONFIG.GAME_WIDTH;
+    const screenHeight = CONF.GAME_HEIGHT;
+    const screenWidth = CONF.GAME_WIDTH;
     const boxY = screenHeight - this.boxHeight + 10; // At the top of the screen
     const boxWidth = screenWidth - 20;
     const boxX = 250; // Hardcoded value i don't know why
@@ -1349,7 +1392,7 @@ class Dialog {
     if (!sprite) return;
 
     // Parse and render the FRONT sprite
-    const spriteData = parseSprite(sprite, GAME_CONFIG.PLAYER_WIDTH);
+    const spriteData = sprite;
     if (!spriteData || spriteData.length === 0) return;
 
     const spriteHeight = spriteData.length;
@@ -1410,7 +1453,11 @@ class CinematicController {
     this.scene.time.delayedCall(2000, () => {
       this.currentStep = 1;
       const playerSprites = this.scene.players.map(p => p.sprites.FRONT);
-      this.scene.dialog.show('UNISON', 'Hola, venimos para la platanus hack 2025 🍌', playerSprites);
+      const dialogType = this.scene.is1PlayerMode ? 'PLAYER' : 'UNISON';
+      const dialogText = this.scene.is1PlayerMode
+        ? 'Hola, vengo para la platanus hack 2025 🍌'
+        : 'Hola, venimos para la platanus hack 2025 🍌';
+      this.scene.dialog.show(dialogType, dialogText, playerSprites);
     });
 
     // Step 2: Show guard dialog (at 5s)
@@ -1423,7 +1470,11 @@ class CinematicController {
     this.scene.time.delayedCall(8000, () => {
       this.currentStep = 3;
       const playerSprites = this.scene.players.map(p => p.sprites.FRONT);
-      this.scene.dialog.show('UNISON', 'Cómo? Tenemos que entrar!!', playerSprites);
+      const dialogType = this.scene.is1PlayerMode ? 'PLAYER' : 'UNISON';
+      const dialogText = this.scene.is1PlayerMode
+        ? 'Cómo? Tengo que entrar!!'
+        : 'Cómo? Tenemos que entrar!!';
+      this.scene.dialog.show(dialogType, dialogText, playerSprites);
     });
 
     // Step 4: After 11 seconds, hide dialog and start auto-climb
@@ -1438,7 +1489,7 @@ class CinematicController {
     // Move players from far right to building entrance over 2 seconds
     console.log('Players walking in from right...');
 
-    const startCol = GAME_CONFIG.BUILDING_ACTUAL_COLUMNS + 3; // Start off-screen right
+    const startCol = CONF.BUILDING_ACTUAL_COLUMNS + 3; // Start off-screen right
     const walkDuration = 2000; // 2 seconds
 
     // Destination positions based on number of players
@@ -1512,7 +1563,11 @@ class CinematicController {
     console.log('Guard reacts to players climbing...');
 
     // Show guard's angry dialog
-    this.scene.dialog.show('GUARD', 'A dónde van, vuelvan!!', [GUARD_SPRITES.FRONT]);
+    if (this.scene.is1PlayerMode) {
+      this.scene.dialog.show('GUARD', 'A dónde vas, vuelve!', [GUARD_SPRITES.FRONT]);
+    } else {
+      this.scene.dialog.show('GUARD', 'A dónde van, vengan aquí!', [GUARD_SPRITES.FRONT, GUARD_SPRITES.FRONT]);
+    }
 
     // After 2 seconds, end cinematic and start the chase
     this.scene.time.delayedCall(2000, () => {
@@ -1538,6 +1593,250 @@ class CinematicController {
 }
 
 // =============================================================================
+// MENU SCENE
+// =============================================================================
+class MenuScene extends Phaser.Scene {
+  constructor() {
+    super({ key: 'MenuScene' });
+  }
+
+  create() {
+    this.cameras.main.setBackgroundColor(COLORS.SKY);
+    this.cameras.main.setZoom(CONF.SCALE);
+    this.cameras.main.centerOn(CONF.GAME_WIDTH / 2, CONF.GAME_HEIGHT / 2);
+
+    this.bg = this.add.graphics().setDepth(0);
+
+    // Grass layer behind buildings
+    this.grassGfx = this.add.graphics().setDepth(0.9);
+
+    // Create separate graphics for each building layer
+    this.farBuildingsGfx = this.add.graphics().setDepth(1);    // P[3] - farthest
+    this.midBuildingsGfx = this.add.graphics().setDepth(1.1);  // P[4] - middle
+    this.nearBuildingsGfx = this.add.graphics().setDepth(1.2); // P[5] - closest
+
+    this.cloudsGfx = this.add.graphics().setDepth(2);
+
+    this.clouds = [];
+    this.obstacles = [];
+    this.obstacleTimer = 0;
+    this.cameraTargetY = CONF.GAME_HEIGHT / 2;
+
+    this.drawMountains();
+    this.generateBuildings();
+    this.generateClouds();
+
+    const camWidth = this.cameras.main.width;
+    const camHeight = this.cameras.main.height;
+
+    this.titleText = this.add.text(
+      400,
+      260,
+      'LATE TO THE\nHACKATHON',
+      {
+        font: "bold 24px arial",
+        color: '#000',
+        backgroundColor: '#f7bb1b',
+        padding: {
+          left: 100, // 100px left padding
+          right: 100, // 100px right padding
+          top: 5, // 5px top padding
+          bottom: 5 // 5px bottom padding
+        }
+      }
+    ).setOrigin(0.5).setDepth(9).setScrollFactor(0);
+
+    this.subtitleText = this.add.text(
+      400,
+      310,
+      '🍌 Platanus Hack 2025 Edition 🍌',
+      {
+        fontFamily: 'arial',
+        fontSize: 13,
+        color: 1,
+      }
+    ).setOrigin(0.5).setDepth(9).setScrollFactor(0);
+
+    this.promptText = this.add.text(
+      400,
+      370,
+      'Press any button',
+      {
+        fontFamily: 'monospace',
+        fontSize: 14,
+        color: 1,
+      }
+    ).setOrigin(0.5).setDepth(9).setScrollFactor(0);
+
+    this.setupInput();
+    this.promptTimer = 0;
+  }
+
+  setupInput() {
+    this.transitioning = false;
+    this.input.keyboard.on('keydown', (event) => {
+      if (this.transitioning) return;
+      const key = KBD_TO_ARC[event.key] || event.key;
+      if (key) this.goToNextScene();
+    });
+
+    this.input.on('pointerdown', () => {
+      if (!this.transitioning) this.goToNextScene();
+    });
+  }
+
+  goToNextScene() {
+    this.transitioning = true;
+    this.time.delayedCall(200, () => {
+      this.scene.start('CharacterSelection');
+    });
+  }
+
+  generateClouds() {
+    const cloudCount = 6;
+    for (let i = 0; i < cloudCount; i++) {
+      this.clouds.push({
+        x: Phaser.Math.Between(0, CONF.GAME_WIDTH),
+        y: Phaser.Math.Between(20, 90),
+        w: Phaser.Math.Between(32, 64),
+        h: Phaser.Math.Between(12, 20),
+        speed: Phaser.Math.FloatBetween(6, 12)
+      });
+    }
+  }
+
+  drawMountains() {
+    this.bg.clear();
+    const baseY = CONF.GAME_HEIGHT - 40;
+    const count = 8;
+    for (let i = 0; i < count; i++) {
+      const peakX = (i / (count - 1)) * CONF.GAME_WIDTH + Phaser.Math.Between(-20, 20);
+      const peakY = Phaser.Math.Between(baseY - 65, baseY - 35) - 15;
+      const left = peakX - Phaser.Math.Between(45, 75);
+      const right = peakX + Phaser.Math.Between(45, 75);
+
+      this.bg.fillStyle(P[5], 0.9);
+      this.bg.fillTriangle(left, baseY, peakX, peakY, right, baseY);
+
+      this.bg.fillStyle(P[6], 1);
+      this.bg.fillTriangle(peakX - 15, peakY + 12, peakX, peakY, peakX + 15, peakY + 12);
+    }
+  }
+
+  generateBuildings() {
+    this.buildings = [];
+
+    // Generate buildings in multiple layers (depths) with different colors
+    // Array format: [color, depth, baseY, count, minW, maxW, minH, maxH]
+    const layers = [
+      [P[5], 1, CONF.GAME_HEIGHT, 20, 25, 30, 50, 90], // Closest (largest)
+      [P[4], 2, CONF.GAME_HEIGHT, 24, 20, 25, 35, 80], // Middle
+      [P[3], 3, CONF.GAME_HEIGHT, 30, 10, 15, 25, 50]  // Farthest (smallest)
+    ];
+
+    layers.forEach(layer => {
+      let x = -50;
+      for (let i = 0; i < layer[3]; i++) { // count
+        const width = Phaser.Math.Between(layer[4], layer[5]); // minW, maxW
+        const height = Phaser.Math.Between(layer[6], layer[7]); // minH, maxH
+        this.buildings.push({
+          x,
+          w: width,
+          h: height,
+          color: layer[0], // color
+          depth: layer[1], // depth
+          baseY: layer[2]  // baseY
+        });
+        x += width + Phaser.Math.Between(1, 2 * i);
+      }
+    });
+
+    this.drawBuildings();
+  }
+
+  drawBuildings() {
+    // Clear all building and grass graphics
+    this.grassGfx.clear();
+    this.farBuildingsGfx.clear();
+    this.midBuildingsGfx.clear();
+    this.nearBuildingsGfx.clear();
+
+    // Draw grass behind all buildings
+    this.grassGfx.fillStyle(P[16], 1); // Grass color P[16]
+    this.grassGfx.fillRect(0, CONF.GAME_HEIGHT - 45, CONF.GAME_WIDTH, 45);
+
+    // Group buildings by depth
+    const farBuildings = this.buildings.filter(b => b.depth === 3);
+    const midBuildings = this.buildings.filter(b => b.depth === 2);
+    const nearBuildings = this.buildings.filter(b => b.depth === 1);
+
+    // Draw far buildings (P[3])
+    farBuildings.forEach(building => {
+      this.farBuildingsGfx.fillStyle(building.color, 0.75);
+      this.farBuildingsGfx.fillRect(building.x, building.baseY - building.h, building.w, building.h);
+      this.farBuildingsGfx.lineStyle(1, 0x000000, 0.1);
+      this.farBuildingsGfx.strokeRect(building.x, building.baseY - building.h, building.w, building.h);
+    });
+
+    // Draw mid buildings (P[4])
+    midBuildings.forEach(building => {
+      this.midBuildingsGfx.fillStyle(building.color, 0.85);
+      this.midBuildingsGfx.fillRect(building.x, building.baseY - building.h, building.w, building.h);
+      this.midBuildingsGfx.lineStyle(1, 0x000000, 0.15);
+      this.midBuildingsGfx.strokeRect(building.x, building.baseY - building.h, building.w, building.h);
+    });
+
+    // Draw near buildings (P[5])
+    nearBuildings.forEach(building => {
+      this.nearBuildingsGfx.fillStyle(building.color, 0.95);
+      this.nearBuildingsGfx.fillRect(building.x, building.baseY - building.h, building.w, building.h);
+      this.nearBuildingsGfx.lineStyle(1, 0x000000, 0.2);
+      this.nearBuildingsGfx.strokeRect(building.x, building.baseY - building.h, building.w, building.h);
+    });
+  }
+
+  updateClouds(delta) {
+    this.cloudsGfx.clear();
+    this.clouds.forEach(cloud => {
+      cloud.x += (cloud.speed * delta) / 1000;
+      if (cloud.x - cloud.w > CONF.GAME_WIDTH) {
+        cloud.x = -cloud.w;
+        cloud.y = Phaser.Math.Between(20, 90);
+        cloud.speed = Phaser.Math.FloatBetween(6, 12);
+      }
+      this.cloudsGfx.fillStyle(0xffffff, 0.82);
+      this.cloudsGfx.fillEllipse(cloud.x, cloud.y, cloud.w, cloud.h);
+      this.cloudsGfx.fillEllipse(cloud.x + cloud.w * 0.35, cloud.y + 3, cloud.w * 0.65, cloud.h * 0.85);
+      this.cloudsGfx.fillEllipse(cloud.x - cloud.w * 0.35, cloud.y + 4, cloud.w * 0.6, cloud.h * 0.75);
+    });
+  }
+
+  spawnObstacle() {
+    const types = Object.values(OBSTACLE_TYPES);
+    const type = Phaser.Utils.Array.GetRandom(types);
+    const spawnX = Phaser.Math.Between(40, CONF.GAME_WIDTH - 40);
+    const obstacle = new Obstacle(this, spawnX, -50, type);
+    this.obstacles.push(obstacle);
+  }
+
+  update(time, delta) {
+    this.promptTimer += delta;
+    this.promptText.setAlpha(0.6 + Math.sin(this.promptTimer / 450) * 0.4);
+
+    this.updateClouds(delta);
+
+    this.obstacleTimer += delta;
+    if (this.obstacleTimer >= CONF.OBSTACLE_SPAWN_INTERVAL) {
+      this.obstacleTimer = 0;
+      this.spawnObstacle();
+    }
+
+    this.obstacles = this.obstacles.filter(o => o.active);
+    this.obstacles.forEach(o => o.update(delta));
+  }
+}
+
+// =============================================================================
 // CHARACTER SELECTION SCENE
 // =============================================================================
 class CharacterSelectionScene extends Phaser.Scene {
@@ -1548,11 +1847,11 @@ class CharacterSelectionScene extends Phaser.Scene {
   create() {
     // Camera setup - scale to display resolution
     // this.cameras.main.setBackgroundColor(0x000000);
-    this.cameras.main.setZoom(GAME_CONFIG.SCALE);
+    this.cameras.main.setZoom(CONF.SCALE);
     this.trans = false; // transitioning?
 
     // Center camera on the game world
-    this.cameras.main.centerOn(GAME_CONFIG.GAME_WIDTH / 2, GAME_CONFIG.GAME_HEIGHT / 2);
+    this.cameras.main.centerOn(CONF.GAME_WIDTH / 2, CONF.GAME_HEIGHT / 2);
 
     // Player selection state
     this.playerSelections = [
@@ -1570,6 +1869,9 @@ class CharacterSelectionScene extends Phaser.Scene {
     this.lastMoveTime = [0, 0];
     this.lastButtonTime = [0, 0];
 
+    // Transition state
+    this.isTransitioning = false;
+
     // Graphics
     this.graphics = this.add.graphics();
     this.p1PreviewGraphics = this.add.graphics();
@@ -1584,12 +1886,12 @@ class CharacterSelectionScene extends Phaser.Scene {
 
   setupInput() {
     this.input.keyboard.on('keydown', (event) => {
-      const key = KEYBOARD_TO_ARCADE[event.key] || event.key;
+      const key = KBD_TO_ARC[event.key] || event.key;
       this.handleInput(key, true);
     });
 
     this.input.keyboard.on('keyup', (event) => {
-      const key = KEYBOARD_TO_ARCADE[event.key] || event.key;
+      const key = KBD_TO_ARC[event.key] || event.key;
       this.handleInput(key, false);
     });
   }
@@ -1693,15 +1995,20 @@ class CharacterSelectionScene extends Phaser.Scene {
       this.lastButtonTime[1] = time;
     }
 
-    // Check if ready to start
-    if (this.playerSelections.every(p => p.join && p.confirm)) {
-      this.trans = true;
+    // Check if ready to start (all joined players must confirm)
+    const joinedPlayers = this.playerSelections.filter(p => p.join);
+    const allJoinedConfirmed = joinedPlayers.every(p => p.confirm);
+
+    if (joinedPlayers.length > 0 && allJoinedConfirmed && !this.isTransitioning) {
+      this.isTransitioning = true;
+
+      // Wait 1 second before transition
       this.time.delayedCall(1000, () => {
         this.scene.start('GameScene', {
-          p1: this.playerSelections[0].c,
-          p2: this.playerSelections[1].c
-        });
-      });
+          p1Character: this.playerSelections[0].c,
+          p2Character: this.playerSelections[1].join ? this.playerSelections[1].c : null
+    });
+  });
     }
 
     // Render only once per frame
@@ -1724,15 +2031,15 @@ class CharacterSelectionScene extends Phaser.Scene {
 
     // Draw player previews
     this.drawPlayerPreview(0, 11, 20);
-    this.drawPlayerPreview(1, GAME_CONFIG.GAME_WIDTH - 83, 20);
+    this.drawPlayerPreview(1, CONF.GAME_WIDTH - 83, 20);
   }
 
   drawCharacterGrid() {
     const slotSize = 30;
     const gap = 5;
     const gridW = 4 * (slotSize + gap) - gap;
-    const startX = (GAME_CONFIG.GAME_WIDTH - gridW) / 2;
-    const startY = GAME_CONFIG.GAME_HEIGHT - 105;
+    const startX = (CONF.GAME_WIDTH - gridW) / 2;
+    const startY = CONF.GAME_HEIGHT - 105;
 
     for (let row = 0; row < 2; row++) {
       for (let col = 0; col < 4; col++) {
@@ -1792,7 +2099,7 @@ class CharacterSelectionScene extends Phaser.Scene {
   }
 
   drawCharacterSlot(char, x, y, size) {
-    const sprite = parseSprite(char.sprites.FRONT, GAME_CONFIG.PLAYER_WIDTH);
+    const sprite = char.sprites.FRONT;
     if (!sprite || sprite.length === 0) return;
 
     const halfH = Math.floor(sprite.length / 2);
@@ -1823,7 +2130,7 @@ class CharacterSelectionScene extends Phaser.Scene {
     // Show/hide join text
     const joinText = this.p2JoinText;
     if (!sel.join) {
-      joinText.setPosition(x + 13, y + 30).setVisible(true);
+      joinText.setPosition(x + 13, y + 55).setVisible(true);
 
       // Hide other texts
       const nameText = pIdx === 0 ? this.p1NameText : this.p2NameText;
@@ -1837,7 +2144,7 @@ class CharacterSelectionScene extends Phaser.Scene {
 
     // Preview sprite
     const char = CHARACTERS[sel.selIdx];
-    const sprite = parseSprite(char.sprites.FRONT, GAME_CONFIG.PLAYER_WIDTH);
+    const sprite = char.sprites.FRONT;
     if (sprite && sprite.length > 0) {
       const targetH = 90;
       const scale = targetH / sprite.length * 1.5;
@@ -1858,7 +2165,7 @@ class CharacterSelectionScene extends Phaser.Scene {
 
     // Update name text
     const nameText = pIdx === 0 ? this.p1NameText : this.p2NameText;
-    nameText.setText(char.name).setPosition(x + 37, y + 175).setVisible(true);
+    nameText.setText(char.name).setPosition(x + 35, y + 175).setVisible(true);
 
     // Update confirmation status
     const confirmedText = pIdx === 0 ? this.p1ConfirmedText : this.p2ConfirmedText;
@@ -1881,9 +2188,12 @@ class GameScene extends Phaser.Scene {
   init(data) {
     // Receive character selections
     this.selectedCharacters = {
-      p1: data.p1 || CHARACTERS[0],
-      p2: data.p2 || CHARACTERS[1]
+      p1: data.p1Character || CHARACTERS[0],
+      p2: data.p2Character // null if 1 player mode
     };
+
+    // Check if we're in 1 player mode
+    this.is1PlayerMode = !this.selectedCharacters.p2;
   }
 
   create() {
@@ -1905,9 +2215,13 @@ class GameScene extends Phaser.Scene {
     // Create players (start in FRONT state for cinematic)
     // Create players with selected characters from character selection scene
     this.players = [
-      new Player(this, 1, 9, 0, this.selectedCharacters.p1),
-      new Player(this, 2, 10.5, 0, this.selectedCharacters.p2)
+      new Player(this, 1, this.is1PlayerMode ? 9.5 : 9, 0, this.selectedCharacters.p1)
     ];
+
+    // Only create player 2 if in 2 player mode
+    if (!this.is1PlayerMode) {
+      this.players.push(new Player(this, 2, 10.5, 0, this.selectedCharacters.p2));
+    }
 
     // Set players to FRONT state initially (for cinematic)
     this.players.forEach(player => {
@@ -1925,8 +2239,8 @@ class GameScene extends Phaser.Scene {
     this.obstaclesPaused = false; // Pause obstacles during guard catch dialog
 
     // Camera tracking - start at floor level (matching the camera limit)
-    const groundY = GAME_CONFIG.GAME_HEIGHT;
-    const maxCameraY = groundY - (GAME_CONFIG.GAME_HEIGHT / 2);
+    const groundY = CONF.GAME_HEIGHT;
+    const maxCameraY = groundY - (CONF.GAME_HEIGHT / 2);
     this.cameraTargetY = maxCameraY;
 
     // Input tracking
@@ -1942,22 +2256,22 @@ class GameScene extends Phaser.Scene {
     this.setupUI();
 
     // Camera setup
-    this.cameras.main.setBackgroundColor(ENV_COLORS.SKY);
-    this.cameras.main.setZoom(GAME_CONFIG.SCALE);
+    this.cameras.main.setBackgroundColor(COLORS.SKY);
+    this.cameras.main.setZoom(CONF.SCALE);
 
     // Position camera at floor level at start
-    const camX = GAME_CONFIG.GAME_WIDTH / 2;
+    const camX = CONF.GAME_WIDTH / 2;
     this.cameras.main.centerOn(camX, this.cameraTargetY);
   }
 
   setupInput() {
     this.input.keyboard.on('keydown', (event) => {
-      const key = KEYBOARD_TO_ARCADE[event.key] || event.key;
+      const key = KBD_TO_ARC[event.key] || event.key;
       this.handleInput(key, true);
     });
 
     this.input.keyboard.on('keyup', (event) => {
-      const key = KEYBOARD_TO_ARCADE[event.key] || event.key;
+      const key = KBD_TO_ARC[event.key] || event.key;
       this.handleInput(key, false);
     });
   }
@@ -1977,20 +2291,18 @@ class GameScene extends Phaser.Scene {
   }
 
   setupUI() {
-    const uiScale = 1 / GAME_CONFIG.SCALE;
-
     // Player 1 Lives
     this.p1LivesText = this.add.text(10, 10, 'P1: ♥♥♥', {
-      fontSize: `${16 * uiScale}px`,
+      fontSize: '16px',
     fontFamily: 'Arial',
     color: '#00ff00'
     });
     this.p1LivesText.setScrollFactor(0);
     this.p1LivesText.setDepth(100);
 
-    // Player 2 Lives
-    this.p2LivesText = this.add.text(GAME_CONFIG.GAME_WIDTH - 10, 10, 'P2: ♥♥♥', {
-      fontSize: `${16 * uiScale}px`,
+    // Player 2 Lives (only in 2 player mode)
+    this.p2LivesText = this.add.text(CONF.GAME_WIDTH - 10, 10, 'P2: ♥♥♥', {
+      fontSize: '16px',
     fontFamily: 'Arial',
       color: '#ff00ff',
       align: 'right'
@@ -1999,11 +2311,16 @@ class GameScene extends Phaser.Scene {
     this.p2LivesText.setScrollFactor(0);
     this.p2LivesText.setDepth(100);
 
+    // Hide P2 lives in 1 player mode
+    if (this.is1PlayerMode) {
+      this.p2LivesText.setVisible(false);
+    }
+
     // Floor indicator
-    this.floorText = this.add.text(GAME_CONFIG.GAME_WIDTH / 2, 10, 'Floor: 0 / 90', {
-      fontSize: `${14 * uiScale}px`,
+    this.floorText = this.add.text(CONF.GAME_WIDTH / 2, 10, 'Floor: 0 / 90', {
+      fontSize: '14px',
     fontFamily: 'Arial',
-      color: '#ffffff'
+      color: P[6],
     });
     this.floorText.setOrigin(0.5, 0);
     this.floorText.setScrollFactor(0);
@@ -2026,8 +2343,8 @@ class GameScene extends Phaser.Scene {
       });
     }
 
-    // Check player-player collisions (blocking each other while climbing)
-    if (this.players[0].checkPlayerCollision(this.players[1])) {
+    // Check player-player collisions (blocking each other while climbing) - only in 2 player mode
+    if (!this.is1PlayerMode && this.players[0].checkPlayerCollision(this.players[1])) {
       // Don't resolve collision if either is falling - they become obstacles instead
       const p0Falling = this.players[0].isFallingOneRow || this.players[0].isFalling;
       const p1Falling = this.players[1].isFallingOneRow || this.players[1].isFalling;
@@ -2131,7 +2448,7 @@ class GameScene extends Phaser.Scene {
         player.row > highest.row ? player : highest
       );
 
-      if (highestPlayer.row < GAME_CONFIG.OBSTACLE_START_ROW) {
+      if (highestPlayer.row < CONF.OBSTACLE_START_ROW) {
         // Players haven't reached obstacle start row yet
         return;
       }
@@ -2141,7 +2458,7 @@ class GameScene extends Phaser.Scene {
 
       if (alivePlayers.length === 2) {
         // Both players alive - 30% chance to target both
-        if (Math.random() < GAME_CONFIG.OBSTACLE_DUAL_CHANCE) {
+        if (Math.random() < CONF.OBSTACLE_DUAL_CHANCE) {
           targetPlayers = alivePlayers;
           console.log('Dual obstacle spawn - targeting both players!');
         } else {
@@ -2154,7 +2471,7 @@ class GameScene extends Phaser.Scene {
 
       // Spawn one obstacle per target player
       const types = Object.values(OBSTACLE_TYPES);
-      const cameraTopY = this.cameraTargetY - (GAME_CONFIG.GAME_HEIGHT / 2);
+      const cameraTopY = this.cameraTargetY - (CONF.GAME_HEIGHT / 2);
       const spawnY = cameraTopY - 50; // Spawn 50px above visible area
 
       targetPlayers.forEach(targetPlayer => {
@@ -2191,19 +2508,19 @@ class GameScene extends Phaser.Scene {
       player1.x += direction * pushAmount;
       player1.targetX = player1.x;
       player1.col = Phaser.Math.Clamp(
-        (player1.x - ((GAME_CONFIG.GAME_WIDTH - GAME_CONFIG.BUILDING_WIDTH) / 2)) /
-        (GAME_CONFIG.BUILDING_WIDTH / (GAME_CONFIG.BUILDING_ACTUAL_COLUMNS - 1)),
+        (player1.x - ((CONF.GAME_WIDTH - CONF.BUILDING_WIDTH) / 2)) /
+        (CONF.BUILDING_WIDTH / (CONF.BUILDING_ACTUAL_COLUMNS - 1)),
         0,
-        GAME_CONFIG.BUILDING_ACTUAL_COLUMNS - 1
+        CONF.BUILDING_ACTUAL_COLUMNS - 1
       );
 
       player2.x -= direction * pushAmount;
       player2.targetX = player2.x;
       player2.col = Phaser.Math.Clamp(
-        (player2.x - ((GAME_CONFIG.GAME_WIDTH - GAME_CONFIG.BUILDING_WIDTH) / 2)) /
-        (GAME_CONFIG.BUILDING_WIDTH / (GAME_CONFIG.BUILDING_ACTUAL_COLUMNS - 1)),
+        (player2.x - ((CONF.GAME_WIDTH - CONF.BUILDING_WIDTH) / 2)) /
+        (CONF.BUILDING_WIDTH / (CONF.BUILDING_ACTUAL_COLUMNS - 1)),
         0,
-        GAME_CONFIG.BUILDING_ACTUAL_COLUMNS - 1
+        CONF.BUILDING_ACTUAL_COLUMNS - 1
       );
     } else {
       // Separate vertically (block climbing)
@@ -2229,12 +2546,16 @@ class GameScene extends Phaser.Scene {
           this.inputState.p1.left,
           this.inputState.p1.right
         );
-        this.players[1].setInput(
-          this.inputState.p2.up,
-          this.inputState.p2.down,
-          this.inputState.p2.left,
-          this.inputState.p2.right
-        );
+
+        // Only update player 2 input in 2 player mode
+        if (!this.is1PlayerMode) {
+          this.players[1].setInput(
+            this.inputState.p2.up,
+            this.inputState.p2.down,
+            this.inputState.p2.left,
+            this.inputState.p2.right
+          );
+        }
 
         // Update guard (only during gameplay)
         if (this.guard) {
@@ -2247,7 +2568,9 @@ class GameScene extends Phaser.Scene {
       } else if (this.gameState === GAME_STATES.GAME_OVER) {
         // During game over, freeze everything except LOST animation
         this.players[0].setInput(false, false, false, false);
-        this.players[1].setInput(false, false, false, false);
+        if (!this.is1PlayerMode) {
+          this.players[1].setInput(false, false, false, false);
+        }
         // Guard freezes (don't update)
         if (this.guard) {
           this.guard.draw(); // Just redraw in current state
@@ -2256,7 +2579,9 @@ class GameScene extends Phaser.Scene {
         // During cinematic, block all input
         this.guard.draw();
         this.players[0].setInput(false, false, false, false);
-        this.players[1].setInput(false, false, false, false);
+        if (!this.is1PlayerMode) {
+          this.players[1].setInput(false, false, false, false);
+        }
       }
 
       // Always update players (for animations)
@@ -2282,7 +2607,7 @@ class GameScene extends Phaser.Scene {
         // Only spawn obstacles if not paused (e.g., during guard catch dialog)
         if (!this.obstaclesPaused) {
           this.obstacleSpawnTimer += delta;
-          if (this.obstacleSpawnTimer >= GAME_CONFIG.OBSTACLE_SPAWN_INTERVAL) {
+          if (this.obstacleSpawnTimer >= CONF.OBSTACLE_SPAWN_INTERVAL) {
             this.obstacleSpawnTimer = 0;
             this.spawnObstacle();
           }
@@ -2309,14 +2634,14 @@ class GameScene extends Phaser.Scene {
         // Calculate target camera center Y (in game coordinates)
         // Offset camera upward (lower Y) to keep player slightly below center
         // This leaves more room above to see falling obstacles and chase elements
-        const targetCameraY = highestPlayer.getWorldY() - GAME_CONFIG.CAMERA_OFFSET;
+        const targetCameraY = highestPlayer.getWorldY() - CONF.CAMERA_OFFSET;
 
         // Floor limit - camera shouldn't show anything below ground
         // Ground is at Y = GAME_HEIGHT + 20 = 260
         // Camera shows GAME_HEIGHT/2 = 120 pixels above and below center
         // So camera center max = 260 - 120 = 140 (camera bottom edge at 260)
-        const groundY = GAME_CONFIG.GAME_HEIGHT + 25;
-        const maxCameraY = groundY - (GAME_CONFIG.GAME_HEIGHT / 2);
+        const groundY = CONF.GAME_HEIGHT + 25;
+        const maxCameraY = groundY - (CONF.GAME_HEIGHT / 2);
 
         // Clamp camera to not go below floor
         const clampedTargetY = Math.min(targetCameraY, maxCameraY);
@@ -2325,13 +2650,13 @@ class GameScene extends Phaser.Scene {
         this.cameraTargetY = Phaser.Math.Linear(
           this.cameraTargetY,
           clampedTargetY,
-          GAME_CONFIG.CAMERA_SMOOTH
+          CONF.CAMERA_SMOOTH
         );
       }
       // If no alive players, camera stays where it is
 
       // Update camera to center on target Y
-      this.cameras.main.centerOn(GAME_CONFIG.GAME_WIDTH / 2, this.cameraTargetY);
+      this.cameras.main.centerOn(CONF.GAME_WIDTH / 2, this.cameraTargetY);
     } catch (error) {
       console.error('Error updating camera:', error);
     }
@@ -2360,58 +2685,58 @@ class GameScene extends Phaser.Scene {
     this.buildingGraphics.clear();
 
     // Building boundaries
-    const buildingStartX = (GAME_CONFIG.GAME_WIDTH - GAME_CONFIG.BUILDING_WIDTH) / 2;
-    const buildingEndX = buildingStartX + GAME_CONFIG.BUILDING_WIDTH;
+    const buildingStartX = (CONF.GAME_WIDTH - CONF.BUILDING_WIDTH) / 2;
+    const buildingEndX = buildingStartX + CONF.BUILDING_WIDTH;
 
     // Calculate building height - extend well above and below visible area
     const topY = -1500; // High above
-    const bottomY = GAME_CONFIG.GAME_HEIGHT + 100; // Below start
+    const bottomY = CONF.GAME_HEIGHT + 100; // Below start
 
     // Draw building background - glass blue with gradient effect
-    this.buildingGraphics.fillStyle(ENV_COLORS.GLASSB, 1);
+    this.buildingGraphics.fillStyle(COLORS.GLASSB, 1);
     this.buildingGraphics.fillRect(
       buildingStartX,
       topY,
-      GAME_CONFIG.BUILDING_WIDTH,
+      CONF.BUILDING_WIDTH,
       bottomY - topY
     );
 
     // Add glass texture overlay (lighter blue streaks)
     for (let i = 0; i < 15; i++) {
-      const offsetX = buildingStartX + (i * GAME_CONFIG.BUILDING_WIDTH / 15);
-      this.buildingGraphics.fillStyle(ENV_COLORS.GLASSSTR, 0.3);
+      const offsetX = buildingStartX + (i * CONF.BUILDING_WIDTH / 15);
+      this.buildingGraphics.fillStyle(COLORS.GLASSSTR, 0.3);
       this.buildingGraphics.fillRect(offsetX, topY, 2, bottomY - topY);
     }
 
     // Draw windows/rows
-    const colWidth = GAME_CONFIG.BUILDING_WIDTH / GAME_CONFIG.BUILDING_VISUAL_COLUMNS;
+    const colWidth = CONF.BUILDING_WIDTH / CONF.BUILDING_VISUAL_COLUMNS;
 
-    for (let row = 0; row < GAME_CONFIG.TOTAL_ROWS; row++) {
+    for (let row = 0; row < CONF.TOTAL_ROWS; row++) {
       const y = this.players[0].rowToY(row);
 
       // Draw horizontal row line (metallic frame)
-      this.buildingGraphics.lineStyle(2, ENV_COLORS.METAL1, 0.8);
+      this.buildingGraphics.lineStyle(2, COLORS.METAL1, 0.8);
       this.buildingGraphics.lineBetween(buildingStartX, y, buildingEndX, y);
 
       // Draw glass windows with reflections
-      for (let col = 0; col < GAME_CONFIG.BUILDING_VISUAL_COLUMNS; col++) {
+      for (let col = 0; col < CONF.BUILDING_VISUAL_COLUMNS; col++) {
         const x = buildingStartX + col * colWidth + colWidth / 2;
 
         // Glass window - alternating blue tones for depth
-        const baseColor = (row + col) % 2 === 0 ? ENV_COLORS.GLASSW1 : ENV_COLORS.GLASSW2;
+        const baseColor = (row + col) % 2 === 0 ? COLORS.GLASSW1 : COLORS.GLASSW2;
         this.buildingGraphics.fillStyle(baseColor, 0.7);
         this.buildingGraphics.fillRect(
           x - 10,
-          y - GAME_CONFIG.ROW_HEIGHT / 2 - 4,
+          y - CONF.ROW_HEIGHT / 2 - 4,
           20,
           8
         );
 
         // Glass reflection/highlight (lighter area)
-        this.buildingGraphics.fillStyle(ENV_COLORS.GLASSREF, 0.4);
+        this.buildingGraphics.fillStyle(COLORS.GLASSREF, 0.4);
         this.buildingGraphics.fillRect(
           x - 8,
-          y - GAME_CONFIG.ROW_HEIGHT / 2 - 3,
+          y - CONF.ROW_HEIGHT / 2 - 3,
           12,
           2
         );
@@ -2419,78 +2744,84 @@ class GameScene extends Phaser.Scene {
     }
 
     // Draw vertical column lines (metallic structure)
-    for (let col = 0; col <= GAME_CONFIG.BUILDING_VISUAL_COLUMNS; col++) {
+    for (let col = 0; col <= CONF.BUILDING_VISUAL_COLUMNS; col++) {
       const x = buildingStartX + col * colWidth;
-      this.buildingGraphics.lineStyle(3, ENV_COLORS.METAL1, 0.9);
+      this.buildingGraphics.lineStyle(3, COLORS.METAL1, 0.9);
       this.buildingGraphics.lineBetween(x, topY, x, bottomY);
 
       // Add highlight for metallic effect
-      this.buildingGraphics.lineStyle(1, ENV_COLORS.METAL2, 0.6);
+      this.buildingGraphics.lineStyle(1, COLORS.METAL2, 0.6);
       this.buildingGraphics.lineBetween(x - 1, topY, x - 1, bottomY);
     }
 
     // Draw ground/sidewalk at the bottom with subtle concrete texture
-    const groundY = GAME_CONFIG.GAME_HEIGHT - 10;
+    const groundY = CONF.GAME_HEIGHT - 10;
     const groundHeight = 50;
 
     // Base concrete color
-    this.buildingGraphics.fillStyle(ENV_COLORS.BASE1, 1);
-    this.buildingGraphics.fillRect(0, groundY, GAME_CONFIG.GAME_WIDTH, groundHeight);
+    this.buildingGraphics.fillStyle(COLORS.BASE1, 1);
+    this.buildingGraphics.fillRect(0, groundY, CONF.GAME_WIDTH, groundHeight);
 
     // Add subtle concrete texture (static pattern using position-based seed)
-    for (let x = 0; x < GAME_CONFIG.GAME_WIDTH; x += 8) {
+    for (let x = 0; x < CONF.GAME_WIDTH; x += 8) {
       for (let y = 0; y < groundHeight; y += 8) {
         // Use position as seed for consistent pattern
         const seed = (x * 7 + y * 13) % 100;
         if (seed > 85) {
           // Darker spots (fewer and more subtle)
-          this.buildingGraphics.fillStyle(ENV_COLORS.BASE2, 0.4);
+          this.buildingGraphics.fillStyle(COLORS.BASE2, 0.4);
           this.buildingGraphics.fillRect(x, groundY + y, 6, 6);
         } else if (seed < 15) {
           // Lighter spots (fewer and more subtle)
-          this.buildingGraphics.fillStyle(ENV_COLORS.BASE3, 0.4);
+          this.buildingGraphics.fillStyle(COLORS.BASE3, 0.4);
           this.buildingGraphics.fillRect(x, groundY + y, 6, 6);
         }
       }
     }
 
     // Add horizontal lines for sidewalk panels
-    this.buildingGraphics.lineStyle(2, ENV_COLORS.PANEL_LINE, 0.6);
+    this.buildingGraphics.lineStyle(2, COLORS.PANEL_LINE, 0.6);
     for (let i = 1; i < 5; i++) {
       const crackY = groundY + (i * groundHeight / 5);
-      this.buildingGraphics.lineBetween(0, crackY, GAME_CONFIG.GAME_WIDTH, crackY);
+      this.buildingGraphics.lineBetween(0, crackY, CONF.GAME_WIDTH, crackY);
     }
 
     // Add vertical lines for panel divisions
-    this.buildingGraphics.lineStyle(2, ENV_COLORS.PANEL_LINE, 0.6);
-    for (let i = 0; i < GAME_CONFIG.GAME_WIDTH; i += 40) {
+    this.buildingGraphics.lineStyle(2, COLORS.PANEL_LINE, 0.6);
+    for (let i = 0; i < CONF.GAME_WIDTH; i += 40) {
       this.buildingGraphics.lineBetween(i, groundY, i, groundY + groundHeight);
     }
 
     // Draw goal floor indicator
-    const goalY = this.players[0].rowToY(GAME_CONFIG.GOAL_FLOOR);
-    this.buildingGraphics.fillStyle(ENV_COLORS.GOAL_MARKER, 0.3);
+    const goalY = this.players[0].rowToY(CONF.GOAL_FLOOR);
+    this.buildingGraphics.fillStyle(COLORS.GOAL_MARKER, 0.3);
     this.buildingGraphics.fillRect(
       buildingStartX,
-      goalY - GAME_CONFIG.ROW_HEIGHT,
-      GAME_CONFIG.BUILDING_WIDTH,
-      GAME_CONFIG.ROW_HEIGHT * 2
+      goalY - CONF.ROW_HEIGHT,
+      CONF.BUILDING_WIDTH,
+      CONF.ROW_HEIGHT * 2
     );
 
-    this.buildingGraphics.lineStyle(3, ENV_COLORS.GOAL_MARKER, 1);
+    this.buildingGraphics.lineStyle(3, COLORS.GOAL_MARKER, 1);
     this.buildingGraphics.lineBetween(buildingStartX, goalY, buildingEndX, goalY);
   }
 
   updateUI() {
     // Update lives display
     const p1Hearts = '♥'.repeat(this.players[0].lives);
-    const p2Hearts = '♥'.repeat(this.players[1].lives);
     this.p1LivesText.setText(`P1: ${p1Hearts}`);
-    this.p2LivesText.setText(`P2: ${p2Hearts}`);
+
+    // Only update P2 lives in 2 player mode
+    if (!this.is1PlayerMode) {
+      const p2Hearts = '♥'.repeat(this.players[1].lives);
+      this.p2LivesText.setText(`P2: ${p2Hearts}`);
+    }
 
     // Update floor indicator
-    const maxFloor = Math.max(this.players[0].row, this.players[1].row);
-    this.floorText.setText(`Floor: ${maxFloor} / ${GAME_CONFIG.GOAL_FLOOR}`);
+    const maxFloor = this.is1PlayerMode
+      ? this.players[0].row
+      : Math.max(this.players[0].row, this.players[1].row);
+    this.floorText.setText(`Floor: ${maxFloor} / ${CONF.GOAL_FLOOR}`);
   }
 }
 
@@ -2498,12 +2829,19 @@ class GameScene extends Phaser.Scene {
 // GAME INITIALIZATION
 // =============================================================================
 const config = {
-  type: Phaser.AUTO,
+  type: Phaser.CANVAS,
   width: 800,
   height: 600,
-  backgroundColor: '#000000',
-  scene: [CharacterSelectionScene, GameScene],
-  pixelArt: true
+  // fps: {
+  //   target: 60,
+  //   forceSetTimeOut: true,
+  // },
+  // scene: [GameScene],
+  scene: [MenuScene, CharacterSelectionScene, GameScene],
+  // pixelArt: true,
+  // antialias: false,
+  // autoRound: true,
+  // roundPixels: true,
 };
 
 const game = new Phaser.Game(config);

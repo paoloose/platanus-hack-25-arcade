@@ -3018,10 +3018,10 @@ class PixelArtEditor {
       if (colorIndex === null || colorIndex < 0 || colorIndex >= this.colorCodes.length) {
         return '.'; // Empty pixel uses '.' in CSEF
       }
-      // Map to COLOR_CHARS alphabet (which excludes digits 0-9 and semantic codes ~ and ^)
+      // Map to COLOR_CHARS alphabet (which excludes digits 0-9 and semantic codes ~, ^, and >)
       const code = this.colorCodes[colorIndex];
       // Ensure we don't use semantic codes as color codes
-      if (code === '~' || code === '^') {
+      if (code === '~' || code === '^' || code === '>') {
         // Fallback to a safe character if somehow a semantic code was assigned
         return 'A';
       }
@@ -3090,40 +3090,93 @@ class PixelArtEditor {
         continue; // Skip encoding this row, use ^ instead
       }
 
-      // Encode this row with RLE
-      let currentColor = null;
-      let runLength = 0;
-
-      for (let colIdx = 0; colIdx < row.length; colIdx++) {
-        const color = row[colIdx];
-
-        if (color === currentColor) {
-          runLength++;
-        } else {
-          // Output previous run
-          if (currentColor !== null && runLength > 0) {
-            // Output run in chunks of max 9
-            let remaining = runLength;
-            while (remaining > 0) {
-              const chunk = Math.min(remaining, 9);
-              encoded.push(chunk.toString() + currentColor);
-              remaining -= chunk;
-            }
-          }
-
-          // Start new run
-          currentColor = color;
-          runLength = 1;
-        }
+      // Check for horizontal symmetry (only for even widths)
+      // A row is symmetric if left half mirrors to right half
+      let isSymmetric = false;
+      if (width % 2 === 0) {
+        const leftHalf = row.slice(0, width / 2);
+        const rightHalf = row.slice(width / 2);
+        const mirroredRight = [...leftHalf].reverse();
+        isSymmetric = rightHalf.every((code, idx) => code === mirroredRight[idx]);
       }
 
-      // Output final run of the row
-      if (currentColor !== null && runLength > 0) {
-        let remaining = runLength;
-        while (remaining > 0) {
-          const chunk = Math.min(remaining, 9);
-          encoded.push(chunk.toString() + currentColor);
-          remaining -= chunk;
+      if (isSymmetric) {
+        // Encode only the left half, then add symmetry marker
+        const leftHalf = row.slice(0, width / 2);
+        let currentColor = null;
+        let runLength = 0;
+
+        for (let colIdx = 0; colIdx < leftHalf.length; colIdx++) {
+          const color = leftHalf[colIdx];
+
+          if (color === currentColor) {
+            runLength++;
+          } else {
+            // Output previous run
+            if (currentColor !== null && runLength > 0) {
+              // Output run in chunks of max 9
+              let remaining = runLength;
+              while (remaining > 0) {
+                const chunk = Math.min(remaining, 9);
+                encoded.push(chunk.toString() + currentColor);
+                remaining -= chunk;
+              }
+            }
+
+            // Start new run
+            currentColor = color;
+            runLength = 1;
+          }
+        }
+
+        // Output final run of the left half
+        if (currentColor !== null && runLength > 0) {
+          let remaining = runLength;
+          while (remaining > 0) {
+            const chunk = Math.min(remaining, 9);
+            encoded.push(chunk.toString() + currentColor);
+            remaining -= chunk;
+          }
+        }
+
+        // Add symmetry marker
+        encoded.push('>');
+      } else {
+        // Encode full row with RLE (no symmetry)
+        let currentColor = null;
+        let runLength = 0;
+
+        for (let colIdx = 0; colIdx < row.length; colIdx++) {
+          const color = row[colIdx];
+
+          if (color === currentColor) {
+            runLength++;
+          } else {
+            // Output previous run
+            if (currentColor !== null && runLength > 0) {
+              // Output run in chunks of max 9
+              let remaining = runLength;
+              while (remaining > 0) {
+                const chunk = Math.min(remaining, 9);
+                encoded.push(chunk.toString() + currentColor);
+                remaining -= chunk;
+              }
+            }
+
+            // Start new run
+            currentColor = color;
+            runLength = 1;
+          }
+        }
+
+        // Output final run of the row
+        if (currentColor !== null && runLength > 0) {
+          let remaining = runLength;
+          while (remaining > 0) {
+            const chunk = Math.min(remaining, 9);
+            encoded.push(chunk.toString() + currentColor);
+            remaining -= chunk;
+          }
         }
       }
 
@@ -3144,17 +3197,46 @@ class PixelArtEditor {
   // Semantic codes:
   //   ~ = full row of empty pixels (must appear at row boundary)
   //   ^ = repeat previous row
+  //   > = horizontal symmetry marker (mirrors left half to right half, only for even widths)
   parseCSEF(s, w) {
     const r = [], p = [];
     for (let i = 0; i < s.length;) {
       if (!p.length) {
+        // Row boundary semantic codes
         if (s[i] === '~') { r.push(Array(w).fill('.')); i++; continue; }
         if (s[i] === '^') { if (r.length) r.push([...r.at(-1)]); i++; continue; }
       }
+      
+      // Check for symmetry marker ">" (must be in middle of row, after at least half width)
+      if (s[i] === '>') {
+        // Validate: must have at least half the row decoded, and width must be even
+        if (p.length < w / 2 || w % 2 !== 0) {
+          // Invalid position - skip and continue
+          i++;
+          continue;
+        }
+        
+        // Mirror the left half to complete the row
+        const leftHalf = p.slice(0, w / 2);
+        const rightHalf = [...leftHalf].reverse(); // Mirror
+        p.length = 0; // Clear partial row
+        p.push(...leftHalf, ...rightHalf);
+        
+        // Complete row is ready
+        r.push(p.splice(0, w));
+        i++;
+        continue;
+      }
+      
+      // Regular RLE encoding: <digit><char>
       const n = +s[i], c = s[i + 1];
       if (!n || n > 9) { i++; continue; }
       p.push(...Array(n).fill(c));
-      while (p.length >= w) r.push(p.splice(0, w));
+      
+      // Check if row is complete (but not if we just processed a symmetry marker)
+      while (p.length >= w) {
+        r.push(p.splice(0, w));
+      }
       i += 2;
     }
     if (p.length) r.push(p);
