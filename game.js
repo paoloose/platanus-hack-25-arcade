@@ -5,7 +5,7 @@
 // ARCADE BUTTON MAPPING - COMPLETE TEMPLATE
 // =============================================================================
 const CTRLS = {
-  // ===== PLAYER 1 CONTROLS =====
+  // ===== Hacker 1 CONTROLS =====
   'P1U': ['w'],
   'P1D': ['s'],
   'P1L': ['a'],
@@ -21,7 +21,7 @@ const CTRLS = {
   'P1Z': ['l'],
   'START1': ['1', 'Enter'],
 
-  // ===== PLAYER 2 CONTROLS =====
+  // ===== Hacker 2 CONTROLS =====
   'P2U': ['ArrowUp'],
   'P2D': ['ArrowDown'],
   'P2L': ['ArrowLeft'],
@@ -205,7 +205,7 @@ const CHARACTERS = [
     }
   },
   {
-    name: 'VC',
+    name: 'El VC',
     rawSprites: {
       IDLE: '~~9.4.2,>8.2,2.3,>5.2Y3,1.4,>5.2Y2,2Y8,2Y2,1Y1i5.6.1i3,1i4,>7.2G2.8,2.3G6.6.3G2.1{6,1{3.2G6.5.3G3.4{>5.4G3.3{>5.4G3.6G2.4G6.6.9G8G7.7.6G1c2G1c5G8.9.4G1c2G1c3G9.1.9.2.1F1G2c>9.2.1F2G1c>^^9.2.1F3G>9.2.4:>^9.1.5:>9.1.4:1.>9.4:2.>9.3:3.>^^9.3q3.>8.4q3.>',
       // LUP0: null,
@@ -215,6 +215,28 @@ const CHARACTERS = [
       FRONT: '9.4.2,>9.3.3,>9.2.4,>^9.2.1,2A1,>9.2.4,>9.2.2{1G1{>9.2.3{1G>9.3.3{>9.1.4G2,3G3.3,5.9.9G2G1.6Y3.9.2G1F5c3G1.2i2,2i3.9.2G1F1c1G1c1G1c1G1F2G2.2G5.9.2G1F1c3G1c1G1F6G5.9.2G1F2c1G2c1G1F5G6.9.2G1F2c1G2c1G1F1.3G7.9.2G1F5c1G1F9.2.9.2G1F6G1F9.2.7.2i3,1Y5G1F9.2.7.2Y2,2i6:9.2.9.2.4:>^9.2.3:1.>^^^^^9.2.3q1.>^',
     }
   },
+  {
+    name: 'Hacker 1',
+    rawSprites: {
+      IDLE: '~~~~8.2,2.6U2.2,8.7.2,2.8U2.2,7.7.3,1.8U1.3,7.7.2B2.8U2.3B6.6.3B2.8U3.2B6.5.3B3.1{6U1{3.3B5.5.4B3.6,3.4B5.5.4B3.6B2.4B6.6.9B8B7.7.9B6B8.9.9B2B9.1.9.3.6B9.3.^^^^9.2.8:9.2.^9.1.9:1:9.1.9.1.4:2.4:9.1.9.4:4.4:9.9.3:6.3:9.^^9.3A6.3A9.8.4A6.4A8.',
+      // LUP0: null,
+      // LUP1: null,
+      RUP0: '~~9.3.6U9.3.9.2.8U1.3,7.9.2.8U2.3,6.9.2.8U3.2B6.^9.2.1{6U1{2.3B6.9.3.6,3.3B6.9.3.6B2.3B7.9.9B5B7.8.9B6B7.7.9B6B8.7.3B2.6B9.3.^8.2B2.6B9.3.8.3,1.6B9.3.8.2,1.9:1:9.9.2.9:2:8.^9.2.3:5.3:8.9.1.4:5.3:8.9.1.3:6.3:8.9.1.3:6.3A8.9.1.3:6.4A7.9.1.3:9.8.9.1.3A9.8.9.4A9.8.~~',
+      RUP1: '9.9.3.3,6.9.9.4.3,5.9.3.6U4.1,2B5.9.2.8U4.2B5.^^9.2.8U3.3B5.9.2.1{6U1{2.4B5.9.3.6,2.4B6.9.3.6B1.4B7.9.2.9B2B8.9.9B3B9.8.9B1B9.3.7.4B1.6B9.3.7.3B2.6B9.3.^^^7.3,2.6B9.3.7.2,2.8:9.2.9.2.8:9.2.9.2.3:2.3:9.2.^^9.1.3:4.3:9.1.^^^9.1.3A4.3A9.1.9.4A4.4A9.',
+      FRONT: '~9.3.6U9.3.9.2.8U9.2.^9.2.1U6,1U9.2.9.2.1,2A2,2A1,9.2.^9.2.3,2{3,9.2.9.3.6,9.3.9.1.4B2{4B9.1.9.9B3B9.^9.2B1.6B1.2B9.^^^^^9.2,1.6B1.2,9.9.2,8:2,9.9.2.8:9.2.^9.2.3:2.3:9.2.^^^^^9.2.3A2.3A9.2.^',
+    }
+  },
+  {
+    name: 'Engineer',
+    rawSprites: {
+      IDLE: '~~~9.3.5A9.4.8.2,1.4A>7.2,2.4A>7.3,5A>7.2/1.9A1A1.3/6.6.3/1.9A1A2.2/6.5.3/3.1{3A>5.4/3.1,2A>5.4/3.6/2.4/6.6.9/8/7.7.9/6/8.9.9/2/9.1.9.2.1}3/>^^^^9.2.4A>^9.1.5A>9.1.4A1.>9.4A2.>9.3A3.>^^^8.4A3.>',
+      // LUP0: null,
+      // LUP1: null,
+      RUP0: '~9.3.3A>9.2.4A>9.1.9A1.3,7.9.1.9A1A1.3,6.9.1.9A1A2.2/6.^9.1.1A1{6A1{1A1.3/6.9.3.1,4A1,3.3/6.9.3.6/2.3/7.9.9/5/7.8.9/6/7.7.9/6/8.7.3/1.1}6/1}9.2.^8.2/1.1}6/1}9.2.8.3,1}6/1}9.2.8.2,1.9A1A9.9.2.9A2A8.^9.2.3A5.3A8.9.1.4A5.3A8.9.1.3A6.3A8.^9.1.3A6.4A7.9.1.3A9.8.^9.4A9.8.~~',
+      RUP1: '9.9.3.3,6.9.3.6A4.3,5.9.2.8A3.1,2/5.9.1.9A1A3.2/5.9.1.9A2A2.2/5.9.1.9A1A3.2/5.9.1.9A1A2.3/5.9.1.1A1{6A1{1A1.4/5.9.3.1,4A1,2.4/6.9.3.6/1.4/7.9.2.9/2/8.9.6/>8.9/1/1}9.2.7.4/1}6/1}9.2.7.3/1.1}6/1}9.2.^^^7.3,1.1}6/1}9.2.7.2,2.8A9.2.9.2.4A>9.2.3A1.>^^9.1.3A2.>^^^^9.4A2.>',
+      FRONT: '9.2.7A9.3.9.9A1A9.2.9.1.5A>9.3A2,1A3,3A9.9.2A1,2A1,>^9.1.1A4{>9.2.3{1K>9.3.3{>9.2.3/1,>9.1.5/>9.4/1G7/9.9.2/1}2/1G3/1}2/9.9.2/1}2/1G>^^9.2/1}1/2G3/1}2/9.9.2/1}3/>9.2,1}3/>9.2,4A>9.2.4A>^9.2.3A1.>^^^^^^^',
+    }
+  }
 ];
 
 // Guard sprites (reuses player sprites for now)
@@ -431,7 +453,6 @@ class Obstacle {
       this.graphics = scene.add.graphics();
       this.graphics.setDepth(15);
 
-      console.log(`Obstacle created: ${type.name} at (${x}, ${y})`);
     } catch (error) {
       console.error('Error in Obstacle constructor:', error);
       this.active = false;
@@ -709,7 +730,6 @@ class Player extends Character {
         this.fallVelocity = 0;
         this.fallRotation = 0;
         this.isDead = true; // Player is dead if they hit the floor
-        console.log(`Player ${this.playerNum} hit the ground and died at y=${this.y}`);
       }
 
       this.draw();
@@ -737,7 +757,6 @@ class Player extends Character {
         this.isFallingOneRow = false;
         this.fallOneRowTimer = 0;
         this.isClimbing = false;
-        console.log(`Player ${this.playerNum} finished falling one row`);
       }
 
       this.draw();
@@ -895,7 +914,6 @@ class Player extends Character {
     if (this.isDead || this.isFalling) return;
 
     this.lives--;
-    console.log(`Player ${this.playerNum} took damage! Lives remaining: ${this.lives}`);
 
     if (this.lives <= 0) {
       this.die();
@@ -919,12 +937,10 @@ class Player extends Character {
       this.animState = CLIMB_CYCLE[5]; // 'LUP0'
       this.animTimer = 0;
 
-      console.log(`Player ${this.playerNum} starting to fall one row from row ${this.row}`);
     }
   }
 
   die() {
-    console.log(`Player ${this.playerNum} is dying! Starting fall animation.`);
     this.isFalling = true;
     this.fallVelocity = -200; // Initial upward velocity (Mario bounce)
     this.fallRotation = 0;
@@ -940,7 +956,6 @@ class Player extends Character {
     this.isFallingOneRow = false;
     this.isCaught = false;
 
-    console.log(`Player ${this.playerNum} isFalling: ${this.isFalling}, fallVelocity: ${this.fallVelocity}, position locked at (${this.x}, ${this.y})`);
   }
 }
 
@@ -1021,7 +1036,6 @@ class Guard extends Character {
     if (guardY > cameraBottomY) {
       // Guard is below camera (off-screen) - boost speed to catch up
       speedMultiplier *= CONF.GUARD_OFFSCREEN_BOOST;
-      console.log(`Guard off-screen! Boosting speed (multiplier: ${speedMultiplier})`);
     }
 
     // Vertical movement (climbing) with speed multiplier
@@ -1179,7 +1193,7 @@ class Dialog {
       fontFamily: 'Courier New, monospace',
       fontSize: '11px',
       color: '#fff',
-      stroke: '#000000',
+      stroke: '#000',
       strokeThickness: 2,
       wordWrap: { width: 200 }
     });
@@ -1442,7 +1456,6 @@ class CinematicController {
   }
 
   start() {
-    console.log('Starting opening cinematic...');
     this.isActive = true;
     this.currentStep = 0;
 
@@ -1487,7 +1500,6 @@ class CinematicController {
 
   walkInPlayers() {
     // Move players from far right to building entrance over 2 seconds
-    console.log('Players walking in from right...');
 
     const startCol = CONF.BUILDING_ACTUAL_COLUMNS + 3; // Start off-screen right
     const walkDuration = 2000; // 2 seconds
@@ -1531,7 +1543,6 @@ class CinematicController {
   }
 
   startAutoClimb() {
-    console.log('Starting auto-climb animation...');
     this.autoClimbProgress = 0;
 
     // Climb 4 rows for both players
@@ -1560,7 +1571,6 @@ class CinematicController {
   }
 
   showGuardReaction() {
-    console.log('Guard reacts to players climbing...');
 
     // Show guard's angry dialog
     if (this.scene.is1PlayerMode) {
@@ -1577,7 +1587,6 @@ class CinematicController {
   }
 
   end() {
-    console.log('Cinematic complete - starting game!');
     this.isActive = false;
     this.scene.gameState = GAME_STATES.PLAYING;
 
@@ -1588,7 +1597,159 @@ class CinematicController {
     });
 
     // Guard starts chasing now!
-    console.log('Guard begins chase!');
+  }
+}
+
+// =============================================================================
+// DYNAMIC BACKGROUND UTILITY (Reusable across scenes)
+// =============================================================================
+class DynamicBackground {
+  constructor(scene, wo = true) {
+    this.scene = scene;
+    this.clouds = [];
+    this.buildings = [];
+    this.obstacles = [];
+    this.obstacleTimer = 0;
+    this.withObstacles = wo;
+
+    // Create graphics layers
+    this.bg = scene.add.graphics().setDepth(-2);
+    this.grassGfx = scene.add.graphics().setDepth(-1.2);
+    this.farBuildingsGfx = scene.add.graphics().setDepth(-1.1);
+    this.midBuildingsGfx = scene.add.graphics().setDepth(-1);
+    this.nearBuildingsGfx = scene.add.graphics().setDepth(-.9);
+    this.cloudsGfx = scene.add.graphics().setDepth(-1);
+
+    // Initialize
+    this.drawMountains();
+    this.generateBuildings();
+    this.generateClouds();
+  }
+
+  drawMountains() {
+    this.bg.clear();
+    const baseY = CONF.GAME_HEIGHT - 40;
+    const count = 8;
+    for (let i = 0; i < count; i++) {
+      const peakX = (i / (count - 1)) * CONF.GAME_WIDTH + Phaser.Math.Between(-20, 20);
+      const peakY = Phaser.Math.Between(baseY - 65, baseY - 35) - 15;
+      const left = peakX - Phaser.Math.Between(45, 75);
+      const right = peakX + Phaser.Math.Between(45, 75);
+
+      this.bg.fillStyle(P[5], 0.9);
+      this.bg.fillTriangle(left, baseY, peakX, peakY, right, baseY);
+
+      this.bg.fillStyle(P[6], 1);
+      this.bg.fillTriangle(peakX - 15, peakY + 12, peakX, peakY, peakX + 15, peakY + 12);
+    }
+  }
+
+  generateBuildings() {
+    this.buildings = [];
+    const layers = [
+      [P[5], 1, CONF.GAME_HEIGHT, 20, 25, 30, 50, 90],
+      [P[4], 2, CONF.GAME_HEIGHT, 24, 20, 25, 35, 80],
+      [P[3], 3, CONF.GAME_HEIGHT, 30, 10, 15, 25, 50]
+    ];
+
+    layers.forEach(layer => {
+      let x = -50;
+      for (let i = 0; i < layer[3]; i++) {
+        const width = Phaser.Math.Between(layer[4], layer[5]);
+        const height = Phaser.Math.Between(layer[6], layer[7]);
+        this.buildings.push({
+          x,
+          w: width,
+          h: height,
+          color: layer[0],
+          depth: layer[1],
+          baseY: layer[2]
+        });
+        x += width + Phaser.Math.Between(1, 2 * i);
+      }
+    });
+
+    this.drawBuildings();
+  }
+
+  drawBuildings() {
+    this.grassGfx.clear();
+    this.farBuildingsGfx.clear();
+    this.midBuildingsGfx.clear();
+    this.nearBuildingsGfx.clear();
+
+    this.grassGfx.fillStyle(P[16], 1);
+    this.grassGfx.fillRect(0, CONF.GAME_HEIGHT - 45, CONF.GAME_WIDTH, 45);
+
+    this.buildings.forEach(b => {
+      const gfx = b.depth === 3 ? this.farBuildingsGfx : b.depth === 2 ? this.midBuildingsGfx : this.nearBuildingsGfx;
+      const alpha = b.depth === 3 ? 0.75 : b.depth === 2 ? 0.85 : 0.95;
+      const lineAlpha = b.depth === 3 ? 0.1 : b.depth === 2 ? 0.15 : 0.2;
+      gfx.fillStyle(b.color, alpha);
+      gfx.fillRect(b.x, b.baseY - b.h, b.w, b.h);
+      gfx.lineStyle(1, 0x000000, lineAlpha);
+      gfx.strokeRect(b.x, b.baseY - b.h, b.w, b.h);
+    });
+  }
+
+  generateClouds() {
+    const cloudCount = 6;
+    for (let i = 0; i < cloudCount; i++) {
+      this.clouds.push({
+        x: Phaser.Math.Between(0, CONF.GAME_WIDTH),
+        y: Phaser.Math.Between(20, 90),
+        w: Phaser.Math.Between(32, 64),
+        h: Phaser.Math.Between(12, 20),
+        speed: Phaser.Math.FloatBetween(6, 12)
+      });
+    }
+  }
+
+  updateClouds(delta) {
+    this.cloudsGfx.clear();
+    this.clouds.forEach(cloud => {
+      cloud.x += (cloud.speed * delta) / 1000;
+      if (cloud.x - cloud.w > CONF.GAME_WIDTH) {
+        cloud.x = -cloud.w;
+        cloud.y = Phaser.Math.Between(20, 90);
+        cloud.speed = Phaser.Math.FloatBetween(6, 12);
+      }
+      this.cloudsGfx.fillStyle(0xffffff, 0.82);
+      this.cloudsGfx.fillEllipse(cloud.x, cloud.y, cloud.w, cloud.h);
+      this.cloudsGfx.fillEllipse(cloud.x + cloud.w * 0.35, cloud.y + 3, cloud.w * 0.65, cloud.h * 0.85);
+      this.cloudsGfx.fillEllipse(cloud.x - cloud.w * 0.35, cloud.y + 4, cloud.w * 0.6, cloud.h * 0.75);
+    });
+  }
+
+  spawnObstacle() {
+    const types = Object.values(OBSTACLE_TYPES);
+    const type = Phaser.Utils.Array.GetRandom(types);
+    const spawnX = Phaser.Math.Between(40, CONF.GAME_WIDTH - 40);
+    const obstacle = new Obstacle(this.scene, spawnX, -50, type);
+    this.obstacles.push(obstacle);
+  }
+
+  update(delta) {
+    this.updateClouds(delta);
+
+    this.obstacleTimer += delta;
+    if (this.obstacleTimer >= CONF.OBSTACLE_SPAWN_INTERVAL) {
+      this.obstacleTimer = 0;
+      if (this.withObstacles !== false) this.spawnObstacle();
+    }
+
+    this.obstacles = this.obstacles.filter(o => o.active);
+    this.obstacles.forEach(o => o.update(delta));
+  }
+
+  destroy() {
+    this.bg.destroy();
+    this.grassGfx.destroy();
+    this.farBuildingsGfx.destroy();
+    this.midBuildingsGfx.destroy();
+    this.nearBuildingsGfx.destroy();
+    this.cloudsGfx.destroy();
+    this.obstacles.forEach(o => o.destroy());
   }
 }
 
@@ -1605,34 +1766,15 @@ class MenuScene extends Phaser.Scene {
     this.cameras.main.setZoom(CONF.SCALE);
     this.cameras.main.centerOn(CONF.GAME_WIDTH / 2, CONF.GAME_HEIGHT / 2);
 
-    this.bg = this.add.graphics().setDepth(0);
+    // Use reusable background
+    this.background = new DynamicBackground(this);
 
-    // Grass layer behind buildings
-    this.grassGfx = this.add.graphics().setDepth(0.9);
-
-    // Create separate graphics for each building layer
-    this.farBuildingsGfx = this.add.graphics().setDepth(1);    // P[3] - farthest
-    this.midBuildingsGfx = this.add.graphics().setDepth(1.1);  // P[4] - middle
-    this.nearBuildingsGfx = this.add.graphics().setDepth(1.2); // P[5] - closest
-
-    this.cloudsGfx = this.add.graphics().setDepth(2);
-
-    this.clouds = [];
-    this.obstacles = [];
-    this.obstacleTimer = 0;
     this.cameraTargetY = CONF.GAME_HEIGHT / 2;
-
-    this.drawMountains();
-    this.generateBuildings();
-    this.generateClouds();
-
-    const camWidth = this.cameras.main.width;
-    const camHeight = this.cameras.main.height;
 
     this.titleText = this.add.text(
       400,
       260,
-      'LATE TO THE\nHACKATHON',
+      'LLEGAMOS TARDE\nA LA HACKATHON',
       {
         font: "bold 24px arial",
         color: '#000',
@@ -1649,7 +1791,7 @@ class MenuScene extends Phaser.Scene {
     this.subtitleText = this.add.text(
       400,
       310,
-      '🍌 Platanus Hack 2025 Edition 🍌',
+      '🍌🇨🇱 Platanus Hack 2025 Edition 🇨🇱🍌',
       {
         fontFamily: 'arial',
         fontSize: 13,
@@ -1692,147 +1834,12 @@ class MenuScene extends Phaser.Scene {
     });
   }
 
-  generateClouds() {
-    const cloudCount = 6;
-    for (let i = 0; i < cloudCount; i++) {
-      this.clouds.push({
-        x: Phaser.Math.Between(0, CONF.GAME_WIDTH),
-        y: Phaser.Math.Between(20, 90),
-        w: Phaser.Math.Between(32, 64),
-        h: Phaser.Math.Between(12, 20),
-        speed: Phaser.Math.FloatBetween(6, 12)
-      });
-    }
-  }
-
-  drawMountains() {
-    this.bg.clear();
-    const baseY = CONF.GAME_HEIGHT - 40;
-    const count = 8;
-    for (let i = 0; i < count; i++) {
-      const peakX = (i / (count - 1)) * CONF.GAME_WIDTH + Phaser.Math.Between(-20, 20);
-      const peakY = Phaser.Math.Between(baseY - 65, baseY - 35) - 15;
-      const left = peakX - Phaser.Math.Between(45, 75);
-      const right = peakX + Phaser.Math.Between(45, 75);
-
-      this.bg.fillStyle(P[5], 0.9);
-      this.bg.fillTriangle(left, baseY, peakX, peakY, right, baseY);
-
-      this.bg.fillStyle(P[6], 1);
-      this.bg.fillTriangle(peakX - 15, peakY + 12, peakX, peakY, peakX + 15, peakY + 12);
-    }
-  }
-
-  generateBuildings() {
-    this.buildings = [];
-
-    // Generate buildings in multiple layers (depths) with different colors
-    // Array format: [color, depth, baseY, count, minW, maxW, minH, maxH]
-    const layers = [
-      [P[5], 1, CONF.GAME_HEIGHT, 20, 25, 30, 50, 90], // Closest (largest)
-      [P[4], 2, CONF.GAME_HEIGHT, 24, 20, 25, 35, 80], // Middle
-      [P[3], 3, CONF.GAME_HEIGHT, 30, 10, 15, 25, 50]  // Farthest (smallest)
-    ];
-
-    layers.forEach(layer => {
-      let x = -50;
-      for (let i = 0; i < layer[3]; i++) { // count
-        const width = Phaser.Math.Between(layer[4], layer[5]); // minW, maxW
-        const height = Phaser.Math.Between(layer[6], layer[7]); // minH, maxH
-        this.buildings.push({
-          x,
-          w: width,
-          h: height,
-          color: layer[0], // color
-          depth: layer[1], // depth
-          baseY: layer[2]  // baseY
-        });
-        x += width + Phaser.Math.Between(1, 2 * i);
-      }
-    });
-
-    this.drawBuildings();
-  }
-
-  drawBuildings() {
-    // Clear all building and grass graphics
-    this.grassGfx.clear();
-    this.farBuildingsGfx.clear();
-    this.midBuildingsGfx.clear();
-    this.nearBuildingsGfx.clear();
-
-    // Draw grass behind all buildings
-    this.grassGfx.fillStyle(P[16], 1); // Grass color P[16]
-    this.grassGfx.fillRect(0, CONF.GAME_HEIGHT - 45, CONF.GAME_WIDTH, 45);
-
-    // Group buildings by depth
-    const farBuildings = this.buildings.filter(b => b.depth === 3);
-    const midBuildings = this.buildings.filter(b => b.depth === 2);
-    const nearBuildings = this.buildings.filter(b => b.depth === 1);
-
-    // Draw far buildings (P[3])
-    farBuildings.forEach(building => {
-      this.farBuildingsGfx.fillStyle(building.color, 0.75);
-      this.farBuildingsGfx.fillRect(building.x, building.baseY - building.h, building.w, building.h);
-      this.farBuildingsGfx.lineStyle(1, 0x000000, 0.1);
-      this.farBuildingsGfx.strokeRect(building.x, building.baseY - building.h, building.w, building.h);
-    });
-
-    // Draw mid buildings (P[4])
-    midBuildings.forEach(building => {
-      this.midBuildingsGfx.fillStyle(building.color, 0.85);
-      this.midBuildingsGfx.fillRect(building.x, building.baseY - building.h, building.w, building.h);
-      this.midBuildingsGfx.lineStyle(1, 0x000000, 0.15);
-      this.midBuildingsGfx.strokeRect(building.x, building.baseY - building.h, building.w, building.h);
-    });
-
-    // Draw near buildings (P[5])
-    nearBuildings.forEach(building => {
-      this.nearBuildingsGfx.fillStyle(building.color, 0.95);
-      this.nearBuildingsGfx.fillRect(building.x, building.baseY - building.h, building.w, building.h);
-      this.nearBuildingsGfx.lineStyle(1, 0x000000, 0.2);
-      this.nearBuildingsGfx.strokeRect(building.x, building.baseY - building.h, building.w, building.h);
-    });
-  }
-
-  updateClouds(delta) {
-    this.cloudsGfx.clear();
-    this.clouds.forEach(cloud => {
-      cloud.x += (cloud.speed * delta) / 1000;
-      if (cloud.x - cloud.w > CONF.GAME_WIDTH) {
-        cloud.x = -cloud.w;
-        cloud.y = Phaser.Math.Between(20, 90);
-        cloud.speed = Phaser.Math.FloatBetween(6, 12);
-      }
-      this.cloudsGfx.fillStyle(0xffffff, 0.82);
-      this.cloudsGfx.fillEllipse(cloud.x, cloud.y, cloud.w, cloud.h);
-      this.cloudsGfx.fillEllipse(cloud.x + cloud.w * 0.35, cloud.y + 3, cloud.w * 0.65, cloud.h * 0.85);
-      this.cloudsGfx.fillEllipse(cloud.x - cloud.w * 0.35, cloud.y + 4, cloud.w * 0.6, cloud.h * 0.75);
-    });
-  }
-
-  spawnObstacle() {
-    const types = Object.values(OBSTACLE_TYPES);
-    const type = Phaser.Utils.Array.GetRandom(types);
-    const spawnX = Phaser.Math.Between(40, CONF.GAME_WIDTH - 40);
-    const obstacle = new Obstacle(this, spawnX, -50, type);
-    this.obstacles.push(obstacle);
-  }
-
   update(time, delta) {
     this.promptTimer += delta;
     this.promptText.setAlpha(0.6 + Math.sin(this.promptTimer / 450) * 0.4);
 
-    this.updateClouds(delta);
-
-    this.obstacleTimer += delta;
-    if (this.obstacleTimer >= CONF.OBSTACLE_SPAWN_INTERVAL) {
-      this.obstacleTimer = 0;
-      this.spawnObstacle();
-    }
-
-    this.obstacles = this.obstacles.filter(o => o.active);
-    this.obstacles.forEach(o => o.update(delta));
+    // Update background
+    this.background.update(delta);
   }
 }
 
@@ -1846,12 +1853,15 @@ class CharacterSelectionScene extends Phaser.Scene {
 
   create() {
     // Camera setup - scale to display resolution
-    // this.cameras.main.setBackgroundColor(0x000000);
+    this.cameras.main.setBackgroundColor(COLORS.SKY);
     this.cameras.main.setZoom(CONF.SCALE);
     this.trans = false; // transitioning?
 
     // Center camera on the game world
     this.cameras.main.centerOn(CONF.GAME_WIDTH / 2, CONF.GAME_HEIGHT / 2);
+
+    // Use reusable background
+    this.background = new DynamicBackground(this, false);
 
     // Player selection state
     this.playerSelections = [
@@ -1907,20 +1917,20 @@ class CharacterSelectionScene extends Phaser.Scene {
     }
 
     // Player preview texts
-    this.p1TitleText = this.add.text(0, 0, 'Player 1', { fontSize: '12px', color: '#0000ff' });
-    this.p2TitleText = this.add.text(0, 0, 'Player 2', { fontSize: '12px', color: '#ff0000' });
+    this.p1TitleText = this.add.text(0, 0, 'Hacker 1', { fontSize: '12px', color: '#00f' });
+    this.p2TitleText = this.add.text(0, 0, 'Hacker 2', { fontSize: '12px', color: '#f00' });
 
     this.p2JoinText = this.add.text(0, 0, 'Press\nSTART\nto join', { fontSize: '10px', color: '#888', align: 'center' }).setVisible(false);
 
-    this.p1NameText = this.add.text(0, 0, '', { fontSize: '10px' }).setOrigin(.5, .5);
-    this.p2NameText = this.add.text(0, 0, '', { fontSize: '10px' }).setOrigin(.5, .5);
+    this.p1NameText = this.add.text(0, 0, '', { fontSize: '10px', backgroundColor: '#000', padding: 3 }).setOrigin(.5, .5);
+    this.p2NameText = this.add.text(0, 0, '', { fontSize: '10px', backgroundColor: '#000', padding: 3 }).setOrigin(.5, .5);
 
     this.p1ConfirmedText = this.add.text(0, 0, '✓ READY', { fontSize: '12px', color: '#0f0' }).setVisible(false);
     this.p2ConfirmedText = this.add.text(0, 0, '✓ READY', { fontSize: '12px', color: '#0f0' }).setVisible(false);
   }
 
   handleInput(key, isDown) {
-    // Player 1 directional controls
+    // Hacker 1 directional controls
     if (key === 'P1U') this.inputState.p1.u = isDown;
     else if (key === 'P1D') this.inputState.p1.d = isDown;
     else if (key === 'P1L') this.inputState.p1.l = isDown;
@@ -1929,28 +1939,28 @@ class CharacterSelectionScene extends Phaser.Scene {
     const any1 = key.includes('1');
     const any2 = key.includes('2');
 
-    // Player 1 action buttons (any button except joystick for ready confirmation)
+    // Hacker 1 action buttons (any button except joystick for ready confirmation)
     if (isDown && any1 && !['P1U', 'P1D', 'P1L', 'P1R'].includes(key)) {
       this.inputState.p1.act = true;
     }
 
-    // Player 1 any button (including joystick for joining - though P1 auto-joins)
+    // Hacker 1 any button (including joystick for joining - though P1 auto-joins)
     if (any1) {
       this.inputState.p1.any = isDown;
     }
 
-    // Player 2 directional controls
+    // Hacker 2 directional controls
     if (key === 'P2U') this.inputState.p2.u = isDown;
     else if (key === 'P2D') this.inputState.p2.d = isDown;
     else if (key === 'P2L') this.inputState.p2.l = isDown;
     else if (key === 'P2R') this.inputState.p2.r = isDown;
 
-    // Player 2 action buttons (any button except joystick for ready confirmation)
+    // Hacker 2 action buttons (any button except joystick for ready confirmation)
     if (isDown && any2 && !['P2U', 'P2D', 'P2L', 'P2R'].includes(key)) {
       this.inputState.p2.act = true;
     }
 
-    // Player 2 any button (including joystick for joining)
+    // Hacker 2 any button (including joystick for joining)
     if (any2) {
       this.inputState.p2.any = isDown;
     }
@@ -2010,6 +2020,9 @@ class CharacterSelectionScene extends Phaser.Scene {
     });
   });
     }
+
+    // Update background
+    this.background.update(delta);
 
     // Render only once per frame
     this.renderUI();
@@ -2200,9 +2213,16 @@ class GameScene extends Phaser.Scene {
     // Game state management
     this.gameState = GAME_STATES.CINEMATIC;
 
-    // Setup graphics
+    // Setup camera with sky background
+    this.cameras.main.setBackgroundColor(COLORS.SKY);
+    this.cameras.main.setZoom(CONF.SCALE);
+
+    // Use reusable background (it handles its own depth layers 0-2)
+    this.background = new DynamicBackground(this, false);
+
+    // Setup graphics (ensure depths are higher than background layers)
     this.buildingGraphics = this.add.graphics();
-    this.buildingGraphics.setDepth(0); // Background layer
+    this.buildingGraphics.setDepth(3); // Above background layers (0-2)
     this.uiGraphics = this.add.graphics();
     this.uiGraphics.setDepth(100);
 
@@ -2218,7 +2238,7 @@ class GameScene extends Phaser.Scene {
       new Player(this, 1, this.is1PlayerMode ? 9.5 : 9, 0, this.selectedCharacters.p1)
     ];
 
-    // Only create player 2 if in 2 player mode
+    // Only create Hacker 2 if in 2 player mode
     if (!this.is1PlayerMode) {
       this.players.push(new Player(this, 2, 10.5, 0, this.selectedCharacters.p2));
     }
@@ -2255,10 +2275,6 @@ class GameScene extends Phaser.Scene {
     // UI Text
     this.setupUI();
 
-    // Camera setup
-    this.cameras.main.setBackgroundColor(COLORS.SKY);
-    this.cameras.main.setZoom(CONF.SCALE);
-
     // Position camera at floor level at start
     const camX = CONF.GAME_WIDTH / 2;
     this.cameras.main.centerOn(camX, this.cameraTargetY);
@@ -2277,13 +2293,13 @@ class GameScene extends Phaser.Scene {
   }
 
   handleInput(key, isDown) {
-    // Player 1 controls
+    // Hacker 1 controls
     if (key === 'P1U') this.inputState.p1.up = isDown;
     if (key === 'P1D') this.inputState.p1.down = isDown;
     if (key === 'P1L') this.inputState.p1.left = isDown;
     if (key === 'P1R') this.inputState.p1.right = isDown;
 
-    // Player 2 controls
+    // Hacker 2 controls
     if (key === 'P2U') this.inputState.p2.up = isDown;
     if (key === 'P2D') this.inputState.p2.down = isDown;
     if (key === 'P2L') this.inputState.p2.left = isDown;
@@ -2291,7 +2307,7 @@ class GameScene extends Phaser.Scene {
   }
 
   setupUI() {
-    // Player 1 Lives
+    // Hacker 1 Lives
     this.p1LivesText = this.add.text(10, 10, 'P1: ♥♥♥', {
       fontSize: '16px',
     fontFamily: 'Arial',
@@ -2300,7 +2316,7 @@ class GameScene extends Phaser.Scene {
     this.p1LivesText.setScrollFactor(0);
     this.p1LivesText.setDepth(100);
 
-    // Player 2 Lives (only in 2 player mode)
+    // Hacker 2 Lives (only in 2 player mode)
     this.p2LivesText = this.add.text(CONF.GAME_WIDTH - 10, 10, 'P2: ♥♥♥', {
       fontSize: '16px',
     fontFamily: 'Arial',
@@ -2396,7 +2412,6 @@ class GameScene extends Phaser.Scene {
   }
 
   handlePlayerCaught(player) {
-    console.log(`Player ${player.playerNum} caught by guard!`);
 
     // Pause obstacle spawning
     this.obstaclesPaused = true;
@@ -2419,7 +2434,6 @@ class GameScene extends Phaser.Scene {
       });
     } else {
       // No players left - game over, freeze game
-      console.log('Game Over - All players caught!');
       this.gameState = GAME_STATES.GAME_OVER;
 
       // Freeze player with LOST animation
@@ -2433,7 +2447,6 @@ class GameScene extends Phaser.Scene {
 
   handleFallingObjectHit(player, objectName) {
     // Unified logic for when any falling object hits a player
-    console.log(`${objectName} hit Player ${player.playerNum}!`);
     player.takeDamage(); // This handles: lose life, fall one row, or die
   }
 
@@ -2460,7 +2473,6 @@ class GameScene extends Phaser.Scene {
         // Both players alive - 30% chance to target both
         if (Math.random() < CONF.OBSTACLE_DUAL_CHANCE) {
           targetPlayers = alivePlayers;
-          console.log('Dual obstacle spawn - targeting both players!');
         } else {
           targetPlayers = [Phaser.Utils.Array.GetRandom(alivePlayers)];
         }
@@ -2478,13 +2490,11 @@ class GameScene extends Phaser.Scene {
         const type = Phaser.Utils.Array.GetRandom(types);
         const spawnX = targetPlayer.x;
 
-        console.log(`Spawning ${type.name} at (${spawnX}, ${spawnY}) targeting Player ${targetPlayer.playerNum}`);
 
         const obstacle = new Obstacle(this, spawnX, spawnY, type);
         this.obstacles.push(obstacle);
       });
 
-      console.log(`Total obstacles: ${this.obstacles.length}`);
     } catch (error) {
       console.error('Error spawning obstacle:', error);
     }
@@ -2536,6 +2546,9 @@ class GameScene extends Phaser.Scene {
   }
 
   update(time, delta) {
+    // Update background animation
+    this.background.update(delta);
+
     try {
       // Only accept input and update guard when PLAYING
       if (this.gameState === GAME_STATES.PLAYING) {
@@ -2547,7 +2560,7 @@ class GameScene extends Phaser.Scene {
           this.inputState.p1.right
         );
 
-        // Only update player 2 input in 2 player mode
+        // Only update Hacker 2 input in 2 player mode
         if (!this.is1PlayerMode) {
           this.players[1].setInput(
             this.inputState.p2.up,
