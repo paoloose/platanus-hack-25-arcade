@@ -75,7 +75,7 @@ async function loadPalette() {
 }
 
 // ASCII alphabet for color codes (single character per color)
-const COLOR_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%&*()_+-=[]{};:,./<>?`"';
+const COLOR_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%&*()_+-=[]{};:,/<?`"';
 
 // Generate color codes as single characters from the ASCII alphabet
 function generateColorCodes(count) {
