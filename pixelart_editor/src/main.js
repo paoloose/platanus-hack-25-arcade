@@ -103,28 +103,28 @@ class Frame {
     // Initialize with first state
     this.saveState();
   }
-  
+
   saveState() {
     const state = {
       pixels: new Map(this.pixels)
     };
-    
+
     // Remove any states after current index (when undoing then making new changes)
     if (this.historyIndex < this.history.length - 1) {
       this.history = this.history.slice(0, this.historyIndex + 1);
     }
-    
+
     // Add new state
     this.history.push(state);
     this.historyIndex = this.history.length - 1;
-    
+
     // Limit history size
     if (this.history.length > this.maxHistorySize) {
       this.history.shift();
       this.historyIndex--; // Adjust index when removing from front
     }
   }
-  
+
   undo() {
     if (this.historyIndex > 0 && this.history.length > 0) {
       this.historyIndex--;
@@ -136,7 +136,7 @@ class Frame {
     }
     return false;
   }
-  
+
   redo() {
     if (this.historyIndex < this.history.length - 1 && this.history.length > 0) {
       this.historyIndex++;
@@ -148,7 +148,7 @@ class Frame {
     }
     return false;
   }
-  
+
   toJSON() {
     return {
       pixels: Array.from(this.pixels.entries()),
@@ -158,7 +158,7 @@ class Frame {
       historyIndex: this.historyIndex
     };
   }
-  
+
   static fromJSON(json) {
     const frame = new Frame();
     // Override the pixels set by constructor
@@ -200,7 +200,7 @@ class EditorState {
     this.historyIndex = -1;
     this.maxHistorySize = 50;
   }
-  
+
   getCurrentFrame() {
     if (this.currentFrameIndex >= 0 && this.currentFrameIndex < this.frames.length) {
       return this.frames[this.currentFrameIndex];
@@ -212,10 +212,10 @@ class EditorState {
     }
     return this.frames[0];
   }
-  
+
   addFrame(duplicateCurrent = true) {
     const currentFrame = this.getCurrentFrame();
-    const newFrame = duplicateCurrent 
+    const newFrame = duplicateCurrent
       ? new Frame(currentFrame.pixels)
       : new Frame();
     newFrame.saveState(); // Initialize history
@@ -223,7 +223,7 @@ class EditorState {
     this.currentFrameIndex++;
     return this.currentFrameIndex;
   }
-  
+
   deleteFrame(index) {
     if (this.frames.length <= 1) return false; // Can't delete last frame
     this.frames.splice(index, 1);
@@ -235,7 +235,7 @@ class EditorState {
     }
     return true;
   }
-  
+
   duplicateFrame(index) {
     const frameToDuplicate = this.frames[index];
     const newFrame = new Frame(frameToDuplicate.pixels);
@@ -246,7 +246,7 @@ class EditorState {
     }
     return index + 1;
   }
-  
+
   setCurrentFrame(index) {
     if (index >= 0 && index < this.frames.length) {
       this.currentFrameIndex = index;
@@ -286,7 +286,7 @@ class EditorState {
     const frame = this.getCurrentFrame();
     return frame.pixels.get(`${x},${y}`) ?? null;
   }
-  
+
   // Legacy support - get pixels for current frame
   get pixels() {
     return this.getCurrentFrame().pixels;
@@ -311,7 +311,7 @@ class EditorState {
 
   static fromJSON(json) {
     const state = new EditorState(json.width, json.height);
-    
+
     // Load frames if available, otherwise create from legacy pixels
     if (json.frames && json.frames.length > 0) {
       state.frames = json.frames.map(f => Frame.fromJSON(f));
@@ -323,14 +323,14 @@ class EditorState {
       state.currentFrameIndex = 0;
       state.frames[0].saveState();
     }
-    
+
     state.selectedColorIndex = json.selectedColorIndex ?? 0;
     state.toolSize = json.toolSize ?? 1;
     state.toolOpacity = json.toolOpacity ?? 100;
     state.zoom = json.zoom ?? 4;
     state.scrollX = json.scrollX ?? 0;
     state.scrollY = json.scrollY ?? 0;
-    
+
     return state;
   }
 }
@@ -393,12 +393,83 @@ class TabManager {
     return false;
   }
 
+  duplicateTab(index) {
+    if (index < 0 || index >= this.tabs.length) return null;
+    const original = this.tabs[index];
+    const cloneId = `tab_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const clonedState = EditorState.fromJSON(original.state.toJSON());
+    const clonedTab = {
+      id: cloneId,
+      name: `${original.name} Copy`,
+      state: clonedState
+    };
+    this.tabs.splice(index + 1, 0, clonedTab);
+
+    const originalImages = this.guidanceImages.get(original.id) || [];
+    const clonedImages = originalImages.map(img => ({ ...img }));
+    this.guidanceImages.set(cloneId, clonedImages);
+
+    this.activeTabIndex = index + 1;
+    this.saveTabs();
+    return clonedTab;
+  }
+
+  getStateData() {
+    return {
+      version: 2,
+      activeTabIndex: this.activeTabIndex,
+      tabs: this.tabs.map(tab => ({
+        id: tab.id,
+        name: tab.name,
+        state: tab.state.toJSON(),
+        guidanceImages: (this.guidanceImages.get(tab.id) || []).map(img => ({ ...img }))
+      }))
+    };
+  }
+
+  setStateData(data) {
+    if (!data) return false;
+
+    let tabsData;
+    let activeIndex = 0;
+
+    if (Array.isArray(data)) {
+      // Legacy format (array of tabs without guidance images)
+      tabsData = data;
+    } else if (data.tabs && Array.isArray(data.tabs)) {
+      tabsData = data.tabs;
+      activeIndex = typeof data.activeTabIndex === 'number' ? data.activeTabIndex : 0;
+    } else {
+      return false;
+    }
+
+    if (!tabsData.length) return false;
+
+    this.tabs = tabsData.map((item, idx) => {
+      const tabId = item.id || `tab_${Date.now()}_${Math.random().toString(36).substr(2, 9)}_${idx}`;
+      return {
+        id: tabId,
+        name: item.name || `Drawing ${idx + 1}`,
+        state: EditorState.fromJSON(item.state || item)
+      };
+    });
+
+    this.guidanceImages = new Map();
+    this.tabs.forEach((tab, idx) => {
+      let images = [];
+      const source = tabsData[idx];
+      if (source && Array.isArray(source.guidanceImages)) {
+        images = source.guidanceImages.map(img => ({ ...img }));
+      }
+      this.guidanceImages.set(tab.id, images);
+    });
+
+    this.activeTabIndex = Math.min(Math.max(activeIndex, 0), this.tabs.length - 1);
+    return true;
+  }
+
   saveTabs() {
-    const data = this.tabs.map(tab => ({
-      id: tab.id,
-      name: tab.name,
-      state: tab.state.toJSON()
-    }));
+    const data = this.getStateData();
     localStorage.setItem('pixelart_tabs', JSON.stringify(data));
   }
 
@@ -407,17 +478,16 @@ class TabManager {
     if (data) {
       try {
         const parsed = JSON.parse(data);
-        this.tabs = parsed.map(item => ({
-          id: item.id,
-          name: item.name,
-          state: EditorState.fromJSON(item.state)
-        }));
-        // Initialize guidance images map
-        this.tabs.forEach(tab => {
-          if (!this.guidanceImages.has(tab.id)) {
-            this.guidanceImages.set(tab.id, []);
-          }
-        });
+        if (this.setStateData(parsed)) {
+          // Ensure guidance images exist for each tab
+          this.tabs.forEach(tab => {
+            if (!this.guidanceImages.has(tab.id)) {
+              this.guidanceImages.set(tab.id, []);
+            }
+          });
+          this.saveTabs(); // Normalize stored format
+          return true;
+        }
       } catch (e) {
         console.error('Failed to load tabs:', e);
         this.tabs = [];
@@ -426,6 +496,7 @@ class TabManager {
     if (this.tabs.length === 0) {
       this.createTab('Drawing 1');
     }
+    return false;
   }
 }
 
@@ -543,6 +614,7 @@ class PixelArtEditor {
               </div>
             `).join('')}
             <button class="tab-add" id="add-tab">+</button>
+            <button class="tab-duplicate" id="duplicate-tab" title="Duplicate Tab">⧉</button>
           </div>
           <div class="canvas-container">
             <div class="canvas-wrapper">
@@ -696,6 +768,14 @@ class PixelArtEditor {
             <textarea id="export-output" readonly rows="10"></textarea>
           </div>
           <div class="sidebar-section">
+            <h3>App State</h3>
+            <button id="save-app-state">Save App State</button>
+            <button id="load-app-state">Load App State</button>
+            <p style="font-size: 11px; color: #888; margin-top: 4px;">
+              Saves a backup to localStorage (pixelart_app_state_backup) and restores it later.
+            </p>
+          </div>
+          <div class="sidebar-section">
             <h3>Color Codes</h3>
             <div class="color-codes-list" id="color-codes-list"></div>
           </div>
@@ -732,9 +812,9 @@ class PixelArtEditor {
   renderTimeline() {
     const timelineFrames = document.getElementById('timeline-frames');
     const state = this.getActiveState();
-    
+
     if (!timelineFrames) return;
-    
+
     timelineFrames.innerHTML = state.frames.map((frame, idx) => {
       const isActive = idx === state.currentFrameIndex;
       // Create a small thumbnail of the frame
@@ -742,7 +822,7 @@ class PixelArtEditor {
       const scale = Math.min(thumbnailSize / state.width, thumbnailSize / state.height, 1);
       const thumbWidth = Math.floor(state.width * scale);
       const thumbHeight = Math.floor(state.height * scale);
-      
+
       return `
         <div class="timeline-frame ${isActive ? 'active' : ''}" data-frame-index="${idx}">
           <div class="timeline-frame-thumbnail" data-frame-index="${idx}">
@@ -752,7 +832,7 @@ class PixelArtEditor {
         </div>
       `;
     }).join('');
-    
+
     // Draw thumbnails
     state.frames.forEach((frame, idx) => {
       const canvas = timelineFrames.querySelector(`.frame-thumbnail-canvas[data-frame-index="${idx}"]`);
@@ -762,11 +842,11 @@ class PixelArtEditor {
         const thumbHeight = canvas.height;
         const scaleX = thumbWidth / state.width;
         const scaleY = thumbHeight / state.height;
-        
+
         // Clear
         ctx.fillStyle = '#1a1a1a';
         ctx.fillRect(0, 0, thumbWidth, thumbHeight);
-        
+
         // Draw pixels
         for (const [key, colorIndex] of frame.pixels.entries()) {
           const [x, y] = key.split(',').map(Number);
@@ -1066,11 +1146,11 @@ class PixelArtEditor {
 
     // Draw guidance images
     this.drawGuidanceImages();
-    
+
     // Update timeline thumbnail for current frame
     this.updateTimelineThumbnail();
   }
-  
+
   updateTimelineThumbnail() {
     const state = this.getActiveState();
     const frameIndex = state.currentFrameIndex;
@@ -1082,11 +1162,11 @@ class PixelArtEditor {
       const scaleX = thumbWidth / state.width;
       const scaleY = thumbHeight / state.height;
       const frame = state.getCurrentFrame();
-      
+
       // Clear
       ctx.fillStyle = '#1a1a1a';
       ctx.fillRect(0, 0, thumbWidth, thumbHeight);
-      
+
       // Draw pixels
       for (const [key, colorIndex] of frame.pixels.entries()) {
         const [x, y] = key.split(',').map(Number);
@@ -1105,7 +1185,7 @@ class PixelArtEditor {
     const layer = document.getElementById('guidance-layer');
     const state = this.getActiveState();
     const images = this.tabManager.getActiveGuidanceImages();
-    
+
     layer.innerHTML = '';
     // Layer size and position are set in updateCanvasSize() to cover full wrapper
     // Only allow pointer events when cursor tool is active, otherwise let clicks pass through (for selection tool, paint tool, etc.)
@@ -1156,7 +1236,7 @@ class PixelArtEditor {
 
     this.render();
     this.setupEventListeners();
-    
+
     // Update UI to reflect per-tab settings (after render so elements exist)
     setTimeout(() => {
       document.getElementById('tool-size').value = state.toolSize;
@@ -1164,7 +1244,7 @@ class PixelArtEditor {
       document.getElementById('tool-opacity').value = state.toolOpacity;
       document.getElementById('tool-opacity-value').textContent = state.toolOpacity + '%';
     }, 0);
-    
+
     // Update canvas size and redraw (this will restore scroll position)
     this.updateCanvasSize();
     // Also restore scroll position after a brief delay to ensure DOM is ready
@@ -1237,7 +1317,22 @@ class PixelArtEditor {
       this.setupEventListeners();
       this.updateCanvasSize();
     });
-    
+
+    const duplicateTabBtn = document.getElementById('duplicate-tab');
+    if (duplicateTabBtn) {
+      duplicateTabBtn.addEventListener('click', () => {
+        const duplicated = this.tabManager.duplicateTab(this.tabManager.activeTabIndex);
+        if (duplicated) {
+          this.render();
+          this.setupEventListeners();
+          this.updateCanvasSize();
+          this.renderTimeline();
+          this.draw();
+          this.drawGuidanceImages();
+        }
+      });
+    }
+
     // Frame management
     document.getElementById('add-frame').addEventListener('click', () => {
       const state = this.getActiveState();
@@ -1246,7 +1341,7 @@ class PixelArtEditor {
       this.renderTimeline();
       this.draw();
     });
-    
+
     document.getElementById('duplicate-frame').addEventListener('click', () => {
       const state = this.getActiveState();
       state.duplicateFrame(state.currentFrameIndex);
@@ -1254,7 +1349,7 @@ class PixelArtEditor {
       this.renderTimeline();
       this.draw();
     });
-    
+
     document.getElementById('delete-frame').addEventListener('click', () => {
       const state = this.getActiveState();
       if (state.deleteFrame(state.currentFrameIndex)) {
@@ -1263,7 +1358,7 @@ class PixelArtEditor {
         this.draw();
       }
     });
-    
+
     // Frame selection - use event delegation
     const timelineFrames = document.getElementById('timeline-frames');
     if (timelineFrames) {
@@ -1280,7 +1375,7 @@ class PixelArtEditor {
         }
       });
     }
-    
+
     // Palette selection - use event delegation so it works after re-renders
     const paletteGrid = document.getElementById('palette-grid');
     if (paletteGrid) {
@@ -1460,24 +1555,24 @@ class PixelArtEditor {
         // Selection was handled, return early
         return;
       }
-      
+
       // Check for guidance images only if cursor tool is active and no selection was clicked
       if (this.currentTool === TOOLS.CURSOR) {
         const guidanceLayer = document.getElementById('guidance-layer');
         if (guidanceLayer) {
           const elements = document.elementsFromPoint(e.clientX, e.clientY);
-          const clickedGuidanceImage = elements.find(el => 
-            el.classList.contains('guidance-image') || 
+          const clickedGuidanceImage = elements.find(el =>
+            el.classList.contains('guidance-image') ||
             el.classList.contains('guidance-handles')
           );
-          
+
           if (clickedGuidanceImage) {
             // Let guidance layer handle it (only when cursor tool is active and not clicking on selection)
             return;
           }
         }
       }
-      
+
       // Continue with other tool logic
       if (this.currentTool === TOOLS.SQUARE) {
         this.squareStart = coords;
@@ -1852,7 +1947,7 @@ class PixelArtEditor {
       if (this.currentTool !== TOOLS.CURSOR) {
         return; // Let canvas handle the event
       }
-      
+
       // Don't intercept if there's a selection - let canvas handle selection interactions first
       if (this.selection) {
         // Check if click is on the selection area - if so, let canvas handle it
@@ -2069,7 +2164,7 @@ class PixelArtEditor {
         }
       };
     }
-    
+
     // Always re-attach the listener to the current container (in case DOM was recreated on tab switch)
     const zoomContainer = document.querySelector('.canvas-container');
     if (zoomContainer) {
@@ -2077,7 +2172,7 @@ class PixelArtEditor {
       zoomContainer.removeEventListener('wheel', this.wheelZoomHandler);
       zoomContainer.addEventListener('wheel', this.wheelZoomHandler, { passive: false });
     }
-    
+
     // Also add document-level handler to catch all wheel events with ctrl/cmd
     // This prevents browser zoom but allows our handler to process the event
     if (!this.documentWheelHandler) {
@@ -2130,6 +2225,49 @@ class PixelArtEditor {
       this.exportCode();
     });
 
+    const saveAppStateBtn = document.getElementById('save-app-state');
+    if (saveAppStateBtn) {
+      saveAppStateBtn.addEventListener('click', () => {
+        try {
+          const stateData = this.tabManager.getStateData();
+          localStorage.setItem('pixelart_app_state_backup', JSON.stringify(stateData));
+          alert('App state saved to localStorage (pixelart_app_state_backup).');
+        } catch (err) {
+          console.error('Failed to save app state:', err);
+          alert('Failed to save app state. Check console for details.');
+        }
+      });
+    }
+
+    const loadAppStateBtn = document.getElementById('load-app-state');
+    if (loadAppStateBtn) {
+      loadAppStateBtn.addEventListener('click', () => {
+        const data = localStorage.getItem('pixelart_app_state_backup');
+        if (!data) {
+          alert('No saved app state found in localStorage.');
+          return;
+        }
+        try {
+          const parsed = JSON.parse(data);
+          if (this.tabManager.setStateData(parsed)) {
+            this.tabManager.saveTabs();
+            this.render();
+            this.setupEventListeners();
+            this.updateCanvasSize();
+            this.renderTimeline();
+            this.draw();
+            this.drawGuidanceImages();
+            alert('App state loaded from localStorage.');
+          } else {
+            alert('Failed to load app state (invalid format).');
+          }
+        } catch (err) {
+          console.error('Failed to load app state:', err);
+          alert('Failed to load app state. Check console for details.');
+        }
+      });
+    }
+
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
       // Prevent browser zoom shortcuts (Ctrl/Cmd + Plus, Minus, 0)
@@ -2159,7 +2297,7 @@ class PixelArtEditor {
         }
         return;
       }
-      
+
       // Tool shortcuts - update UI without full render
       if (!e.ctrlKey && !e.metaKey && !e.altKey) {
         let toolChanged = false;
@@ -2230,12 +2368,12 @@ class PixelArtEditor {
           activeElement.tagName === 'TEXTAREA' ||
           activeElement.isContentEditable
         );
-        
+
         // Don't intercept paste if user is typing in an input field
         if (isInputElement) {
           return; // Let the browser handle it normally
         }
-        
+
         if (this.clipboard) {
           e.preventDefault();
           const state = this.getActiveState();
@@ -2276,7 +2414,7 @@ class PixelArtEditor {
           }
         }
       }
-      
+
       // Frame management shortcuts
       if (e.key === 'Insert' || (e.key === 'Enter' && e.ctrlKey)) {
         e.preventDefault();
@@ -2286,7 +2424,7 @@ class PixelArtEditor {
         this.renderTimeline();
         this.draw();
       }
-      
+
       // Navigate frames with arrow keys (when not in input fields)
       if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !e.ctrlKey && !e.metaKey && !e.altKey) {
         const target = e.target;
@@ -2626,10 +2764,10 @@ class PixelArtEditor {
 
     if (this.selection) {
       // Flip the selection
-      const flipped = horizontal 
+      const flipped = horizontal
         ? this.flipSelectionHorizontal(this.selection)
         : this.flipSelectionVertical(this.selection);
-      
+
       // Clear the selection area
       for (let y = this.selection.y; y < this.selection.y + this.selection.height; y++) {
         for (let x = this.selection.x; x < this.selection.x + this.selection.width; x++) {
@@ -2776,7 +2914,7 @@ class PixelArtEditor {
 
             const scaledWidth = img.width * scale;
             const scaledHeight = img.height * scale;
-            
+
             // Center image on canvas (canvas is centered in wrapper)
             const container = document.querySelector('.canvas-container');
             const wrapper = document.querySelector('.canvas-wrapper');
@@ -2784,7 +2922,7 @@ class PixelArtEditor {
             const containerHeight = container ? window.innerHeight * 2 : state.height * this.pixelSize;
             const canvasX = (containerWidth - state.width * this.pixelSize) / 2;
             const canvasY = (containerHeight - state.height * this.pixelSize) / 2;
-            
+
             // Center image within canvas area
             const x = canvasX + (state.width * this.pixelSize - scaledWidth) / 2;
             const y = canvasY + (state.height * this.pixelSize - scaledHeight) / 2;
@@ -2937,7 +3075,7 @@ class PixelArtEditor {
 
     for (let rowIdx = 0; rowIdx < rows.length; rowIdx++) {
       const row = rows[rowIdx];
-      
+
       // Check if this row is fully empty (all pixels are empty)
       const isFullyEmpty = row.every(code => code === emptyColor);
       if (isFullyEmpty) {
@@ -2945,7 +3083,7 @@ class PixelArtEditor {
         lastRow = [...row]; // Store for row repetition check
         continue; // Skip encoding this row, use ~ instead
       }
-      
+
       // Check if this row is identical to the previous row
       if (rowIdx > 0 && lastRow && row.every((code, idx) => code === lastRow[idx])) {
         encoded.push('^');
@@ -2958,7 +3096,7 @@ class PixelArtEditor {
 
       for (let colIdx = 0; colIdx < row.length; colIdx++) {
         const color = row[colIdx];
-        
+
         if (color === currentColor) {
           runLength++;
         } else {
@@ -2972,7 +3110,7 @@ class PixelArtEditor {
               remaining -= chunk;
             }
           }
-          
+
           // Start new run
           currentColor = color;
           runLength = 1;
@@ -3035,7 +3173,7 @@ class PixelArtEditor {
     state.saveState();
 
     let width, encoded;
-    
+
     // Try to parse full format: "width: 30, encoded: '...'"
     const fullFormatMatch = input.match(/width:\s*(\d+),\s*encoded:\s*['"]([^'"]+)['"]/);
     if (fullFormatMatch) {
@@ -3050,11 +3188,11 @@ class PixelArtEditor {
         // Assume the entire input is the encoded string
         encoded = input;
       }
-      
+
       // Try to detect width from the encoded string or use default
       // For now, we'll use a default width of 30 (common sprite size)
       width = 30;
-      
+
       // Try to extract width from comments if present
       const widthMatch = input.match(/width[:\s]+(\d+)/i);
       if (widthMatch) {
@@ -3069,14 +3207,14 @@ class PixelArtEditor {
 
     // Parse the CSEF string into a 2D array
     const spriteData = this.parseCSEF(encoded, width);
-    
+
     if (!spriteData || spriteData.length === 0) {
       alert('Failed to decode sprite. Please check the code.');
       return;
     }
 
     const height = spriteData.length;
-    
+
     // Center the sprite on the canvas
     const startX = Math.floor((state.width - width) / 2);
     const startY = Math.floor((state.height - height) / 2);
@@ -3087,7 +3225,7 @@ class PixelArtEditor {
         const char = spriteData[row][col];
         const x = startX + col;
         const y = startY + row;
-        
+
         if (x >= 0 && x < state.width && y >= 0 && y < state.height) {
           // Map character to color index
           if (char === '.' || char === ' ') {
@@ -3109,7 +3247,7 @@ class PixelArtEditor {
     this.draw();
     this.updateTimelineThumbnail();
     this.tabManager.saveTabs();
-    
+
     // Clear the input
     document.getElementById('import-code').value = '';
   }

@@ -463,6 +463,10 @@ button:active {
   border-color: #555;
 }
 
+.tab-duplicate {
+  background: #333;
+}
+
 .timeline-frame.active {
   border-color: #4a9eff;
   background: #2a3a4a;
