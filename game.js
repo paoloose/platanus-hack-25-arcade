@@ -35,7 +35,7 @@ const ARCADE_CONTROLS = {
   'P2X': ['f'],
   'P2Y': ['g'],
   'P2Z': ['h'],
-  'START2': ['2']
+  'START2': ['2', ' ']
 };
 
 // Build reverse lookup: keyboard key → arcade button code
@@ -147,7 +147,6 @@ COLOR_MAP[' '] = null; // Space also transparent (for old format compatibility)
 const CHARACTERS = [
   // Character 1: Default hacker (existing sprite)
   {
-    id: 0,
     name: 'Bodoque',
     sprites: {
       IDLE: '~~9.4.1[9.7.9.4.1[2.2[9.3.9.2[2.1[2.1[2.2[9.8.2[3.1[2.1[3.2[8.8.3[2.1[2.1[2.3[8.8.2A3.4[3.2A8.7.1A1G3.6[3.1G1A7.6.2A1G3.6[3.1G2A6.6.1A1G4.6[4.1G1A6.6.1A1G1A1G1A2.4[2.1A1G1A1G1A6.8.1A1G1A1G6A1G1A1G1A8.9.1.1A1G1A4G1A1G1A9.1.9.4.5A9.3.9.4.4G9.4.9.3.6A9.3.9.3.6G9.3.9.3.6A9.3.9.2.8[9.2.9.2.9[9.1.9.1.2[7.1[9.1.9.2[8.2[9.^^^9.1.2[6.2[9.1.9.3[6.3[9.~~',
@@ -160,7 +159,6 @@ const CHARACTERS = [
   },
   // Character 2: Empty (to be designed)
   {
-    id: 1,
     name: 'Condorito',
     sprites: {
       IDLE: '~~~~9.2;3.2[3.2;9.8.2;3.4;3.2;8.8.3;1.6;1.3;8.8.2;1.8;1.2;8.7.2;2.8;2.2;7.6.3;2.8;2.3;6.6.2;4.6;4.2;6.6.4;1[3.3=2.1[4;6.8.2;3[4G3[2;8.9.1.9[1[9.1.9.3.6[9.3.9.4.4[9.4.9.3.6[9.3.^9.3.6A9.3.9.2.8A9.2.9.2.9A9.1.9.1.2A7.1A9.1.9.2A8.2A9.9.2;8.2;9.^^9.1.2[6.2[9.1.9.3[6.3[9.~~',
@@ -173,7 +171,6 @@ const CHARACTERS = [
   },
   // Character 3: Empty (to be designed)
   {
-    id: 2,
     name: 'Arturo Vidal',
     sprites: {
       IDLE: '~~~9.5.2A9.5.8.2{2.2{2A2{2.2{8.7.2{2.3{2A3{2.2{7.7.3{1.3{2A3{1.3{7.7.2{2.3{2A3{2.3{6.6.3{2.8{3.2{6.5.3{3.8{3.3{5.5.3{1:3.1J4{1J3.4{5.5.1{3:3.6[2.3:1{6.6.1:9[6[1:7.7.9[6[8.9.9[2[9.1.9.2.8[9.2.^^^^9.2.8:9.2.^9.1.9:1:9.1.9.1.3{1:2.1:3{9.1.9.4{4.4{9.9.3:6.3:9.^^9.3A6.3A9.8.4A6.4A8.',
@@ -186,7 +183,6 @@ const CHARACTERS = [
   },
   // Character 4: Empty (to be designed)
   {
-    id: 3,
     name: 'Hacker 1',
     sprites: {
       IDLE: '~~~~8.2,2.6U2.2,8.7.2,2.8U2.2,7.7.3,1.8U1.3,7.7.2B2.8U2.3B6.6.3B2.8U3.2B6.5.3B3.1{6U1{3.3B5.5.4B3.6,3.4B5.5.4B3.6B2.4B6.6.9B8B7.7.9B6B8.9.9B2B9.1.9.3.6B9.3.^^^^9.2.8:9.2.^9.1.9:1:9.1.9.1.4:2.4:9.1.9.4:4.4:9.9.3:6.3:9.^^9.3A6.3A9.8.4A6.4A8.',
@@ -1542,11 +1538,352 @@ class CinematicController {
 }
 
 // =============================================================================
+// CHARACTER SELECTION SCENE
+// =============================================================================
+class CharacterSelectionScene extends Phaser.Scene {
+  constructor() {
+    super({ key: 'CharacterSelection' });
+  }
+
+  create() {
+    // Camera setup - scale to display resolution
+    // this.cameras.main.setBackgroundColor(0x000000);
+    this.cameras.main.setZoom(GAME_CONFIG.SCALE);
+    this.trans = false; // transitioning?
+
+    // Center camera on the game world
+    this.cameras.main.centerOn(GAME_CONFIG.GAME_WIDTH / 2, GAME_CONFIG.GAME_HEIGHT / 2);
+
+    // Player selection state
+    this.playerSelections = [
+      { join: true, selIdx: 0, confirm: false, c: null },  // P1
+      { join: false, selIdx: 3, confirm: false, c: null }  // P2 c = character
+    ];
+
+    // Input state with debouncing
+    this.inputState = {
+      p1: { u: false, d: false, l: false, r: false, any: false, act: false },
+      p2: { u: false, d: false, l: false, r: false, any: false, act: false }
+    };
+    this.moveTimers = [0, 0];
+    this.buttonTimers = [0, 0];
+    this.lastMoveTime = [0, 0];
+    this.lastButtonTime = [0, 0];
+
+    // Graphics
+    this.graphics = this.add.graphics();
+    this.p1PreviewGraphics = this.add.graphics();
+    this.p2PreviewGraphics = this.add.graphics();
+
+    // Create text objects once (reuse them)
+    this.createTextObjects();
+
+    // Setup keyboard input using arcade mapping
+    this.setupInput();
+  }
+
+  setupInput() {
+    this.input.keyboard.on('keydown', (event) => {
+      const key = KEYBOARD_TO_ARCADE[event.key] || event.key;
+      this.handleInput(key, true);
+    });
+
+    this.input.keyboard.on('keyup', (event) => {
+      const key = KEYBOARD_TO_ARCADE[event.key] || event.key;
+      this.handleInput(key, false);
+    });
+  }
+
+  createTextObjects() {
+    // Slot indicator texts (8 slots)
+    this.slotTexts = [];
+    for (let i = 0; i < 8; i++) {
+      this.slotTexts.push({
+        p1: this.add.text(0, 0, 'P1', { fontSize: '8px' }).setVisible(false),
+        p2: this.add.text(0, 0, 'P2', { fontSize: '8px' }).setVisible(false)
+      });
+    }
+
+    // Player preview texts
+    this.p1TitleText = this.add.text(0, 0, 'Player 1', { fontSize: '12px', color: '#0000ff' });
+    this.p2TitleText = this.add.text(0, 0, 'Player 2', { fontSize: '12px', color: '#ff0000' });
+
+    this.p2JoinText = this.add.text(0, 0, 'Press\nSTART\nto join', { fontSize: '10px', color: '#888', align: 'center' }).setVisible(false);
+
+    this.p1NameText = this.add.text(0, 0, '', { fontSize: '10px' }).setOrigin(.5, .5);
+    this.p2NameText = this.add.text(0, 0, '', { fontSize: '10px' }).setOrigin(.5, .5);
+
+    this.p1ConfirmedText = this.add.text(0, 0, '✓ READY', { fontSize: '12px', color: '#0f0' }).setVisible(false);
+    this.p2ConfirmedText = this.add.text(0, 0, '✓ READY', { fontSize: '12px', color: '#0f0' }).setVisible(false);
+  }
+
+  handleInput(key, isDown) {
+    // Player 1 directional controls
+    if (key === 'P1U') this.inputState.p1.u = isDown;
+    else if (key === 'P1D') this.inputState.p1.d = isDown;
+    else if (key === 'P1L') this.inputState.p1.l = isDown;
+    else if (key === 'P1R') this.inputState.p1.r = isDown;
+
+    const any1 = key.includes('1');
+    const any2 = key.includes('2');
+
+    // Player 1 action buttons (any button except joystick for ready confirmation)
+    if (isDown && any1 && !['P1U', 'P1D', 'P1L', 'P1R'].includes(key)) {
+      this.inputState.p1.act = true;
+    }
+
+    // Player 1 any button (including joystick for joining - though P1 auto-joins)
+    if (any1) {
+      this.inputState.p1.any = isDown;
+    }
+
+    // Player 2 directional controls
+    if (key === 'P2U') this.inputState.p2.u = isDown;
+    else if (key === 'P2D') this.inputState.p2.d = isDown;
+    else if (key === 'P2L') this.inputState.p2.l = isDown;
+    else if (key === 'P2R') this.inputState.p2.r = isDown;
+
+    // Player 2 action buttons (any button except joystick for ready confirmation)
+    if (isDown && any2 && !['P2U', 'P2D', 'P2L', 'P2R'].includes(key)) {
+      this.inputState.p2.act = true;
+    }
+
+    // Player 2 any button (including joystick for joining)
+    if (any2) {
+      this.inputState.p2.any = isDown;
+    }
+  }
+
+  update(time, delta) {
+    // Handle selector movement and confirmation
+    for (let i = 0; i < 2; i++) {
+      const selection = this.playerSelections[i];
+      const input = i === 0 ? this.inputState.p1 : this.inputState.p2;
+
+      if (!selection.join) continue;
+
+      // Movement (with better debouncing using time)
+      if (!selection.confirm && (time - this.lastMoveTime[i]) >= 150) {
+        const col = selection.selIdx % 4;
+        const row = Math.floor(selection.selIdx / 4);
+        let moved = false;
+
+        if (input.u && row > 0) { selection.selIdx -= 4; moved = true; }
+        else if (input.d && row < 1) { selection.selIdx += 4; moved = true; }
+        else if (input.l && col > 0) { selection.selIdx -= 1; moved = true; }
+        else if (input.r && col < 3) { selection.selIdx += 1; moved = true; }
+
+        if (moved) this.lastMoveTime[i] = time;
+      }
+
+      // Confirmation toggle (with better debouncing using time)
+      if (input.act && (time - this.lastButtonTime[i]) >= 250) {
+        selection.confirm = !selection.confirm;
+        selection.c = selection.confirm ? CHARACTERS[selection.selIdx] : null;
+        input.act = false;
+        this.lastButtonTime[i] = time;
+      }
+    }
+
+    // Handle P2 join (any button including joystick)
+    if (!this.playerSelections[1].join && this.inputState.p2.any) {
+      this.playerSelections[1].join = true;
+      this.inputState.p2.any = false;
+      this.inputState.p2.act = false; // Also clear action button to prevent immediate confirmation
+      this.lastButtonTime[1] = time;
+    }
+
+    // Check if ready to start
+    if (this.playerSelections.every(p => p.join && p.confirm)) {
+      this.trans = true;
+      this.time.delayedCall(1000, () => {
+        this.scene.start('GameScene', {
+          p1: this.playerSelections[0].c,
+          p2: this.playerSelections[1].c
+        });
+      });
+    }
+
+    // Render only once per frame
+    this.renderUI();
+  }
+
+  renderUI() {
+    this.graphics.clear();
+    this.p1PreviewGraphics.clear();
+    this.p2PreviewGraphics.clear();
+
+    // Hide all slot texts first
+    this.slotTexts.forEach(slot => {
+      slot.p1.setVisible(false);
+      slot.p2.setVisible(false);
+    });
+
+    // Draw character slots grid
+    this.drawCharacterGrid();
+
+    // Draw player previews
+    this.drawPlayerPreview(0, 11, 20);
+    this.drawPlayerPreview(1, GAME_CONFIG.GAME_WIDTH - 83, 20);
+  }
+
+  drawCharacterGrid() {
+    const slotSize = 30;
+    const gap = 5;
+    const gridW = 4 * (slotSize + gap) - gap;
+    const startX = (GAME_CONFIG.GAME_WIDTH - gridW) / 2;
+    const startY = GAME_CONFIG.GAME_HEIGHT - 105;
+
+    for (let row = 0; row < 2; row++) {
+      for (let col = 0; col < 4; col++) {
+        const idx = row * 4 + col;
+        const x = startX + col * (slotSize + gap);
+        const y = startY + row * (slotSize + gap);
+
+        const p1Hover = this.playerSelections[0].join && this.playerSelections[0].selIdx === idx;
+        const p2Hover = this.playerSelections[1].join && this.playerSelections[1].selIdx === idx;
+
+        // Background
+        this.graphics.fillStyle(idx < CHARACTERS.length ? 0x333333 : 0x000000, 1);
+        this.graphics.fillRect(x, y, slotSize, slotSize);
+
+        // Border
+        if (p1Hover && p2Hover) {
+          // Left half blue border
+          this.graphics.fillStyle(0x0000ff, 1);
+          this.graphics.fillRect(x, y, slotSize / 2, 2); // top
+          this.graphics.fillRect(x, y, 2, slotSize); // left
+          this.graphics.fillRect(x, y + slotSize - 2, slotSize / 2, 2); // bottom
+
+          // Right half red border
+          this.graphics.fillStyle(0xff0000, 1);
+          this.graphics.fillRect(x + slotSize / 2, y, slotSize / 2, 2); // top
+          this.graphics.fillRect(x + slotSize - 2, y, 2, slotSize); // right
+          this.graphics.fillRect(x + slotSize / 2, y + slotSize - 2, slotSize / 2, 2); // bottom
+        } else if (p1Hover) {
+          this.graphics.lineStyle(2, 0x0000ff, 1);
+          this.graphics.strokeRect(x, y, slotSize, slotSize);
+        } else if (p2Hover) {
+          this.graphics.lineStyle(2, 0xff0000, 1);
+          this.graphics.strokeRect(x, y, slotSize, slotSize);
+        } else {
+          this.graphics.lineStyle(1, 0x555555, 1);
+          this.graphics.strokeRect(x, y, slotSize, slotSize);
+        }
+
+        // Draw character (top half)
+        if (idx < CHARACTERS.length) {
+          this.drawCharacterSlot(CHARACTERS[idx], x - 15, y - 4, slotSize);
+        }
+
+        // P1/P2 indicators (only show when hovering)
+        if (p1Hover) {
+          this.graphics.fillStyle(0x0000ff, 1);
+          this.graphics.fillRect(x + 1, y + 1, 10, 8);
+          this.slotTexts[idx].p1.setPosition(x + 2, y + 1).setVisible(true);
+        }
+        if (p2Hover) {
+          this.graphics.fillStyle(0xff0000, 1);
+          this.graphics.fillRect(x + slotSize - 11, y + 1, 10, 8);
+          this.slotTexts[idx].p2.setPosition(x + slotSize - 10, y + 1).setVisible(true);
+        }
+      }
+    }
+  }
+
+  drawCharacterSlot(char, x, y, size) {
+    const sprite = parseSprite(char.sprites.FRONT, GAME_CONFIG.PLAYER_WIDTH);
+    if (!sprite || sprite.length === 0) return;
+
+    const halfH = Math.floor(sprite.length / 2);
+    const scale = (size * 1.8) / sprite[0].length;
+
+    for (let r = 0; r < halfH; r++) {
+      for (let c = 0; c < sprite[0].length; c++) {
+        const code = sprite[r][c];
+        if (code && code !== '.') {
+          const color = COLOR_MAP[code];
+          if (color !== null && color !== undefined) {
+            this.graphics.fillStyle(color, 1);
+            this.graphics.fillRect(x + c * scale + size * 0.1, y + r * scale + size * 0.2, scale, scale);
+          }
+        }
+      }
+    }
+  }
+
+  drawPlayerPreview(pIdx, x, y) {
+    const sel = this.playerSelections[pIdx];
+    const g = pIdx === 0 ? this.p1PreviewGraphics : this.p2PreviewGraphics;
+
+    // Update title text position
+    const titleText = pIdx === 0 ? this.p1TitleText : this.p2TitleText;
+    titleText.setPosition(x + 5, y);
+
+    // Show/hide join text
+    const joinText = this.p2JoinText;
+    if (!sel.join) {
+      joinText.setPosition(x + 13, y + 30).setVisible(true);
+
+      // Hide other texts
+      const nameText = pIdx === 0 ? this.p1NameText : this.p2NameText;
+      const confirmedText = pIdx === 0 ? this.p1ConfirmedText : this.p2ConfirmedText;
+      nameText.setVisible(false);
+      confirmedText.setVisible(false);
+      return;
+    }
+
+    joinText.setVisible(false);
+
+    // Preview sprite
+    const char = CHARACTERS[sel.selIdx];
+    const sprite = parseSprite(char.sprites.FRONT, GAME_CONFIG.PLAYER_WIDTH);
+    if (sprite && sprite.length > 0) {
+      const targetH = 90;
+      const scale = targetH / sprite.length * 1.5;
+
+      for (let r = 0; r < sprite.length; r++) {
+        for (let c = 0; c < sprite[0].length; c++) {
+          const code = sprite[r][c];
+          if (code && code !== '.') {
+            const col = COLOR_MAP[code];
+            if (col !== null && col !== undefined) {
+              g.fillStyle(col, 1);
+              g.fillRect(x + c * scale - 35, y + 25 + r * scale, scale, scale);
+            }
+          }
+        }
+      }
+    }
+
+    // Update name text
+    const nameText = pIdx === 0 ? this.p1NameText : this.p2NameText;
+    nameText.setText(char.name).setPosition(x + 37, y + 175).setVisible(true);
+
+    // Update confirmation status
+    const confirmedText = pIdx === 0 ? this.p1ConfirmedText : this.p2ConfirmedText;
+    if (sel.confirm) {
+      confirmedText.setPosition(x, y + 125).setVisible(true);
+    } else {
+      confirmedText.setVisible(false);
+    }
+  }
+}
+
+// =============================================================================
 // MAIN GAME SCENE
 // =============================================================================
 class GameScene extends Phaser.Scene {
   constructor() {
     super({ key: 'GameScene' });
+  }
+
+  init(data) {
+    // Receive character selections
+    this.selectedCharacters = {
+      p1: data.p1 || CHARACTERS[0],
+      p2: data.p2 || CHARACTERS[1]
+    };
   }
 
   create() {
@@ -1566,11 +1903,10 @@ class GameScene extends Phaser.Scene {
     this.cinematic = new CinematicController(this);
 
     // Create players (start in FRONT state for cinematic)
-    // Create players with character selection
-    // Hardcoded: Player 1 = Character 0 (Default Hacker), Player 2 = Character 1 (Empty)
+    // Create players with selected characters from character selection scene
     this.players = [
-      new Player(this, 1, 9, 0, CHARACTERS[2]), // Player 1: Default Hacker
-      new Player(this, 2, 10.5, 0, CHARACTERS[1])  // Player 2: Character 2 (empty)
+      new Player(this, 1, 9, 0, this.selectedCharacters.p1),
+      new Player(this, 2, 10.5, 0, this.selectedCharacters.p2)
     ];
 
     // Set players to FRONT state initially (for cinematic)
@@ -1616,12 +1952,12 @@ class GameScene extends Phaser.Scene {
 
   setupInput() {
     this.input.keyboard.on('keydown', (event) => {
-    const key = KEYBOARD_TO_ARCADE[event.key] || event.key;
+      const key = KEYBOARD_TO_ARCADE[event.key] || event.key;
       this.handleInput(key, true);
     });
 
     this.input.keyboard.on('keyup', (event) => {
-    const key = KEYBOARD_TO_ARCADE[event.key] || event.key;
+      const key = KEYBOARD_TO_ARCADE[event.key] || event.key;
       this.handleInput(key, false);
     });
   }
@@ -2166,7 +2502,7 @@ const config = {
   width: 800,
   height: 600,
   backgroundColor: '#000000',
-  scene: GameScene,
+  scene: [CharacterSelectionScene, GameScene],
   pixelArt: true
 };
 
