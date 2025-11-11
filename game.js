@@ -70,7 +70,7 @@ const C = {
   PW: 30, // Player width
   PH: 30, // Player height
   STEP: 100, // ms per animation state
-  HSTEP: 60, // horizontal steps pixels per second
+  // HSTEP: 60, // horizontal steps pixels per second
 
   // Obstacles
   OS: 14, // obstacle size 14x14 pixels
@@ -131,13 +131,13 @@ const COLORS = {
 };
 
 // Color character mapping (~ and ^ are semantic codes, not colors)
-const COLOR_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%&*()_+-=[]{};:,/<?`"';
+const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%&*()_+-=[]{};:,/<?`"';
 
 // Build color lookup from character to actual color
 const COLOR_MAP = {};
-for (let i = 0; i < COLOR_CHARS.length; i++) {
+for (let i = 0; i < CHARS.length; i++) {
   if (i < P.length) {
-    COLOR_MAP[COLOR_CHARS[i]] = P[i];
+    COLOR_MAP[CHARS[i]] = P[i];
   }
 }
 COLOR_MAP['.'] = null; // Dot is transparent/empty
@@ -150,120 +150,118 @@ const CHARACTERS = [
   // Character 1: Default hacker (existing sprite)
   {
     name: 'Engineer',
-    rawSprites: {
-      IDLE: '~~~9.3.5A9.4.8.2,1.4A>7.2,2.4A>7.3,5A>7.2<1.9A1A1.3<6.6.3<1.9A1A2.2<6.5.3<3.1{3A>5.4<3.1,2A>5.4<3.6<2.4<6.6.9<8<7.7.9<6<8.9.9<2<9.1.9.2.1}3<>^^^^9.2.4A>^9.1.5A>9.1.4A1.>9.4A2.>9.3A3.>^^^8.4A3.>',
+    raw: {
+      I: '~~~9.3.5A9.4.8.2,1.4A>7.2,2.4A>7.3,5A>7.2<1.9A1A1.3<6.6.3<1.9A1A2.2<6.5.3<3.1{3A>5.4<3.1,2A>5.4<3.6<2.4<6.6.9<8<7.7.9<6<8.9.9<2<9.1.9.2.1}3<>^^^^9.2.4A>^9.1.5A>9.1.4A1.>9.4A2.>9.3A3.>^^^8.4A3.>',
       // LUP0: null,
       // LUP1: null,
-      RUP0: '~9.3.3A>9.2.4A>9.1.9A1.3,7.9.1.9A1A1.3,6.9.1.9A1A2.2<6.^9.1.1A1{6A1{1A1.3<6.9.3.1,4A1,3.3<6.9.3.6<2.3<7.9.9<5<7.8.9<6<7.7.9<6<8.7.3<1.1}6<1}9.2.^8.2<1.1}6<1}9.2.8.3,1}6<1}9.2.8.2,1.9A1A9.9.2.9A2A8.^9.2.3A5.3A8.9.1.4A5.3A8.9.1.3A6.3A8.^9.1.3A6.4A7.9.1.3A9.8.^9.4A9.8.~~',
-      RUP1: '9.9.3.3,6.9.3.6A4.3,5.9.2.8A3.1,2<5.9.1.9A1A3.2<5.9.1.9A2A2.2<5.9.1.9A1A3.2<5.9.1.9A1A2.3<5.9.1.1A1{6A1{1A1.4<5.9.3.1,4A1,2.4<6.9.3.6<1.4<7.9.2.9<2<8.9.6<>8.9<1<1}9.2.7.4<1}6<1}9.2.7.3<1.1}6<1}9.2.^^^7.3,1.1}6<1}9.2.7.2,2.8A9.2.9.2.4A>9.2.3A1.>^^9.1.3A2.>^^^^9.4A2.>',
-      FRONT: '9.2.7A9.3.9.9A1A9.2.9.1.5A>9.3A2,1A3,3A9.9.2A1,2A1,>^9.1.1A4{>9.2.3{1K>9.3.3{>9.2.3<1,>9.1.5<>9.4<1G7<9.9.2<1}2<1G3<1}2<9.9.2<1}2<1G>^^9.2<1}1<2G3<1}2<9.9.2<1}3<>9.2,1}3<>9.2,4A>9.2.4A>^9.2.3A1.>^^^^^^^',
+      R0: '~9.3.3A>9.2.4A>9.1.9A1.3,7.9.1.9A1A1.3,6.9.1.9A1A2.2<6.^9.1.1A1{6A1{1A1.3<6.9.3.1,4A1,3.3<6.9.3.6<2.3<7.9.9<5<7.8.9<6<7.7.9<6<8.7.3<1.1}6<1}9.2.^8.2<1.1}6<1}9.2.8.3,1}6<1}9.2.8.2,1.9A1A9.9.2.9A2A8.^9.2.3A5.3A8.9.1.4A5.3A8.9.1.3A6.3A8.^9.1.3A6.4A7.9.1.3A9.8.^9.4A9.8.~~',
+      R1: '9.9.3.3,6.9.3.6A4.3,5.9.2.8A3.1,2<5.9.1.9A1A3.2<5.9.1.9A2A2.2<5.9.1.9A1A3.2<5.9.1.9A1A2.3<5.9.1.1A1{6A1{1A1.4<5.9.3.1,4A1,2.4<6.9.3.6<1.4<7.9.2.9<2<8.9.6<>8.9<1<1}9.2.7.4<1}6<1}9.2.7.3<1.1}6<1}9.2.^^^7.3,1.1}6<1}9.2.7.2,2.8A9.2.9.2.4A>9.2.3A1.>^^9.1.3A2.>^^^^9.4A2.>',
+      F: '9.2.7A9.3.9.9A1A9.2.9.1.5A>9.3A2,1A3,3A9.9.2A1,2A1,>^9.1.1A4{>9.2.3{1K>9.3.3{>9.2.3<1,>9.1.5<>9.4<1G7<9.9.2<1}2<1G3<1}2<9.9.2<1}2<1G>^^9.2<1}1<2G3<1}2<9.9.2<1}3<>9.2,1}3<>9.2,4A>9.2.4A>^9.2.3A1.>^^^^^^^',
     }
   },
   // Character 2: Empty (to be designed)
   {
     name: 'Condorito',
-    rawSprites: {
-      IDLE:'~~~~9.2;3.1[>8.2;3.2;>8.3;1.3;>8.2;1.4;>7.2;2.4;>6.3;2.4;>6.2;4.3;>6.4;1[3.3=2.1[4;6.8.2;3[2G>9.1.5[>9.3.3[>9.4.2[>9.3.3[>^9.3.3A>9.2.4A>9.2.9A9.1.9.1.2A7.1A9.1.9.2A4.>9.2;4.>^^9.1.2[3.>9.3[3.>~~',
+    raw: {
+      I:'~~~~9.2;3.1[>8.2;3.2;>8.3;1.3;>8.2;1.4;>7.2;2.4;>6.3;2.4;>6.2;4.3;>6.4;1[3.3=2.1[4;6.8.2;3[2G>9.1.5[>9.3.3[>9.4.2[>9.3.3[>^9.3.3A>9.2.4A>9.2.9A9.1.9.1.2A7.1A9.1.9.2A4.>9.2;4.>^^9.1.2[3.>9.3[3.>~~',
       // LUP0: null,
       // LUP1: null,
-      RUP0: '~~9.5.1[>9.4.4;2.3;8.9.3.6;2.2;8.9.2.8;1.2;8.9.2.8;1.3;7.9.2.8;2.2;7.9.3.6;3.2;7.9.5.3=3.1[1;8.9.1.3[4G4[1;8.9.1;9[1[9.1.8.2;3.5[9.3.8.2;3.4[9.4.9.2;2.4[9.4.9.1.2;1.4[9.4.9.1.3;4[1A9.3.9.1.1;1.6A1.2;9.9.3.7A3;8.9.2.8A1.2;8.9.2.7A2.2;8.9.1.1;2A7.2;8.9.1.2;8.1[1;8.9.1.1;9.3[7.9.1.1;9.9.1.9.1.2[9.9.9.3[9.9.~~~',
-      RUP1: '~9.9.1.3;8.9.5.2[4.2;8.9.4.4;3.2;8.9.3.6;3.2;7.9.2.8;2.2;7.^9.2.8;2.1;8.9.3.6;2.2;8.9.5.3=2.2;9.9.4.4G2[2;9.9.1.9[9.2.9.1;8[9.3.9.2;2.4[9.4.^9.1.1;2.4[9.4.^9.1.2;1.4[9.4.9.1.1;2.4[9.4.9.4.2A>^^9.3.3A>9.2.3A2.2A9.3.9.2.2;2.>^9.2.1;5.2;9.2.9.1.2[6.1[9.2.9.3[6.2[9.1.~',
-      FRONT: '~~9.3.5[9.4.9.2.6[9.4.9.2.2[5;9.3.9.3.2;1A1G3;9.2.9.1.4;1A1G3;9.2.9.1.9;9.2.9.1.2;3]4;9.2.9.2.1;1.1]4;9.3.9.5.3=9.4.9.4.5G9.3.9.3.7[9.2.9.2.9[9.1.^9.2.1;1.5[1.1;9.1.^^^9.1.2;1.5A1.2;9.^9.4.5A9.3.^9.4.1A3.1A9.3.^9.4.1;3.1;9.3.^^9.3.1[1;2.1[1;9.3.9.3.2[1.>',
+      R0: '~~9.5.1[>9.4.4;2.3;8.9.3.6;2.2;8.9.2.8;1.2;8.9.2.8;1.3;7.9.2.8;2.2;7.9.3.6;3.2;7.9.5.3=3.1[1;8.9.1.3[4G4[1;8.9.1;9[1[9.1.8.2;3.5[9.3.8.2;3.4[9.4.9.2;2.4[9.4.9.1.2;1.4[9.4.9.1.3;4[1A9.3.9.1.1;1.6A1.2;9.9.3.7A3;8.9.2.8A1.2;8.9.2.7A2.2;8.9.1.1;2A7.2;8.9.1.2;8.1[1;8.9.1.1;9.3[7.9.1.1;9.9.1.9.1.2[9.9.9.3[9.9.~~~',
+      R1: '~9.9.1.3;8.9.5.2[4.2;8.9.4.4;3.2;8.9.3.6;3.2;7.9.2.8;2.2;7.^9.2.8;2.1;8.9.3.6;2.2;8.9.5.3=2.2;9.9.4.4G2[2;9.9.1.9[9.2.9.1;8[9.3.9.2;2.4[9.4.^9.1.1;2.4[9.4.^9.1.2;1.4[9.4.9.1.1;2.4[9.4.9.4.2A>^^9.3.3A>9.2.3A2.2A9.3.9.2.2;2.>^9.2.1;5.2;9.2.9.1.2[6.1[9.2.9.3[6.2[9.1.~',
+      F: '~~9.3.5[9.4.9.2.6[9.4.9.2.2[5;9.3.9.3.2;1A1G3;9.2.9.1.4;1A1G3;9.2.9.1.9;9.2.9.1.2;3]4;9.2.9.2.1;1.1]4;9.3.9.5.3=9.4.9.4.5G9.3.9.3.7[9.2.9.2.9[9.1.^9.2.1;1.5[1.1;9.1.^^^9.1.2;1.5A1.2;9.^9.4.5A9.3.^9.4.1A3.1A9.3.^9.4.1;3.1;9.3.^^9.3.1[1;2.1[1;9.3.9.3.2[1.>',
     }
   },
   // Character 3: Empty (to be designed)
   {
     name: 'Arturo Vidal',
-    rawSprites: {
-      IDLE: '~~~9.5.1A>8.2{2.2{1A>7.2{2.3{1A>7.3{1.3{1A>7.2{2.3{2A3{2.3{6.6.3{2.8{3.2{6.5.3{3.4{>5.3{1:3.1J4{1J3.4{5.5.1{3:3.6[2.3:1{6.6.1:9[6[1:7.7.9[6[8.9.9[2[9.1.9.2.4[>^^^^9.2.4:>^9.1.5:>9.1.3{1:1.>9.4{2.>9.3:3.>^^9.3A3.>8.4A3.>',
+    raw: {
+      I: '~~~9.5.1A>8.2{2.2{1A>7.2{2.3{1A>7.3{1.3{1A>7.2{2.3{2A3{2.3{6.6.3{2.8{3.2{6.5.3{3.4{>5.3{1:3.1J4{1J3.4{5.5.1{3:3.6[2.3:1{6.6.1:9[6[1:7.7.9[6[8.9.9[2[9.1.9.2.4[>^^^^9.2.4:>^9.1.5:>9.1.3{1:1.>9.4{2.>9.3:3.>^^9.3A3.>8.4A3.>',
       // LUP0: null,
       // LUP1: null,
-      RUP0: '~9.5.1A>9.3.2{1A>9.2.3{2A3{1.3{7.9.2.3{2A3{2.3{6.9.2.3{2A3{3.2{6.9.2.8{3.2{6.9.2.8{2.3{6.9.3.1J4{1J3.3{6.9.3.6:2.2:1{7.9.9[3[2:7.8.9[6[7.7.3:9[3[8.7.3{1.8[9.2.^8.2{1.8[9.2.8.3{8[9.2.8.2{1.9:1{9.9.2.9:2{8.^9.2.3:5.2{1:8.9.1.4{5.3:8.9.1.3{6.3:8.9.1.3:6.3A8.9.1.3:6.4A7.9.1.3:9.8.9.1.3A9.8.9.4A9.8.~~',
-      RUP1: '9.9.3.3{6.9.5.2A6.3{5.9.3.2{2A2{4.3{5.9.2.3{2A3{4.2{5.^^9.2.8{3.3{5.9.2.8{2.1:3{5.9.3.1J4{1J2.1[2:1{6.9.3.6:1.3[1:7.9.2.9[2[8.9.6[>8.9[2[9.2.7.3:9[9.2.7.3{1.8[9.2.^^^^7.2{2.8:9.2.9.2.4:>9.2.3:1.>9.2.3{1.>^9.1.3{2.>9.1.3:2.>^^9.1.3A2.>9.4A2.>',
-      FRONT: '9.5.1A>9.3.2{1A>9.2.4{>9.2.3U1{>9.2.1{2A1{>9.2.4{>9.2.3{1U>9.2.1U1{1U1F>9.3.3U>9.1.2[3:>9.6[>^9.7[2F3[9.9.2:5[2F1[2:9.9.2{5[2F1[2{9.9.2{4[>^^^9.2{4:>9.2.4:>^9.2.3:1.>9.2.3{1.>^9.2.3:1.>^^9.2.3A1.>^',
+      R0: '~9.5.1A>9.3.2{1A>9.2.3{2A3{1.3{7.9.2.3{2A3{2.3{6.9.2.3{2A3{3.2{6.9.2.8{3.2{6.9.2.8{2.3{6.9.3.1J4{1J3.3{6.9.3.6:2.2:1{7.9.9[3[2:7.8.9[6[7.7.3:9[3[8.7.3{1.8[9.2.^8.2{1.8[9.2.8.3{8[9.2.8.2{1.9:1{9.9.2.9:2{8.^9.2.3:5.2{1:8.9.1.4{5.3:8.9.1.3{6.3:8.9.1.3:6.3A8.9.1.3:6.4A7.9.1.3:9.8.9.1.3A9.8.9.4A9.8.~~',
+      R1: '9.9.3.3{6.9.5.2A6.3{5.9.3.2{2A2{4.3{5.9.2.3{2A3{4.2{5.^^9.2.8{3.3{5.9.2.8{2.1:3{5.9.3.1J4{1J2.1[2:1{6.9.3.6:1.3[1:7.9.2.9[2[8.9.6[>8.9[2[9.2.7.3:9[9.2.7.3{1.8[9.2.^^^^7.2{2.8:9.2.9.2.4:>9.2.3:1.>9.2.3{1.>^9.1.3{2.>9.1.3:2.>^^9.1.3A2.>9.4A2.>',
+      F: '9.5.1A>9.3.2{1A>9.2.4{>9.2.3U1{>9.2.1{2A1{>9.2.4{>9.2.3{1U>9.2.1U1{1U1F>9.3.3U>9.1.2[3:>9.6[>^9.7[2F3[9.9.2:5[2F1[2:9.9.2{5[2F1[2{9.9.2{4[>^^^9.2{4:>9.2.4:>^9.2.3:1.>9.2.3{1.>^9.2.3:1.>^^9.2.3A1.>^',
     }
   },
   // Character 4: Empty (to be designed)
   {
-    name: 'Mr VC',
-    rawSprites: {
-      IDLE: '~~9.4.2,>8.2,2.3,>5.2Y3,1.4,>5.2Y2,2Y8,2Y2,1Y1i5.6.1i3,1i4,>7.2G2.8,2.3G6.6.3G2.1{6,1{3.2G6.5.3G3.4{>5.4G3.3{>5.4G3.6G2.4G6.6.9G8G7.7.6G1c2G1c5G8.9.4G1c2G1c3G9.1.9.2.1F1G2c>9.2.1F2G1c>^^9.2.1F3G>9.2.4:>^9.1.5:>9.1.4:1.>9.4:2.>9.3:3.>^^9.3q3.>8.4q3.>',
+    name: 'Señor VC',
+    raw: {
+      I: '~~9.4.2,>8.2,2.3,>5.2Y3,1.4,>5.2Y2,2Y8,2Y2,1Y1i5.6.1i3,1i4,>7.2G2.8,2.3G6.6.3G2.1{6,1{3.2G6.5.3G3.4{>5.4G3.3{>5.4G3.6G2.4G6.6.9G8G7.7.6G1c2G1c5G8.9.4G1c2G1c3G9.1.9.2.1F1G2c>9.2.1F2G1c>^^9.2.1F3G>9.2.4:>^9.1.5:>9.1.4:1.>9.4:2.>9.3:3.>^^9.3q3.>8.4q3.>',
       // LUP0: null,
       // LUP1: null,
-      RUP0: '9.4.2,>9.3.3,>9.2.4,>9.2.8,1.3,2i5.9.2.8,2Y3,1Y5.9.2.8,3i2G6.9.2.1{6,1{3.2G6.9.2.8{2.3G6.9.3.6{3.3G6.9.3.6G2.3G7.9.4G1c2G1c6G7.8.5G1c2G1c6G7.7.6G4c5G8.7.3G1.1F2G2c2G1F9.2.^8.2G1.1F2G2c2G1F9.2.6.2Y3,1Y6G1F9.2.6.2i2,2i9:9.9.2.9:2:8.^9.2.3:5.3:8.9.1.4:5.3:8.9.1.3:6.3:8.9.1.3:6.3q8.9.1.3:6.4q7.9.1.3:9.8.9.1.3q9.8.9.4q9.8.~~',
-      RUP1: '9.4.4,4.3,2i4.9.3.6,2.2Y3,1Y4.9.2.8,1.2i1,2G5.9.2.8,4.2G5.^^9.2.1{6,1{3.3G5.9.2.8{2.4G5.9.3.6{2.4G6.9.3.6G1.4G7.9.2.9G2G8.9.4G1c1G>8.5G1c2G1c1G1F9.2.7.4G1F1G4c1G1F9.2.7.3G1.1F2G2c2G1F9.2.^^7.3G1.1F6G1F9.2.5.2Y3,1Y1F6G1F9.2.5.2i2,2i8:9.2.9.2.4:>9.2.3:1.>^^9.1.3:2.>^^^9.1.3q2.>9.4q2.>',
-      FRONT: '9.4.2,>9.3.3,>9.2.4,>^9.2.1,2A1,>9.2.4,>9.2.2{1G1{>9.2.3{1G>9.3.3{>9.1.4G2,3G3.3,5.9.9G2G1.6Y3.9.2G1F5c3G1.2i2,2i3.9.2G1F1c1G1c1G1c1G1F2G2.2G5.9.2G1F1c3G1c1G1F6G5.9.2G1F2c1G2c1G1F5G6.9.2G1F2c1G2c1G1F1.3G7.9.2G1F5c1G1F9.2.9.2G1F6G1F9.2.7.2i3,1Y5G1F9.2.7.2Y2,2i6:9.2.9.2.4:>^9.2.3:1.>^^^^^9.2.3q1.>^',
+      R0: '9.4.2,>9.3.3,>9.2.4,>9.2.8,1.3,2i5.9.2.8,2Y3,1Y5.9.2.8,3i2G6.9.2.1{6,1{3.2G6.9.2.8{2.3G6.9.3.6{3.3G6.9.3.6G2.3G7.9.4G1c2G1c6G7.8.5G1c2G1c6G7.7.6G4c5G8.7.3G1.1F2G2c2G1F9.2.^8.2G1.1F2G2c2G1F9.2.6.2Y3,1Y6G1F9.2.6.2i2,2i9:9.9.2.9:2:8.^9.2.3:5.3:8.9.1.4:5.3:8.9.1.3:6.3:8.9.1.3:6.3q8.9.1.3:6.4q7.9.1.3:9.8.9.1.3q9.8.9.4q9.8.~~',
+      R1: '9.4.4,4.3,2i4.9.3.6,2.2Y3,1Y4.9.2.8,1.2i1,2G5.9.2.8,4.2G5.^^9.2.1{6,1{3.3G5.9.2.8{2.4G5.9.3.6{2.4G6.9.3.6G1.4G7.9.2.9G2G8.9.4G1c1G>8.5G1c2G1c1G1F9.2.7.4G1F1G4c1G1F9.2.7.3G1.1F2G2c2G1F9.2.^^7.3G1.1F6G1F9.2.5.2Y3,1Y1F6G1F9.2.5.2i2,2i8:9.2.9.2.4:>9.2.3:1.>^^9.1.3:2.>^^^9.1.3q2.>9.4q2.>',
+      F: '9.4.2,>9.3.3,>9.2.4,>^9.2.1,2A1,>9.2.4,>9.2.2{1G1{>9.2.3{1G>9.3.3{>9.1.4G2,3G3.3,5.9.9G2G1.6Y3.9.2G1F5c3G1.2i2,2i3.9.2G1F1c1G1c1G1c1G1F2G2.2G5.9.2G1F1c3G1c1G1F6G5.9.2G1F2c1G2c1G1F5G6.9.2G1F2c1G2c1G1F1.3G7.9.2G1F5c1G1F9.2.9.2G1F6G1F9.2.7.2i3,1Y5G1F9.2.7.2Y2,2i6:9.2.9.2.4:>^9.2.3:1.>^^^^^9.2.3q1.>^',
     }
   },
   {
     name: 'Bodoque',
-    rawSprites: {
-      IDLE: '~~9.4.1[9.7.9.4.1[2.2[9.3.9.2[2.1[1.>8.2[3.1[1.>8.3[2.1[1.>8.2A3.2[>7.1A1G3.3[>6.2A1G3.3[>6.1A1G4.3[>6.1A1G1A1G1A2.2[>8.1A1G1A1G3A>9.1.1A1G1A2G>9.4.5A9.3.9.4.2G>9.3.3A>9.3.3G>9.3.3A>9.2.4[>9.2.9[9.1.9.1.2[7.1[9.1.9.2[4.>^^^9.1.2[3.>9.3[3.>~~',
-      // LUP0: null, // Will be created as horizontal mirror of RUP0
-      // LUP1: null, // Will be created as horizontal mirror of RUP1
-      RUP0: '9.4.1[9.7.9.4.1[2.2[9.3.9.4.1[1.>9.4.1[2.1[2.3[8.9.4.1[2.1[3.2[8.9.4.4[3.2A8.9.3.6[2.3G7.9.3.6[3.2A7.9.3.6[3.2G7.9.4.4[3.2A8.9.1.1A1G6A1G1A2G8.9.1G1A1G1A4G1A1G1A9.1.8.1A1G1A2.5A9.3.8.3A2.4G9.4.9.2G2.4A9.4.9.1.2A1.4G9.4.9.1.3[5A9.3.9.1.1[1.6G1.2[9.9.3.5A5[8.9.2.8[1.2[8.9.2.7[2.2[8.9.1.3[7.2[8.9.1.2[8.2[8.9.1.1[9.3[7.9.1.1[9.9.1.9.1.2[9.9.9.3[9.9.~~~',
-      RUP1: '9.4.1[9.7.9.4.1[2.2[1.3[8.9.4.1[2.1[3.2[8.9.4.1[2.1[3.2A8.9.4.1[2.1[3.1A2G7.9.4.4[4.2A7.9.3.6[3.2G7.9.3.6[3.2A7.9.3.6[2.2G8.9.4.4[2.2A9.9.4.6A2G9.9.1.1A1G1A5G1A9.2.9.1G1A1G6A9.3.9.1G1A2.4G9.4.9.2A2.4A9.4.9.1.2G1.4G9.4.9.1.2A1.4A9.4.9.1.3[4G9.4.9.1.1[2.4A9.4.9.4.2G>9.4.2A>9.4.2[>9.3.3[>9.2.3[2.2[9.3.9.2.2[2.>^9.2.1[5.2[9.2.9.1.2[6.1[9.2.9.3[6.2[9.1.~',
-      FRONT: '9.3.2[3.2[9.2.9.3.2[2.3[9.2.9.3.2[1.>^^9.3.7[9.2.9.3.1[1A2[1A2[9.2.^9.3.2[2O3[9.2.9.4.5[9.3.9.4.5A9.3.9.3.7G9.2.9.2.1G7A1G9.1.9.2.1A1.5G1.1A9.1.9.2.1G1.5A1.1G9.1.9.2.1A1.5G1.1A9.1.9.2.1G1.5A1.1G9.1.9.2.1A1.5G1.1A9.1.9.1.2[1.5A1.2[9.9.1.2[1.5G1.2[9.9.4.5A9.3.9.4.5[9.3.^9.4.1[3.1[9.3.^^^^9.3.2[1.>^',
+    raw: {
+      I: '~~9.4.1[9.7.9.4.1[2.2[9.3.9.2[2.1[1.>8.2[3.1[1.>8.3[2.1[1.>8.2A3.2[>7.1A1G3.3[>6.2A1G3.3[>6.1A1G4.3[>6.1A1G1A1G1A2.2[>8.1A1G1A1G3A>9.1.1A1G1A2G>9.4.5A9.3.9.4.2G>9.3.3A>9.3.3G>9.3.3A>9.2.4[>9.2.9[9.1.9.1.2[7.1[9.1.9.2[4.>^^^9.1.2[3.>9.3[3.>~~',
+      // LUP0: null, // Will be created as horizontal mirror of R0
+      // LUP1: null, // Will be created as horizontal mirror of R1
+      R0: '9.4.1[9.7.9.4.1[2.2[9.3.9.4.1[1.>9.4.1[2.1[2.3[8.9.4.1[2.1[3.2[8.9.4.4[3.2A8.9.3.6[2.3G7.9.3.6[3.2A7.9.3.6[3.2G7.9.4.4[3.2A8.9.1.1A1G6A1G1A2G8.9.1G1A1G1A4G1A1G1A9.1.8.1A1G1A2.5A9.3.8.3A2.4G9.4.9.2G2.4A9.4.9.1.2A1.4G9.4.9.1.3[5A9.3.9.1.1[1.6G1.2[9.9.3.5A5[8.9.2.8[1.2[8.9.2.7[2.2[8.9.1.3[7.2[8.9.1.2[8.2[8.9.1.1[9.3[7.9.1.1[9.9.1.9.1.2[9.9.9.3[9.9.~~~',
+      R1: '9.4.1[9.7.9.4.1[2.2[1.3[8.9.4.1[2.1[3.2[8.9.4.1[2.1[3.2A8.9.4.1[2.1[3.1A2G7.9.4.4[4.2A7.9.3.6[3.2G7.9.3.6[3.2A7.9.3.6[2.2G8.9.4.4[2.2A9.9.4.6A2G9.9.1.1A1G1A5G1A9.2.9.1G1A1G6A9.3.9.1G1A2.4G9.4.9.2A2.4A9.4.9.1.2G1.4G9.4.9.1.2A1.4A9.4.9.1.3[4G9.4.9.1.1[2.4A9.4.9.4.2G>9.4.2A>9.4.2[>9.3.3[>9.2.3[2.2[9.3.9.2.2[2.>^9.2.1[5.2[9.2.9.1.2[6.1[9.2.9.3[6.2[9.1.~',
+      F: '9.3.2[3.2[9.2.9.3.2[2.3[9.2.9.3.2[1.>^^9.3.7[9.2.9.3.1[1A2[1A2[9.2.^9.3.2[2O3[9.2.9.4.5[9.3.9.4.5A9.3.9.3.7G9.2.9.2.1G7A1G9.1.9.2.1A1.5G1.1A9.1.9.2.1G1.5A1.1G9.1.9.2.1A1.5G1.1A9.1.9.2.1G1.5A1.1G9.1.9.2.1A1.5G1.1A9.1.9.1.2[1.5A1.2[9.9.1.2[1.5G1.2[9.9.4.5A9.3.9.4.5[9.3.^9.4.1[3.1[9.3.^^^^9.3.2[1.>^',
     }
   },
   {
     name: 'Profesor Rossa',
-    rawSprites: {
-      IDLE: '~~9.3.3=>9.2.4=>8.2,5=>7.2,1.5=>7.3,5=>7.2D1.5=>6.3$1.5=>5.3$3.1,3=>5.4$3.3,>5.4$3.6A2.5$5.6.6$6A5$7.7.5$6A3$9.9.1.2$3A>9.2.4A>^^^9.2.4B>9.2.4A>9.2.9A9.1.9.1.4A1.>9.4A2.>9.3A3.>^^9.3B3.>8.4B3.>~',
+    raw: {
+      I: '~~9.3.3=>9.2.4=>8.2,5=>7.2,1.5=>7.3,5=>7.2D1.5=>6.3$1.5=>5.3$3.1,3=>5.4$3.3,>5.4$3.6A2.5$5.6.6$6A5$7.7.5$6A3$9.9.1.2$3A>9.2.4A>^^^9.2.4B>9.2.4A>9.2.9A9.1.9.1.4A1.>9.4A2.>9.3A3.>^^9.3B3.>8.4B3.>~',
       // LUP0: null,
       // LUP1: null,
-      RUP0: '9.3.3=>9.2.4=>9.1.5=>9.1.9=1=4,6.9.1.9=1=1.3,6.9.1.9=1=1.3D6.9.1.9=1=1.3$6.9.2.1,6=1,2.3$6.9.3.6,3.3$6.9.3.6A2.4$6.9.3$7A4$7.8.4$7A4$7.7.5$7A3$8.7.3$1.8A9.2.^8.2D1.8A9.2.8.3,8A9.2.8.2,1.8B2A9.9.2.9A2A8.^9.2.6A2.3A8.9.1.4A5.3A8.9.1.3A6.3A8.9.1.3A6.3B8.9.1.3A6.4B7.9.1.3A9.8.9.1.3B9.8.9.4B9.8.~~',
-      RUP1: '9.3.6=3.4,5.9.2.8=3.3,5.9.1.9=1=2.3D5.9.1.9=1=2.3$5.^^9.1.9=1=1.4$5.9.2.1,6=1,2.3$1A5.9.3.6,3.3$6.9.3.6A1.1A3$7.9.2.8A3$8.9.2$4A>8.3$8A9.2.7.3$9A9.2.7.3$1.8A9.2.^^7.3D1.8A9.2.7.3,1.8B9.2.7.2,2.8A9.2.9.2.4A>^^9.1.4A1.>^9.1.3A2.>^^9.1.3B2.>9.4B2.>',
-      FRONT: '9.3.3=>9.2.4=>9.1.3=2,>9.1.2=2&1,>9.1.2=2A1{>9.1.2=2,1{>9.1.1=3,1&>9.2.2,1&1_>9.3.3,>9.1.2A2$1A>9.3A3$>9.1$3A2$>9.2$3A1$>9.2$4A>^^^9.2D4A>9.2,4B>9.2,4A>9.2.4A>^9.2.3A1.>^^^^^9.2.3B1.>^',
+      R0: '9.3.3=>9.2.4=>9.1.5=>9.1.9=1=4,6.9.1.9=1=1.3,6.9.1.9=1=1.3D6.9.1.9=1=1.3$6.9.2.1,6=1,2.3$6.9.3.6,3.3$6.9.3.6A2.4$6.9.3$7A4$7.8.4$7A4$7.7.5$7A3$8.7.3$1.8A9.2.^8.2D1.8A9.2.8.3,8A9.2.8.2,1.8B2A9.9.2.9A2A8.^9.2.6A2.3A8.9.1.4A5.3A8.9.1.3A6.3A8.9.1.3A6.3B8.9.1.3A6.4B7.9.1.3A9.8.9.1.3B9.8.9.4B9.8.~~',
+      R1: '9.3.6=3.4,5.9.2.8=3.3,5.9.1.9=1=2.3D5.9.1.9=1=2.3$5.^^9.1.9=1=1.4$5.9.2.1,6=1,2.3$1A5.9.3.6,3.3$6.9.3.6A1.1A3$7.9.2.8A3$8.9.2$4A>8.3$8A9.2.7.3$9A9.2.7.3$1.8A9.2.^^7.3D1.8A9.2.7.3,1.8B9.2.7.2,2.8A9.2.9.2.4A>^^9.1.4A1.>^9.1.3A2.>^^9.1.3B2.>9.4B2.>',
+      F: '9.3.3=>9.2.4=>9.1.3=2,>9.1.2=2&1,>9.1.2=2A1{>9.1.2=2,1{>9.1.1=3,1&>9.2.2,1&1_>9.3.3,>9.1.2A2$1A>9.3A3$>9.1$3A2$>9.2$3A1$>9.2$4A>^^^9.2D4A>9.2,4B>9.2,4A>9.2.4A>^9.2.3A1.>^^^^^9.2.3B1.>^',
     }
   },
   {
     name: 'E-Girl',
-    rawSprites: {
-      IDLE: '~~~~8.2;2.3G>7.2;2.4G>7.3;1.4G>7.2$2.8%2.3$6.6.3$2.8%3.2$6.5.3$3.4%>5.4$2.4%>5.4$2.7%2.4$6.6.6$6%5$7.7.5$6%4$8.9.4$4%3$9.1.9.3.1$3%2$9.3.9.3.2$1%>9.3.2$1%3$9.3.9.3.3$>9.3.3%>9.2.4G>^9.1.5G>9.1.4G1.>9.4G2.>9.3G3.>^^9.3%3.>8.4%3.>',
+    raw: {
+      I: '~~~~8.2;2.3G>7.2;2.4G>7.3;1.4G>7.2$2.8%2.3$6.6.3$2.8%3.2$6.5.3$3.4%>5.4$2.4%>5.4$2.7%2.4$6.6.6$6%5$7.7.5$6%4$8.9.4$4%3$9.1.9.3.1$3%2$9.3.9.3.2$1%>9.3.2$1%3$9.3.9.3.3$>9.3.3%>9.2.4G>^9.1.5G>9.1.4G1.>9.4G2.>9.3G3.>^^9.3%3.>8.4%3.>',
       // LUP0: null,
       // LUP1: null,
-      RUP0: '~~9.3.3G>9.2.8G1.3;7.9.2.8G2.3;6.9.2.8%3.2$6.^9.2.8%2.3$6.^9.2.7%2.3$7.9.3$6%5$7.8.4$5%6$7.7.6$3%6$8.7.3$2.2$2%2$9.3.7.3$2.2$1%3$9.3.8.2$2.6$9.3.8.3;1.6%9.3.8.2;1.9G1G9.9.2.9G2G8.^9.2.3G5.3G8.9.1.4G5.3G8.9.1.3G6.3G8.9.1.3G6.3%8.9.1.3G6.4%7.9.1.3G9.8.9.1.3%9.8.9.4%9.8.~~',
-      RUP1: '9.9.3.3;6.9.9.4.3;5.9.3.6G4.1;2$5.9.2.8G4.2$5.^9.2.8%4.2$5.9.2.8%3.3$5.9.2.8%2.4$5.9.2.8%1.4$6.9.2.7%1.4$7.9.2.6%5$8.9.3$5%4$9.8.5$3%2$9.3.7.4$1.1$2%3$9.3.7.3$2.2$1%3$9.3.7.3$2.6$9.3.^^7.3;2.6%9.3.7.2;2.8G9.2.9.2.4G>9.2.3G1.>^^9.1.3G2.>^^^9.1.3%2.>9.4%2.>',
-      FRONT: '~9.3.3G>9.2.3G1%>9.2.4G>9.2.4%>9.2.1%2;1%>9.2.1%2M1;>9.2.1%3;>9.2.2%2;>9.3.2%1,>9.2.1$2%1$>9.1.2$2%1$>9.3$2%1$>9.2$3%1$>^9.2$2%2$>9.3$1%2$>^9.2,4$>9.2,4%>9.2.4G>^^^^^^^9.2.4%>^',
+      R0: '~~9.3.3G>9.2.8G1.3;7.9.2.8G2.3;6.9.2.8%3.2$6.^9.2.8%2.3$6.^9.2.7%2.3$7.9.3$6%5$7.8.4$5%6$7.7.6$3%6$8.7.3$2.2$2%2$9.3.7.3$2.2$1%3$9.3.8.2$2.6$9.3.8.3;1.6%9.3.8.2;1.9G1G9.9.2.9G2G8.^9.2.3G5.3G8.9.1.4G5.3G8.9.1.3G6.3G8.9.1.3G6.3%8.9.1.3G6.4%7.9.1.3G9.8.9.1.3%9.8.9.4%9.8.~~',
+      R1: '9.9.3.3;6.9.9.4.3;5.9.3.6G4.1;2$5.9.2.8G4.2$5.^9.2.8%4.2$5.9.2.8%3.3$5.9.2.8%2.4$5.9.2.8%1.4$6.9.2.7%1.4$7.9.2.6%5$8.9.3$5%4$9.8.5$3%2$9.3.7.4$1.1$2%3$9.3.7.3$2.2$1%3$9.3.7.3$2.6$9.3.^^7.3;2.6%9.3.7.2;2.8G9.2.9.2.4G>9.2.3G1.>^^9.1.3G2.>^^^9.1.3%2.>9.4%2.>',
+      F: '~9.3.3G>9.2.3G1%>9.2.4G>9.2.4%>9.2.1%2;1%>9.2.1%2M1;>9.2.1%3;>9.2.2%2;>9.3.2%1,>9.2.1$2%1$>9.1.2$2%1$>9.3$2%1$>9.2$3%1$>^9.2$2%2$>9.3$1%2$>^9.2,4$>9.2,4%>9.2.4G>^^^^^^^9.2.4%>^',
     }
   },
   {
     name: 'Pandemia',
-    rawSprites: {
-      IDLE: '~9.5.1<1.1<9.4.9.3.3<>9.4.2/>8.2/2.3/>7.2/3.3/>7.3/1.4/>7.2o2.8/3.2o6.6.3B2.8/3.2B6.5.3B3.4/>5.4B2.2<2/>5.4B3.6<2.4B6.6.9B8B7.7.9B6B8.9.9B2B9.1.9.2.4B>^^^^^^9.1.1B1f1B1f1B1f1B1f1B1f9.1.9.1.5f>9.4f2.>9.3f3.>^^9.3/3.>8.4/3.>',
+    raw: {
+      I: '~9.5.1<1.1<9.4.9.3.3<>9.4.2/>8.2/2.3/>7.2/3.3/>7.3/1.4/>7.2o2.8/3.2o6.6.3B2.8/3.2B6.5.3B3.4/>5.4B2.2<2/>5.4B3.6<2.4B6.6.9B8B7.7.9B6B8.9.9B2B9.1.9.2.4B>^^^^^^9.1.1B1f1B1f1B1f1B1f1B1f9.1.9.1.5f>9.4f2.>9.3f3.>^^9.3/3.>8.4/3.>',
       // LUP0: null,
       // LUP1: null,
-      RUP0: '9.4.2<>9.3.3<>9.4.2/>9.3.6/2.3/7.9.3.6/3.3/6.9.2.8/3.2o6.9.2.8/3.2B6.9.2.8/2.3B6.9.2.2<4/2<2.3B6.9.2.1B6<2.3B7.9.9B5B7.8.9B6B7.7.9B6B8.7.3B1.8B9.2.^8.2o1.8B9.2.8.3/8B9.2.8.2/1.9B1f9.9.2.8B3f8.9.2.1B1f1B1f1B1f1B4f8.9.2.3f5.3f8.9.1.4f5.3f8.9.1.3f6.3f8.9.1.3f6.3/8.9.1.3f6.4/7.9.1.3f9.8.9.1.3/9.8.9.4/9.8.~~',
-      RUP1: '9.5.1<1.1<4.3/6.9.3.6<4.3/5.9.4.4<5.1/2o5.9.4.4/5.2o1B5.9.3.6/5.2B5.^9.3.7/3.3B5.9.2.8/2.4B5.9.2.8/1.4B6.9.2.8/4B7.9.2.2<4/2<3B8.9.3B3<>8.9B2B9.2.7.9B3B9.2.7.3B1.8B9.2.^^7.3o1.8B9.2.7.3/1.8B9.2.7.2/2.8B9.2.9.2.4B>9.2.1B1f1B1f>9.2.3f1.>^9.1.3f2.>^^^9.1.3/2.>9.4/2.>',
-      FRONT: '9.4.1?1.>9.3.3?>9.4.2<>9.3.3<>^9.3.3A>9.2.1<2G1?>9.2.1<1G1A1?>9.2.3<1?>9.2.1<1A1<1?>9.2.2<2A>9.1.2B1?2<>9.3B1o2?>9.4B2o>^9.1B1/3B1o>9.1B1/4B>^9.2o4B>9.2<4B>^9.2.4B>^9.2.1B1f1B1f1B1f1B1f9.2.9.2.4f>9.2.3f1.>^^9.2.3<1.>^',
+      R0: '9.4.2<>9.3.3<>9.4.2/>9.3.6/2.3/7.9.3.6/3.3/6.9.2.8/3.2o6.9.2.8/3.2B6.9.2.8/2.3B6.9.2.2<4/2<2.3B6.9.2.1B6<2.3B7.9.9B5B7.8.9B6B7.7.9B6B8.7.3B1.8B9.2.^8.2o1.8B9.2.8.3/8B9.2.8.2/1.9B1f9.9.2.8B3f8.9.2.1B1f1B1f1B1f1B4f8.9.2.3f5.3f8.9.1.4f5.3f8.9.1.3f6.3f8.9.1.3f6.3/8.9.1.3f6.4/7.9.1.3f9.8.9.1.3/9.8.9.4/9.8.~~',
+      R1: '9.5.1<1.1<4.3/6.9.3.6<4.3/5.9.4.4<5.1/2o5.9.4.4/5.2o1B5.9.3.6/5.2B5.^9.3.7/3.3B5.9.2.8/2.4B5.9.2.8/1.4B6.9.2.8/4B7.9.2.2<4/2<3B8.9.3B3<>8.9B2B9.2.7.9B3B9.2.7.3B1.8B9.2.^^7.3o1.8B9.2.7.3/1.8B9.2.7.2/2.8B9.2.9.2.4B>9.2.1B1f1B1f>9.2.3f1.>^9.1.3f2.>^^^9.1.3/2.>9.4/2.>',
+      F: '9.4.1?1.>9.3.3?>9.4.2<>9.3.3<>^9.3.3A>9.2.1<2G1?>9.2.1<1G1A1?>9.2.3<1?>9.2.1<1A1<1?>9.2.2<2A>9.1.2B1?2<>9.3B1o2?>9.4B2o>^9.1B1/3B1o>9.1B1/4B>^9.2o4B>9.2<4B>^9.2.4B>^9.2.1B1f1B1f1B1f1B1f9.2.9.2.4f>9.2.3f1.>^^9.2.3<1.>^',
     }
   }
 ];
 
 // Guard sprites (reuses player sprites for now)
-const RAW_GUARD_SPRITES = {
-  IDLE: '~~~9.2.4A>8.2{1.4A>7.2{2.4A>7.3{1.4U>7.2D2.4U>6.3A2.4U>5.3A3.1{3U>5.4A3.3{>5.4A3.6A2.5A5.6.9A8A7.7.9A6A8.9.9A2A9.1.9.2.4A>^^9.2.1B2}5B9.2.^9.2.4A>^9.1.5A>9.1.4A1.>9.4A2.>9.3A3.>^^9.3B3.>8.4B3.>',
-  LUP0: null, // Will be mirrored from RUP0 below
-  LUP1: null, // Will be mirrored from RUP1 below
-  RUP0: '~9.2.4A>^9.2.8A1.4{6.9.2.8U2.3{6.9.2.8U2.3D6.9.2.8U2.3A6.9.2.1{6U1{2.3A6.9.3.6{3.3A6.9.3.6A2.4A6.9.9A5A7.8.9A6A7.7.9A6A8.7.3A1.8A9.2.^8.2D1.8A9.2.8.3{1B2}5B9.2.8.2{1.1B2}5B2A9.9.2.9A2A8.^9.2.6A2.3A8.9.1.4A5.3A8.9.1.3A6.3A8.9.1.3A6.3B8.9.1.3A6.4B7.9.1.3A9.8.9.1.3B9.8.9.4B9.8.~~',
-  RUP1: '9.9.3.4{5.9.2.8A3.3{5.9.2.8A3.3D5.9.2.8A3.3A5.9.2.8U3.3A5.^9.2.8U2.4A5.9.2.1{6U1{2.4A5.9.3.6{3.3A6.9.3.6A1.4A7.9.2.9A2A8.9.6A>8.9A2A9.2.7.9A3A9.2.7.3A1.8A9.2.^^7.3D1.1B2}5B9.2.7.3{1.1B2}5B9.2.7.2{2.8A9.2.9.2.4A>^^9.1.4A1.>^9.1.3A2.>^^9.1.3B2.>9.4B2.>',
-  FRONT: '9.2.4A>9.2.2A2O>^9.2.3U1O>9.2.4q>9.2.3q1{>9.2.3{1U>9.2.2{1U1J>9.3.3{>9.1.2A2D1A>9.4A1D1A>^9.6A>^^^^9.2D3B1O>9.2{3B1O>9.2{4A>9.2.4A>^9.2.3A1.>^^^^^9.2.3B1.>^',
+const RAWGUARD = {
+  I: '~~~9.2.4A>8.2{1.4A>7.2{2.4A>7.3{1.4U>7.2D2.4U>6.3A2.4U>5.3A3.1{3U>5.4A3.3{>5.4A3.6A2.5A5.6.9A8A7.7.9A6A8.9.9A2A9.1.9.2.4A>^^9.2.1B2}5B9.2.^9.2.4A>^9.1.5A>9.1.4A1.>9.4A2.>9.3A3.>^^9.3B3.>8.4B3.>',
+  // LUP0: null, // Will be mirrored from R0 below
+  // LUP1: null, // Will be mirrored from R1 below
+  R0: '~9.2.4A>^9.2.8A1.4{6.9.2.8U2.3{6.9.2.8U2.3D6.9.2.8U2.3A6.9.2.1{6U1{2.3A6.9.3.6{3.3A6.9.3.6A2.4A6.9.9A5A7.8.9A6A7.7.9A6A8.7.3A1.8A9.2.^8.2D1.8A9.2.8.3{1B2}5B9.2.8.2{1.1B2}5B2A9.9.2.9A2A8.^9.2.6A2.3A8.9.1.4A5.3A8.9.1.3A6.3A8.9.1.3A6.3B8.9.1.3A6.4B7.9.1.3A9.8.9.1.3B9.8.9.4B9.8.~~',
+  R1: '9.9.3.4{5.9.2.8A3.3{5.9.2.8A3.3D5.9.2.8A3.3A5.9.2.8U3.3A5.^9.2.8U2.4A5.9.2.1{6U1{2.4A5.9.3.6{3.3A6.9.3.6A1.4A7.9.2.9A2A8.9.6A>8.9A2A9.2.7.9A3A9.2.7.3A1.8A9.2.^^7.3D1.1B2}5B9.2.7.3{1.1B2}5B9.2.7.2{2.8A9.2.9.2.4A>^^9.1.4A1.>^9.1.3A2.>^^9.1.3B2.>9.4B2.>',
+  F: '9.2.4A>9.2.2A2O>^9.2.3U1O>9.2.4q>9.2.3q1{>9.2.3{1U>9.2.2{1U1J>9.3.3{>9.1.2A2D1A>9.4A1D1A>^9.6A>^^^^9.2D3B1O>9.2{3B1O>9.2{4A>9.2.4A>^9.2.3A1.>^^^^^9.2.3B1.>^',
 };
 
 // Mirror sprites for guard (must be done after RAW_GUARD_SPRITES is defined)
-if (RAW_GUARD_SPRITES.RUP0 && !RAW_GUARD_SPRITES.LUP0) {
-  RAW_GUARD_SPRITES.LUP0 = mirrorSpriteHorizontally(RAW_GUARD_SPRITES.RUP0);
+if (RAWGUARD.R0 && !RAWGUARD.LUP0) {
+  RAWGUARD.LUP0 = mirror(RAWGUARD.R0);
 }
-if (RAW_GUARD_SPRITES.RUP1 && !RAW_GUARD_SPRITES.LUP1) {
-  RAW_GUARD_SPRITES.LUP1 = mirrorSpriteHorizontally(RAW_GUARD_SPRITES.RUP1);
+if (RAWGUARD.R1 && !RAWGUARD.LUP1) {
+  RAWGUARD.LUP1 = mirror(RAWGUARD.R1);
 }
 
 // Player animation cycle for climbing
-const CLIMB_CYCLE = ['IDLE', 'RUP0', 'RUP1', 'RUP0', 'IDLE', 'LUP0', 'LUP1', 'LUP0', 'IDLE'];
+const CLIMB_CYCLE = ['I', 'R0', 'R1', 'R0', 'I', 'LUP0', 'LUP1', 'LUP0', 'I'];
 
-// Debug mode
-const DEBUG = false;
 
 // Game States
 const GAME_STATES = {
@@ -317,7 +315,7 @@ function parseSprite(spriteData, width = 30) {
   return parseCSEF(spriteData, width);
 }
 
-function mirrorSpriteHorizontally(spriteString, width = C.PW) {
+function mirror(spriteString, width = C.PW) {
   // Parse sprite and mirror each row
   const spriteData = parseCSEF(spriteString, width);
 
@@ -342,87 +340,147 @@ function buildSpriteSet(rawMap, width = C.PW) {
 }
 
 CHARACTERS.forEach(char => {
-  const raw = char.rawSprites;
-  if (raw.RUP0 && !raw.LUP0) raw.LUP0 = mirrorSpriteHorizontally(raw.RUP0);
-  if (raw.RUP1 && !raw.LUP1) raw.LUP1 = mirrorSpriteHorizontally(raw.RUP1);
+  const raw = char.raw;
+  if (raw.R0 && !raw.LUP0) raw.LUP0 = mirror(raw.R0);
+  if (raw.R1 && !raw.LUP1) raw.LUP1 = mirror(raw.R1);
   char.sprites = buildSpriteSet(raw);
 });
 
-const GUARD_SPRITES = buildSpriteSet(RAW_GUARD_SPRITES);
+const GUARD_SPRITES = buildSpriteSet(RAWGUARD);
 
 function drawSprite(graphics, spriteData, x, y, options = {}) {
-  // Draw sprite pixel by pixel using global COLOR_MAP
-  if (!spriteData || spriteData.length === 0) return;
+  if (!spriteData || !spriteData.length) return;
 
-  // Calculate sprite dimensions
-  const spriteHeight = spriteData.length;
-  const spriteWidth = spriteData[0] ? spriteData[0].length : 0;
-  if (spriteWidth === 0) return;
+  const h = spriteData.length;
+  const w = spriteData[0]?.length || 0;
+  if (!w) return;
 
-  // Calculate center offset dynamically
-  const centerOffsetX = spriteWidth / 2;
-  const centerOffsetY = spriteHeight / 2;
+  const cx = w >> 1; // Faster than w/2
+  const cy = h >> 1;
 
-  // Draw shadow first (offset down and right by 1-2 pixels)
-  const shadowOffsetX = 1;
-  const shadowOffsetY = 2;
+  // Shadow pass
   if (!options.noShadow) {
-    for (let row = 0; row < spriteHeight; row++) {
-      for (let col = 0; col < spriteData[row].length; col++) {
-        const char = spriteData[row][col];
-        const color = COLOR_MAP[char];
-
-        if (color !== null && color !== undefined) {
-          graphics.fillStyle(P[0], 0.3); // Black shadow
-          graphics.fillRect(
-            Math.floor(x - centerOffsetX + col + shadowOffsetX),
-            Math.floor(y - centerOffsetY + row + shadowOffsetY),
-            1,
-            1
-          );
+    for (let r = 0; r < h; r++) {
+      const row = spriteData[r];
+      for (let c = 0; c < row.length; c++) {
+        const color = COLOR_MAP[row[c]];
+        if (color != null) {
+          graphics.fillStyle(P[0], 0.3);
+          graphics.fillRect(x - cx + c + 1 | 0, y - cy + r + 2 | 0, 1, 1);
         }
       }
     }
   }
 
-  // Draw actual sprite
-  for (let row = 0; row < spriteHeight; row++) {
-    for (let col = 0; col < spriteData[row].length; col++) {
-      const char = spriteData[row][col];
-      const color = COLOR_MAP[char];
-
-      if (color !== null && color !== undefined) {
+  // Main sprite pass
+  for (let r = 0; r < h; r++) {
+    const row = spriteData[r];
+    for (let c = 0; c < row.length; c++) {
+      const color = COLOR_MAP[row[c]];
+      if (color != null) {
         graphics.fillStyle(color, 1);
-        graphics.fillRect(
-          Math.floor(x - centerOffsetX + col),
-          Math.floor(y - centerOffsetY + row),
-          1,
-          1
-        );
+        graphics.fillRect(x - cx + c | 0, y - cy + r | 0, 1, 1);
       }
     }
   }
+}
+// Horizontal movement animation cycle (alternates between left and right arm reaching)
+const HORIZONTAL_CYCLE = ['LUP0', 'R0'];
 
-  // Debug border
-  if (DEBUG && options.showSpriteBorder) {
-    graphics.lineStyle(1, 0xff00ff, 1);
-    graphics.strokeRect(
-      Math.floor(x - centerOffsetX),
-      Math.floor(y - centerOffsetY),
-      spriteWidth,
-      spriteHeight
-    );
+// =============================================================================
+// SOUND MANAGER (Web Audio API)
+// =============================================================================
+class SoundManager {
+  constructor() {
+    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    this.masterVol = 0.15; // Master volume
+  }
+
+  // Play a tone with frequency, duration, volume, and optional envelope
+  play(freq, dur = 0.1, vol = 1, type = 'square', envelope = { a: 0.01, d: 0.05, s: 0.7, r: 0.05 }) {
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.type = type;
+    osc.frequency.value = freq;
+    const now = this.ctx.currentTime;
+    const { a, d, s, r } = envelope;
+    const v = vol * this.masterVol;
+    // ADSR envelope
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(v, now + a); // Attack
+    gain.gain.linearRampToValueAtTime(v * s, now + a + d); // Decay to sustain
+    gain.gain.setValueAtTime(v * s, now + dur - r); // Sustain
+    gain.gain.linearRampToValueAtTime(0, now + dur); // Release
+    osc.start(now);
+    osc.stop(now + dur);
+    return osc;
+  }
+
+  // Falling object whoosh sound
+  fall() {
+    this.play(800, 0.3, 0.3, 'sawtooth', { a: 0.01, d: 0.2, s: 0.3, r: 0.1 });
+    setTimeout(() => this.play(400, 0.15, 0.2, 'sawtooth'), 50);
+  }
+
+  // Object hits player - impact sound
+  hit() {
+    this.play(150, 0.15, 0.6, 'square', { a: 0.001, d: 0.1, s: 0.1, r: 0.05 });
+    setTimeout(() => this.play(80, 0.1, 0.4, 'square'), 30);
+  }
+
+  // Climbing/stepping sound
+  step() {
+    this.play(220 + Math.random() * 40, 0.08, 0.25, 'square', { a: 0.01, d: 0.03, s: 0.5, r: 0.04 });
+  }
+
+  // Moving left/right sound
+  move() {
+    this.play(180 + Math.random() * 30, 0.06, 0.2, 'square', { a: 0.01, d: 0.02, s: 0.6, r: 0.03 });
+  }
+
+  // Menu selection change (beep)
+  select() {
+    this.play(440, 0.08, 0.3, 'square', { a: 0.01, d: 0.03, s: 0.5, r: 0.04 });
+  }
+
+  // Menu confirm (higher beep)
+  confirm() {
+    this.play(880, 0.12, 0.4, 'square', { a: 0.01, d: 0.05, s: 0.6, r: 0.06 });
+  }
+
+  // Scene transition whoosh
+  transition() {
+    this.play(1200, 0.3, 0.3, 'sine', { a: 0.02, d: 0.15, s: 0.4, r: 0.13 });
+    setTimeout(() => this.play(600, 0.2, 0.2, 'sine'), 100);
+  }
+
+  // Victory music (ascending arpeggio)
+  victory() {
+    const notes = [523, 659, 784, 1047]; // C5, E5, G5, C6
+    notes.forEach((freq, i) => {
+      setTimeout(() => this.play(freq, 0.4, 0.5, 'triangle', { a: 0.02, d: 0.1, s: 0.7, r: 0.1 }), i * 150);
+    });
+  }
+
+  // Loss music (descending sad tones)
+  loss() {
+    const notes = [440, 392, 349, 330]; // A4, G4, F4, E4
+    notes.forEach((freq, i) => {
+      setTimeout(() => this.play(freq, 0.5, 0.4, 'triangle', { a: 0.05, d: 0.15, s: 0.6, r: 0.2 }), i * 200);
+    });
   }
 }
 
-// Horizontal movement animation cycle (alternates between left and right arm reaching)
-const HORIZONTAL_CYCLE = ['LUP0', 'RUP0'];
+// Global sound manager instance
+const SND = new SoundManager();
 
 // =============================================================================
 // OBSTACLE TYPES (14x14 pixels)
 // =============================================================================
 // Falling object emojis (compact string to save bytes)
-const OBS = '🖨️|🧰|🪴|📦|🍌|🧯|🪑|📠|📺|🗃️'.split('|');
+const OBS = '🖨️|🧰|🪴|📦|🍌|🧯|🪑|📠|📺|🗃️|🍎|🍏|🖥️'.split('|');
 
 // =============================================================================
 // OBSTACLE ENTITY CLASS
@@ -435,6 +493,7 @@ class Obstacle {
     this.emoji = emoji;
     this.active = true;
     this.size = C.OS;
+    this.playedSound = false; // Track if fall sound played
 
     // Create text object for emoji
     this.text = scene.add.text(x, y, emoji, {
@@ -463,7 +522,7 @@ class Obstacle {
     this.text.setPosition(this.x, this.y);
 
     // Remove if fallen far below camera
-    const cameraBottomY = this.scene.cameraTargetY + (C.GH / 2);
+    const cameraBottomY = this.scene.camTY + (C.GH / 2);
     if (this.y > cameraBottomY + 200) this.destroy();
   }
 
@@ -490,7 +549,7 @@ class Character {
     this.targetY = this.y;
 
     // Animation state
-    this.animState = 'IDLE';
+    this.animState = 'I';
     this.animIndex = 0;
     this.animTimer = 0;
     this.isClimbing = false;
@@ -558,141 +617,140 @@ class Player extends Character {
     super(scene, playerNum, col, row);
 
     // Character selection (stores which character sprites to use)
-    this.character = character;
-    this.sprites = character.sprites;
+    this.chr = character; // chr = character data
+    this.spr = character.sprites; // spr = sprites object
 
     // Player-specific properties (base properties already set by Character)
-    this.targetRow = row;
+    this.tRow = row; // tRow = target row
 
-    // Input state
-    this.inputUp = false;
-    this.inputDown = false;
-    this.inputLeft = false;
-    this.inputRight = false;
+    // Input state (inp = input)
+    this.inpU = this.inpD = this.inpL = this.inpR = false;
 
-    // Movement state (isClimbing already set by Character)
-    this.isMovingHorizontal = false;
-    this.horizontalAnimIndex = 0; // Start at LUP0
+    // Movement state (isCl already set by Character)
+    this.isMvH = false; // isMvH = is moving horizontal
+    this.hAnimIdx = 0; // hAnimIdx = horizontal animation index (Start at LUP0)
 
     // Lives
-    this.lives = 3;
-    this.isDead = false;
-    this.isFalling = false;
-    this.fallVelocity = 0;
-    this.fallRotation = 0;
+    this.liv = 3; // liv = lives
+    this.isDd = this.isFl = false; // isDd = is dead, isFl = is falling
+    this.flVel = this.flRot = 0; // flVel = fall velocity, flRot = fall rotation
 
     // Caught by guard state
-    this.isCaught = false;
-    this.lostAnimTimer = 0;
-    this.lostAnimState = 'LUP0'; // Alternates between LUP0 and RUP0
+    this.isCgt = false; // isCgt = is caught
+    this.lostAnimT = 0; // lostAnimT = lost animation timer
+    this.lostAnimSt = 'LUP0'; // lostAnimSt = lost animation state (Alternates between LUP0 and R0)
 
     // Falling one row state (becomes an obstacle to other players)
-    this.isFallingOneRow = false;
-    this.fallOneRowTimer = 0;
-    this.fallOneRowDuration = 600; // 600ms fall animation (climbing down animation)
+    this.isFl1R = false; // isFl1R = is falling one row
+    this.fl1RT = 0; // fl1RT = fall one row timer
+    this.fl1RDur = 600; // fl1RDur = fall one row duration (600ms fall animation - climbing down animation)
 
     // Win state
-    this.hasWon = false;
-    this.isEnteringWindow = false;
-    this.enterWindowTimer = 0;
-    this.enterWindowDuration = 800; // 800ms entry animation
+    this.hasW = false; // hasW = has won
+    this.isEntW = false; // isEntW = is entering window
+    this.entWT = 0; // entWT = enter window timer
+    this.entWDur = 800; // entWDur = enter window duration (800ms entry animation)
 
     // Collision box offsets (colliderWidth/Height already set by Character)
-    this.colliderOffsetX = (C.PW - this.colliderWidth) / 2; // 8
-    this.colliderOffsetY = (C.PH - this.colliderHeight) / 2; // 2
+    this.colOfsX = (C.PW - this.colliderWidth) / 2; // colOfsX = collider offset X (8)
+    this.colOfsY = (C.PH - this.colliderHeight) / 2; // colOfsY = collider offset Y (2)
 
     // Override graphics depth for players
     this.graphics.setDepth(10);
   }
 
   // Check collision with another player (player-specific)
-  checkPlayerCollision(otherPlayer) {
-    if (otherPlayer.isDead || this.isDead) return false;
-    return this.checkCollision(otherPlayer.getColliderBounds());
+  chkPCol(otherP) {
+    // chkPCol = check player collision, otherP = other player
+    if (otherP.isDd || this.isDd) return false;
+    return this.checkCollision(otherP.getColliderBounds());
   }
 
   // Check if moving to a specific row would cause collision
-  wouldCollideAtRow(newRow, otherPlayers) {
+  wdColAtRow(newR, otherPs) {
+    // wdColAtRow = would collide at row, newR = new row, otherPs = other players
     // Check if there's a player at the destination row that would block us
-    for (let other of otherPlayers) {
-      if (other === this || other.isDead || other.isFalling || other.isFallingOneRow) continue;
+    for (let o of otherPs) {
+      if (o === this || o.isDd || o.isFl || o.isFl1R) continue;
 
       // Only check if the other player is actually AT the destination row
       // Players at the current row or far away shouldn't block vertical movement
-      if (other.row !== newRow) continue;
+      if (o.row !== newR) continue;
 
       // Check if there's horizontal overlap with the other player
-      const myLeft = this.x - this.colliderWidth / 2;
-      const myRight = this.x + this.colliderWidth / 2;
-      const otherLeft = other.x - other.colliderWidth / 2;
-      const otherRight = other.x + other.colliderWidth / 2;
+      const myL = this.x - this.colliderWidth / 2; // myL = my left
+      const myR = this.x + this.colliderWidth / 2; // myR = my right
+      const oL = o.x - o.colliderWidth / 2; // oL = other left
+      const oR = o.x + o.colliderWidth / 2; // oR = other right
 
-      const horizontalOverlap = !(myRight < otherLeft || myLeft > otherRight);
+      const hOvlp = !(myR < oL || myL > oR); // hOvlp = horizontal overlap
 
       // Block if there's horizontal overlap at the destination row
-      if (horizontalOverlap) return true;
+      if (hOvlp) return true;
     }
 
     return false;
   }
 
-  setInput(up, down, left, right) {
-    this.inputUp = up;
-    this.inputDown = down;
-    this.inputLeft = left;
-    this.inputRight = right;
+  setInp(u, d, l, r) {
+    // setInp = set input (u = up, d = down, l = left, r = right)
+    this.inpU = u;
+    this.inpD = d;
+    this.inpL = l;
+    this.inpR = r;
   }
 
-  update(delta) {
+  upd(d) {
+    // upd = update (d = delta)
     // Handle LOST animation (caught by guard)
-    if (this.isCaught) {
-      this.lostAnimTimer += delta;
+    if (this.isCgt) {
+      this.lostAnimT += d;
 
-      // Alternate between LUP0 and RUP0 every 200ms
-      if (this.lostAnimTimer >= 200) {
-        this.lostAnimTimer = 0;
-        this.lostAnimState = this.lostAnimState === 'LUP0' ? 'RUP0' : 'LUP0';
+      // Alternate between LUP0 and R0 every 200ms
+      if (this.lostAnimT >= 200) {
+        this.lostAnimT = 0;
+        this.lostAnimSt = this.lostAnimSt === 'LUP0' ? 'R0' : 'LUP0';
       }
 
-      this.draw();
+      this.drw();
       return; // Don't process anything else
     }
 
     // Handle falling animation (Mario-like)
-    if (this.isFalling) {
-      this.fallVelocity += 500 * (delta / 1000); // Gravity acceleration
-      this.y += this.fallVelocity * (delta / 1000);
-      this.fallRotation += (delta / 1000) * 5; // Rotate while falling
+    if (this.isFl) {
+      this.flVel += 500 * (d / 1000); // Gravity acceleration
+      this.y += this.flVel * (d / 1000);
+      this.flRot += (d / 1000) * 5; // Rotate while falling
 
       // Keep target positions synced to prevent interpolation from pulling player back
       this.targetX = this.x;
       this.targetY = this.y;
 
       // Check if hit the ground (floor level)
-      const floorLevel = C.GH;
-      if (this.y >= floorLevel) {
-        this.y = floorLevel;
+      const flrLvl = C.GH; // flrLvl = floor level
+      if (this.y >= flrLvl) {
+        this.y = flrLvl;
         this.targetY = this.y; // Lock position
-        this.isFalling = false;
-        this.fallVelocity = 0;
-        this.fallRotation = 0;
-        this.isDead = true; // Player is dead if they hit the floor
+        this.isFl = false;
+        this.flVel = 0;
+        this.flRot = 0;
+        this.isDd = true; // Player is dead if they hit the floor
       }
 
-      this.draw();
+      this.drw();
       return;
     }
 
     // Handle falling one row (after taking damage but not dead)
     // This just plays the climbing down animation automatically
-    if (this.isFallingOneRow) {
-      this.fallOneRowTimer += delta;
+    if (this.isFl1R) {
+      this.fl1RT += d;
 
       // Continue the climbing down animation
-      this.animTimer += delta;
+      this.animTimer += d;
       if (this.animTimer >= C.STEP) {
         this.animTimer = 0;
-        this.advanceClimbAnimation(true); // going down
+        this.advClAnim(true); // advClAnim = advance climb animation (going down)
       }
 
       // Smooth position interpolation (only Y, stay at current X)
@@ -700,58 +758,58 @@ class Player extends Character {
       this.y = Phaser.Math.Linear(this.y, this.targetY, 0.15);
 
       // Finished falling one row
-      if (this.fallOneRowTimer >= this.fallOneRowDuration) {
-        this.isFallingOneRow = false;
-        this.fallOneRowTimer = 0;
+      if (this.fl1RT >= this.fl1RDur) {
+        this.isFl1R = false;
+        this.fl1RT = 0;
         this.isClimbing = false;
       }
 
-      this.draw();
+      this.drw();
       return; // Don't process other input while falling
     }
 
-    if (this.isDead) return;
+    if (this.isDd) return;
 
     // Handle entering window animation (winning)
-    if (this.isEnteringWindow) {
-      this.enterWindowTimer += delta;
+    if (this.isEntW) {
+      this.entWT += d;
 
       // Fade out and move into window
-      const progress = this.enterWindowTimer / this.enterWindowDuration;
+      const prg = this.entWT / this.entWDur; // prg = progress
 
       // Move slightly into the building (toward center)
-      const buildingCenterX = C.GW / 2;
-      const moveX = (buildingCenterX - this.x) * 0.02;
-      this.x += moveX;
+      const bCX = C.GW / 2; // bCX = building center X
+      const mvX = (bCX - this.x) * 0.02; // mvX = move X
+      this.x += mvX;
       this.targetX = this.x;
 
       // Finished entering window
-      if (this.enterWindowTimer >= this.enterWindowDuration) {
-        this.hasWon = true;
-        this.isEnteringWindow = false;
+      if (this.entWT >= this.entWDur) {
+        this.hasW = true;
+        this.isEntW = false;
       }
 
-      this.draw();
+      this.drw();
       return;
     }
 
     // Don't process input if already won
-    if (this.hasWon) return;
+    if (this.hasW) return;
 
     // Handle horizontal movement (resets climbing state)
-    if (this.inputLeft || this.inputRight) {
-      const dir = this.inputLeft ? -1 : 1;
+    if (this.inpL || this.inpR) {
+      const dir = this.inpL ? -1 : 1;
 
       // Reset climbing animation when moving horizontally
       if (this.isClimbing) {
         this.isClimbing = false;
-        this.animIndex = 0; // Reset to IDLE in climb cycle
+        this.animIndex = 0; // Reset to I in climb cycle
       }
 
       // Start horizontal movement animation
-      if (!this.isMovingHorizontal) {
-        this.isMovingHorizontal = true;
-        this.horizontalAnimIndex = 0;
+      if (!this.isMvH) {
+        this.isMvH = true;
+        this.hAnimIdx = 0;
         this.animTimer = 0;
         this.animIndex = 0; // Reset climb cycle index
       }
@@ -763,48 +821,49 @@ class Player extends Character {
         this.targetX = this.colToX(this.col);
       }
 
-      // Animate between LUP0 and RUP0 for visual climbing feel
-      this.animTimer += delta;
+      // Animate between LUP0 and R0 for visual climbing feel
+      this.animTimer += d;
       if (this.animTimer >= C.STEP) {
         this.animTimer = 0;
-        this.horizontalAnimIndex = (this.horizontalAnimIndex + 1) % HORIZONTAL_CYCLE.length;
+        this.hAnimIdx = (this.hAnimIdx + 1) % HORIZONTAL_CYCLE.length;
+        SND.move(); // Play move sound on each animation step
       }
-      this.animState = HORIZONTAL_CYCLE[this.horizontalAnimIndex];
+      this.animState = HORIZONTAL_CYCLE[this.hAnimIdx];
 
     } else {
       // No horizontal input - stop horizontal animation
-      if (this.isMovingHorizontal) {
-        this.isMovingHorizontal = false;
-        this.animState = 'IDLE';
-        this.horizontalAnimIndex = 0;
+      if (this.isMvH) {
+        this.isMvH = false;
+        this.animState = 'I';
+        this.hAnimIdx = 0;
       }
     }
 
     // Handle vertical climbing (only if not moving horizontally)
-    if (!this.isMovingHorizontal) {
-      if (this.inputUp && !this.inputDown) {
+    if (!this.isMvH) {
+      if (this.inpU && !this.inpD) {
         if (!this.isClimbing) {
           this.isClimbing = true;
           this.animTimer = 0;
         }
 
         // Advance through climb animation
-        this.animTimer += delta;
+        this.animTimer += d;
         if (this.animTimer >= C.STEP) {
           this.animTimer = 0;
-          this.advanceClimbAnimation();
+          this.advClAnim();
         }
-      } else if (this.inputDown && !this.inputUp) {
+      } else if (this.inpD && !this.inpU) {
         // Climbing down (same animation cycle, but going down)
         if (!this.isClimbing) {
           this.isClimbing = true;
           this.animTimer = 0;
         }
 
-        this.animTimer += delta;
+        this.animTimer += d;
         if (this.animTimer >= C.STEP) {
           this.animTimer = 0;
-          this.advanceClimbAnimation(true); // going down
+          this.advClAnim(true); // going down
         }
       } else {
         // No vertical input - stay in current state
@@ -817,105 +876,96 @@ class Player extends Character {
     this.y = Phaser.Math.Linear(this.y, this.targetY, 0.15);
 
     // Update graphics
-    this.draw();
+    this.drw();
   }
 
-  advanceClimbAnimation(goingDown = false) {
+  advClAnim(goingDn = false) {
+    // advClAnim = advance climb animation, goingDn = going down
     // Move through the climb cycle
     this.animIndex = (this.animIndex + 1) % CLIMB_CYCLE.length;
     this.animState = CLIMB_CYCLE[this.animIndex];
 
-    // Movement happens at LUP1 and RUP1 states (climbing motion)
-    if (this.animState === 'LUP1' || this.animState === 'RUP1') {
-      const newRow = goingDown ? this.row - 1 : this.row + 1;
+    // Movement happens at LUP1 and R1 states (climbing motion)
+    if (this.animState === 'LUP1' || this.animState === 'R1') {
+      const newR = goingDn ? this.row - 1 : this.row + 1; // newR = new row
 
       // Clamp to valid rows
-      if (newRow >= 0 && newRow <= C.ROWS) {
+      if (newR >= 0 && newR <= C.ROWS) {
         // Check if this movement would cause a collision
-        const wouldCollide = this.wouldCollideAtRow(newRow, this.scene.players);
+        const wdCol = this.wdColAtRow(newR, this.scene.players); // wdCol = would collide
 
-        if (!wouldCollide) {
+        if (!wdCol) {
           // Only move if no collision
-          this.row = newRow;
+          this.row = newR;
           this.targetY = this.rowToY(this.row);
+          SND.step(); // Play step sound when climbing
         }
         // If blocked, animation continues but position doesn't change
       }
     }
   }
 
-  draw() {
-    try {
-      this.graphics.clear();
+  drw() {
+    // drw = draw
+    this.graphics.clear();
 
-      // Get sprite data for current animation state
-      const spriteData = this.sprites[this.animState] || this.sprites.IDLE;
+    // Get sprite data for current animation state
+    const sprD = this.spr[this.animState] || this.spr.I; // sprD = sprite data
 
-      // Apply alpha for entering window animation
-      if (this.isEnteringWindow) {
-        const progress = this.enterWindowTimer / this.enterWindowDuration;
-        this.graphics.setAlpha(1 - progress); // Fade out
-      } else if (this.hasWon) {
-        this.graphics.setAlpha(0); // Fully invisible after entering
-        return; // Don't draw anything
-      } else {
-        this.graphics.setAlpha(1); // Normal
-      }
+    // Apply alpha for entering window animation
+    if (this.isEntW) {
+      const prg = this.entWT / this.entWDur; // prg = progress
+      this.graphics.setAlpha(1 - prg); // Fade out
+    } else if (this.hasW) {
+      this.graphics.setAlpha(0); // Fully invisible after entering
+      return; // Don't draw anything
+    } else {
+      this.graphics.setAlpha(1); // Normal
+    }
 
-      // Draw the sprite (rotation effect is visual only, we just flip/mirror for falling)
-      if (this.isCaught) {
-        // LOST animation - alternate between LUP0 and RUP0
-        const lostSpriteData = this.sprites[this.lostAnimState] || this.sprites.IDLE;
-        drawSprite(this.graphics, lostSpriteData, this.x, this.y, { showSpriteBorder: DEBUG });
-      } else if (this.isFalling) {
-        // For death fall, we'll alternate the sprite for a tumbling effect
-        const tumbleFrame = Math.floor(this.fallRotation * 2) % 2;
-        const tumbleSprite = tumbleFrame === 0 ? 'LUP1' : 'RUP1';
-        const fallingSpriteData = this.sprites[tumbleSprite] || this.sprites.IDLE;
-        drawSprite(this.graphics, fallingSpriteData, this.x, this.y, { showSpriteBorder: false, noShadow: false });
-      } else {
-        // Use normal sprite (includes climbing down animation when isFallingOneRow)
-        drawSprite(this.graphics, spriteData, this.x, this.y, { showSpriteBorder: DEBUG });
-      }
-
-      // Draw debug collider box
-      if (DEBUG && !this.isFalling) {
-        const bounds = this.getColliderBounds();
-        this.graphics.lineStyle(1, 0x00ff00, 1);
-        this.graphics.strokeRect(
-          bounds.left,
-          bounds.top,
-          bounds.width,
-          bounds.height
-        );
-      }
-    } catch (error) {
+    // Draw the sprite (rotation effect is visual only, we just flip/mirror for falling)
+    if (this.isCgt) {
+      // LOST animation - alternate between LUP0 and R0
+      const lostSprD = this.spr[this.lostAnimSt] || this.spr.I; // lostSprD = lost sprite data
+      drawSprite(this.graphics, lostSprD, this.x, this.y);
+    } else if (this.isFl) {
+      // For death fall, we'll alternate the sprite for a tumbling effect
+      const tmbFrm = Math.floor(this.flRot * 2) % 2; // tmbFrm = tumble frame
+      const tmbSpr = tmbFrm === 0 ? 'LUP1' : 'R1'; // tmbSpr = tumble sprite
+      const flSprD = this.spr[tmbSpr] || this.spr.I; // flSprD = falling sprite data
+      drawSprite(this.graphics, flSprD, this.x, this.y, { showSpriteBorder: false, noShadow: false });
+    } else {
+      // Use normal sprite (includes climbing down animation when isFl1R)
+      drawSprite(this.graphics, sprD, this.x, this.y);
     }
   }
 
-  takeDamage() {
-    if (this.isDead || this.isFalling) return;
+  takeDmg() {
+    // takeDmg = take damage
+    if (this.isDd || this.isFl) return;
 
-    this.lives--;
+    this.liv--;
+    SND.hit(); // Play hit sound
 
-    if (this.lives <= 0) {
+    if (this.liv <= 0) {
       this.die();
     } else {
       // Player still has lives - fall one row as punishment
-      this.fallOneRow();
+      this.fl1R(); // fl1R = fall one row
     }
   }
 
-  fallOneRow() {
+  fl1R() {
+    // fl1R = fall one row
     // Make the player fall down one row using the climbing down animation
     if (this.row > 0) {
       // Set flag to prevent input and start animation
-      this.isFallingOneRow = true;
-      this.fallOneRowTimer = 0;
+      this.isFl1R = true;
+      this.fl1RT = 0;
 
       // Start climbing down from the middle of the cycle (LUP0)
       // So the next step will be LUP1 which triggers the actual row movement
-        this.isClimbing = true;
+      this.isClimbing = true;
       this.animIndex = 5; // Start at LUP0 (index 5 in CLIMB_CYCLE)
       this.animState = CLIMB_CYCLE[5]; // 'LUP0'
       this.animTimer = 0;
@@ -924,9 +974,9 @@ class Player extends Character {
   }
 
   die() {
-    this.isFalling = true;
-    this.fallVelocity = -200; // Initial upward velocity (Mario bounce)
-    this.fallRotation = 0;
+    this.isFl = true;
+    this.flVel = -200; // Initial upward velocity (Mario bounce)
+    this.flRot = 0;
 
     // Ensure target positions don't interfere with fall animation
     // Set them to current position so interpolation doesn't pull player back
@@ -935,9 +985,9 @@ class Player extends Character {
 
     // Stop all other animations and states
     this.isClimbing = false;
-    this.isMovingHorizontal = false;
-    this.isFallingOneRow = false;
-    this.isCaught = false;
+    this.isMvH = false;
+    this.isFl1R = false;
+    this.isCgt = false;
 
   }
 }
@@ -1012,7 +1062,7 @@ class Guard extends Character {
   }
 
   findTargetPlayer() {
-    const alivePlayers = this.scene.players.filter(p => !p.isDead && !p.isFalling);
+    const alivePlayers = this.scene.players.filter(p => !p.isDd && !p.isFl); // Changed isDead to isDd, isFalling to isFl
 
     if (alivePlayers.length === 0) {
       this.targetPlayer = null;
@@ -1115,8 +1165,8 @@ class Guard extends Character {
     this.animIndex = (this.animIndex + 1) % CLIMB_CYCLE.length;
     this.animState = CLIMB_CYCLE[this.animIndex];
 
-    // Movement happens at LUP1 and RUP1 states
-    if (this.animState === 'LUP1' || this.animState === 'RUP1') {
+    // Movement happens at LUP1 and R1 states
+    if (this.animState === 'LUP1' || this.animState === 'R1') {
       const newRow = goingDown ? this.row - 1 : this.row + 1;
 
       // Clamp to valid rows
@@ -1126,8 +1176,8 @@ class Guard extends Character {
       }
     }
 
-    // Stop climbing at IDLE
-    if (this.animState === 'IDLE' && this.animIndex === 0) {
+    // Stop climbing at I
+    if (this.animState === 'I' && this.animIndex === 0) {
       this.isClimbing = false;
     }
   }
@@ -1136,22 +1186,10 @@ class Guard extends Character {
     this.graphics.clear();
 
     // Get sprite data for current animation state
-    const spriteData = GUARD_SPRITES[this.animState] || GUARD_SPRITES.IDLE;
+    const spriteData = GUARD_SPRITES[this.animState] || GUARD_SPRITES.I;
 
     // Draw the guard sprite (different color tint would be nice, but we'll use same for now)
-    drawSprite(this.graphics, spriteData, this.x, this.y, { showSpriteBorder: DEBUG });
-
-    // Draw debug collider box (in red to distinguish from players)
-    if (DEBUG) {
-      const bounds = this.getColliderBounds();
-      this.graphics.lineStyle(1, 0xff0000, 1);
-      this.graphics.strokeRect(
-        bounds.left,
-        bounds.top,
-        bounds.width,
-        bounds.height
-      );
-    }
+    drawSprite(this.graphics, spriteData, this.x, this.y);
   }
 
   destroy() {
@@ -1186,10 +1224,7 @@ class Dialog {
 
     // Audio context for beep sounds
     this.audioContext = null;
-    try {
-      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    } catch (e) {
-    }
+    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
     // Create graphics objects - use Graphics for everything for consistency
     this.graphics = scene.add.graphics();
@@ -1415,7 +1450,7 @@ class Dialog {
   renderPortrait(sprite, x, y) {
     if (!sprite) return;
 
-    // Parse and render the FRONT sprite
+    // Parse and render the F sprite
     const spriteData = sprite;
     if (!spriteData || spriteData.length === 0) return;
 
@@ -1457,311 +1492,263 @@ class Dialog {
 // CINEMATIC CONTROLLER
 // =============================================================================
 class CinematicController {
-  constructor(scene) {
-    this.scene = scene;
-    this.isActive = false;
-    this.currentStep = 0;
-    this.autoClimbProgress = 0;
-    this.autoClimbTarget = 5; // Climb 5 rows
+  constructor(s) {
+    this.s = s;
+    this.a = false;
+    this.step = 0;
+    this.p = 0;
+    this.t = 5;
   }
 
   start() {
-    this.isActive = true;
-    this.currentStep = 0;
+    this.a = true;
+    this.step = 0;
+    const S = this.s;
+    const p1 = S.is1P; // Changed from is1PlayerMode to is1P
+    const ps = S.players.map(p => p.spr.F); // Changed from sprites to spr
+    const dt = p1 ? 'PLAYER' : 'UNISON'; // dt = dialog type
 
-    // Step 0: Players walk in from the right (0-2s)
-    this.walkInPlayers();
-
-    // Step 1: Show players greeting after they arrive (at 2s)
-    this.scene.time.delayedCall(2000, () => {
-      this.currentStep = 1;
-      const playerSprites = this.scene.players.map(p => p.sprites.FRONT);
-      const dialogType = this.scene.is1PlayerMode ? 'PLAYER' : 'UNISON';
-      const dialogText = this.scene.is1PlayerMode
-        ? `Hola, vengo para la ${ph} 🍌`
-        : `Hola, venimos para la ${ph} 🍌`;
-      this.scene.dialog.show(dialogType, dialogText, playerSprites);
-    });
-
-    // Step 2: Show guard dialog (at 5s)
-    this.scene.time.delayedCall(5000, () => {
-      this.currentStep = 2;
-      this.scene.dialog.show('GUARD', 'La hackathon ya ha iniciado, no estamos recibiendo más participantes', [GUARD_SPRITES.FRONT]);
-    });
-
-    // Step 3: Show players' response (at 8s)
-    this.scene.time.delayedCall(8000, () => {
-      this.currentStep = 3;
-      const playerSprites = this.scene.players.map(p => p.sprites.FRONT);
-      const dialogType = this.scene.is1PlayerMode ? 'PLAYER' : 'UNISON';
-      const dialogText = this.scene.is1PlayerMode
-        ? 'Cómo? Tengo que entrar!!'
-        : 'Cómo? Tenemos que entrar!!';
-      this.scene.dialog.show(dialogType, dialogText, playerSprites);
-    });
-
-    // Step 4: After 11 seconds, hide dialog and start auto-climb
-    this.scene.time.delayedCall(11000, () => {
-      this.currentStep = 4;
-      this.scene.dialog.hide();
-      this.startAutoClimb();
-    });
-  }
-
-  walkInPlayers() {
-    // Move players from far right to building entrance over 2 seconds
-
-    const startCol = C.BAC + 3; // Start off-screen right
-    const walkDuration = 2000; // 2 seconds
-
-    // Destination positions based on number of players
-    const numPlayers = this.scene.players.length;
-    const destinations = numPlayers === 1 ? [9] : [9, 10.5];
-
-    this.scene.players.forEach((player, index) => {
-      // Start players off-screen to the right
-      player.col = startCol + index;
-      player.x = player.colToX(player.col);
-      player.targetX = player.x;
-      player.animState = 'FRONT'; // Use FRONT sprite for walking
-
-      // Animate walking to destination
-      this.scene.tweens.add({
-        targets: player,
-        col: destinations[index],
-        duration: walkDuration,
+    // Walk in
+    S.players.forEach((p, i) => {
+      p.col = C.BAC + 3 + i;
+      p.x = p.colToX(p.col);
+      p.targetX = p.x;
+      p.animState = 'F';
+      S.tweens.add({
+        targets: p,
+        col: p1 ? 9 : [9, 10.5][i],
+        duration: 2000,
         ease: 'Linear',
-        onUpdate: (tween) => {
-          player.x = player.colToX(player.col);
-          player.targetX = player.x;
-          // Keep FRONT state, add vertical "jump" for walking effect
-          player.animState = 'FRONT';
-
-          // Add small vertical bounce to simulate walking
-          const progress = tween.progress;
-          const walkCycle = Math.sin(progress * Math.PI * 8) * 2; // 8 steps, 2 pixel bounce
-          player.y = player.rowToY(player.row) + walkCycle;
+        onUpdate: t => {
+          p.x = p.colToX(p.col);
+          p.targetX = p.x;
+          p.y = p.rowToY(p.row) + Math.sin(t.progress * Math.PI * 8) * 2;
         },
         onComplete: () => {
-          // Reset to exact position when arrived
-          player.y = player.rowToY(player.row);
-          player.targetY = player.y;
-          player.animState = 'FRONT'; // Face forward
+          p.y = p.rowToY(p.row);
+          p.targetY = p.y;
+          p.animState = 'F';
         }
       });
     });
+
+    // Dialog sequence
+    S.time.delayedCall(2000, () => S.dialog.show(dt, p1 ? `Hola, vengo para la ${ph} 🍌` : `Hola, venimos para la ${ph} 🍌`, ps));
+    S.time.delayedCall(5000, () => S.dialog.show('GUARD', 'La hackathon ya ha iniciado, no estamos recibiendo más participantes', [GUARD_SPRITES.F]));
+    S.time.delayedCall(8000, () => S.dialog.show(dt, p1 ? 'Cómo? Tengo que entrar!!' : 'Cómo? Tenemos que entrar!!', ps));
+    S.time.delayedCall(11000, () => {
+      S.dialog.hide();
+      this.climb();
+    });
   }
 
-  startAutoClimb() {
-    this.autoClimbProgress = 0;
-
-    // Climb 4 rows for both players
-    const climbInterval = 300; // 300ms per row
-
-    for (let i = 0; i < this.autoClimbTarget; i++) {
-      this.scene.time.delayedCall(i * climbInterval, () => {
-        this.scene.players.forEach(player => {
-          if (player.row < this.autoClimbTarget) {
-            player.row++;
-            player.targetY = player.rowToY(player.row);
-            player.animState = i % 2 === 0 ? 'RUP1' : 'LUP1';
+  climb() {
+    this.p = 0;
+    for (let i = 0; i < this.t; i++) {
+      this.s.time.delayedCall(i * 300, () => {
+        this.s.players.forEach(p => {
+          if (p.row < this.t) {
+            p.row++;
+            p.targetY = p.rowToY(p.row);
+            p.animState = i % 2 ? 'LUP1' : 'R1';
           }
         });
-
-        this.autoClimbProgress++;
-
-        // When done climbing, show guard's reaction
-        if (this.autoClimbProgress >= this.autoClimbTarget) {
-          this.scene.time.delayedCall(500, () => {
-            this.showGuardReaction();
+        if (++this.p >= this.t) {
+          this.s.time.delayedCall(500, () => {
+            this.s.dialog.show('GUARD', this.s.is1P ? 'A dónde vas, vuelve!' : 'A dónde van, vengan aquí!', this.s.is1P ? [GUARD_SPRITES.F] : [GUARD_SPRITES.F, GUARD_SPRITES.F]); // Changed from is1PlayerMode to is1P
+            this.s.time.delayedCall(2000, () => {
+              this.s.dialog.hide();
+              this.a = false;
+              this.s.state = GAME_STATES.PLAYING; // Changed from gameState to state
+              this.s.gameStartTime = this.s.time.now;
+              this.s.players.forEach(p => {
+                p.animState = 'I';
+                p.animIndex = 0;
+              });
+            });
           });
         }
       });
     }
   }
-
-  showGuardReaction() {
-
-    // Show guard's angry dialog
-    if (this.scene.is1PlayerMode) {
-      this.scene.dialog.show('GUARD', 'A dónde vas, vuelve!', [GUARD_SPRITES.FRONT]);
-    } else {
-      this.scene.dialog.show('GUARD', 'A dónde van, vengan aquí!', [GUARD_SPRITES.FRONT, GUARD_SPRITES.FRONT]);
-    }
-
-    // After 2 seconds, end cinematic and start the chase
-    this.scene.time.delayedCall(2000, () => {
-      this.scene.dialog.hide();
-      this.end();
-    });
-  }
-
-  end() {
-    this.isActive = false;
-    this.scene.gameState = GAME_STATES.PLAYING;
-
-    // Track game start time for scoring
-    this.scene.gameStartTime = this.scene.time.now;
-
-    // Reset players to IDLE animation
-    this.scene.players.forEach(player => {
-      player.animState = 'IDLE';
-      player.animIndex = 0;
-    });
-
-    // Guard starts chasing now!
-  }
 }
+
 
 // =============================================================================
 // DYNAMIC BACKGROUND UTILITY (Reusable across scenes)
 // =============================================================================
 class DynamicBackground {
   constructor(scene, wo = true) {
-    this.scene = scene;
-    this.clouds = [];
-    this.buildings = [];
-    this.obstacles = [];
-    this.obstacleTimer = 0;
-    this.withObstacles = wo;
+    this.s = scene; // s = scene reference
+    this.clds = []; // clds = clouds array
+    this.blds = []; // blds = buildings array
+    this.obs = []; // obs = obstacles array
+    this.obsT = 0; // obsT = obstacle timer
+    this.wo = wo; // wo = with obstacles flag
 
-    // Create graphics layers
-    this.bg = scene.add.graphics().setDepth(-2);
-    this.grassGfx = scene.add.graphics().setDepth(-1.2);
-    this.farBuildingsGfx = scene.add.graphics().setDepth(-1.1);
-    this.midBuildingsGfx = scene.add.graphics().setDepth(-1);
-    this.nearBuildingsGfx = scene.add.graphics().setDepth(-.9);
-    this.cloudsGfx = scene.add.graphics().setDepth(-1);
+    // Create graphics layers (gfx = graphics)
+    this.bg = scene.add.graphics().setDepth(-2); // bg = background mountains
+    this.grGfx = scene.add.graphics().setDepth(-1.2); // grGfx = grass graphics
+    this.fBGfx = scene.add.graphics().setDepth(-1.1); // fBGfx = far buildings graphics
+    this.mBGfx = scene.add.graphics().setDepth(-1); // mBGfx = mid buildings graphics
+    this.nBGfx = scene.add.graphics().setDepth(-.9); // nBGfx = near buildings graphics
+    this.clGfx = scene.add.graphics().setDepth(-1); // clGfx = clouds graphics
 
     // Initialize
-    this.drawMountains();
-    this.generateBuildings();
-    this.generateClouds();
+    this.drwMts(); // drwMts = draw mountains
+    this.genBlds(); // genBlds = generate buildings
+    this.genClds(); // genClds = generate clouds
   }
 
-  drawMountains() {
+  drwMts() {
+    // Draw mountains in background
     this.bg.clear();
-    const baseY = C.GH - 40;
-    const count = 8;
-    for (let i = 0; i < count; i++) {
-      const peakX = (i / (count - 1)) * C.GW + Phaser.Math.Between(-20, 20);
-      const peakY = Phaser.Math.Between(baseY - 65, baseY - 35) - 15;
-      const left = peakX - Phaser.Math.Between(45, 75);
-      const right = peakX + Phaser.Math.Between(45, 75);
+    const bY = C.GH - 40; // bY = base Y
+    const cnt = 8; // cnt = count
+    for (let i = 0; i < cnt; i++) {
+      const pX = (i / (cnt - 1)) * C.GW + Phaser.Math.Between(-20, 20); // pX = peak X
+      const pY = Phaser.Math.Between(bY - 65, bY - 35) - 15; // pY = peak Y
+      const l = pX - Phaser.Math.Between(45, 75); // l = left
+      const r = pX + Phaser.Math.Between(45, 75); // r = right
 
       this.bg.fillStyle(P[5], 0.9);
-      this.bg.fillTriangle(left, baseY, peakX, peakY, right, baseY);
+      this.bg.fillTriangle(l, bY, pX, pY, r, bY);
 
       this.bg.fillStyle(P[6], 1);
-      this.bg.fillTriangle(peakX - 15, peakY + 12, peakX, peakY, peakX + 15, peakY + 12);
+      this.bg.fillTriangle(pX - 15, pY + 12, pX, pY, pX + 15, pY + 12);
     }
   }
 
-  generateBuildings() {
-    this.buildings = [];
-    const layers = [
+  genBlds() {
+    // Generate buildings in 3 depth layers
+    this.blds = [];
+    const lyrs = [ // lyrs = layers [color, depth, baseY, count, minW, maxW, minH, maxH]
       [P[5], 1, C.GH, 20, 25, 30, 50, 90],
       [P[4], 2, C.GH, 24, 20, 25, 35, 80],
       [P[3], 3, C.GH, 30, 10, 15, 25, 50]
     ];
 
-    layers.forEach(layer => {
+    lyrs.forEach(lyr => {
       let x = -50;
-      for (let i = 0; i < layer[3]; i++) {
-        const width = Phaser.Math.Between(layer[4], layer[5]);
-        const height = Phaser.Math.Between(layer[6], layer[7]);
-        this.buildings.push({
+      for (let i = 0; i < lyr[3]; i++) {
+        const w = Phaser.Math.Between(lyr[4], lyr[5]); // w = width
+        const h = Phaser.Math.Between(lyr[6], lyr[7]); // h = height
+        this.blds.push({
           x,
-          w: width,
-          h: height,
-          color: layer[0],
-          depth: layer[1],
-          baseY: layer[2]
+          w,
+          h,
+          col: lyr[0], // col = color
+          d: lyr[1], // d = depth
+          bY: lyr[2] // bY = base Y
         });
-        x += width + Phaser.Math.Between(1, 2 * i);
+        x += w + Phaser.Math.Between(1, 2 * i);
       }
     });
 
-    this.drawBuildings();
+    this.drwBlds(); // drwBlds = draw buildings
   }
 
-  drawBuildings() {
-    this.grassGfx.clear();
-    this.farBuildingsGfx.clear();
-    this.midBuildingsGfx.clear();
-    this.nearBuildingsGfx.clear();
+  drwBlds() {
+    // Draw all buildings to their respective depth layers
+    this.grGfx.clear();
+    this.fBGfx.clear();
+    this.mBGfx.clear();
+    this.nBGfx.clear();
 
-    this.grassGfx.fillStyle(P[16], 1);
-    this.grassGfx.fillRect(0, C.GH - 45, C.GW, 45);
+    // Draw grass
+    this.grGfx.fillStyle(P[16], 1);
+    this.grGfx.fillRect(0, C.GH - 45, C.GW, 45);
 
-    this.buildings.forEach(b => {
-      const gfx = b.depth === 3 ? this.farBuildingsGfx : b.depth === 2 ? this.midBuildingsGfx : this.nearBuildingsGfx;
-      const alpha = b.depth === 3 ? 0.75 : b.depth === 2 ? 0.85 : 0.95;
-      const lineAlpha = b.depth === 3 ? 0.1 : b.depth === 2 ? 0.15 : 0.2;
-      gfx.fillStyle(b.color, alpha);
-      gfx.fillRect(b.x, b.baseY - b.h, b.w, b.h);
-      gfx.lineStyle(1, P[0], lineAlpha);
-      gfx.strokeRect(b.x, b.baseY - b.h, b.w, b.h);
+    // Draw buildings by depth
+    this.blds.forEach(b => {
+      const gfx = b.d === 3 ? this.fBGfx : b.d === 2 ? this.mBGfx : this.nBGfx;
+      const alp = b.d === 3 ? 0.75 : b.d === 2 ? 0.85 : 0.95; // alp = alpha
+      const lAlp = b.d === 3 ? 0.1 : b.d === 2 ? 0.15 : 0.2; // lAlp = line alpha
+      gfx.fillStyle(b.col, alp);
+      gfx.fillRect(b.x, b.bY - b.h, b.w, b.h);
+      gfx.lineStyle(1, P[0], lAlp);
+      gfx.strokeRect(b.x, b.bY - b.h, b.w, b.h);
     });
   }
 
-  generateClouds() {
-    const cloudCount = 6;
-    for (let i = 0; i < cloudCount; i++) {
-      this.clouds.push({
+  genClds() {
+    // Generate clouds with random properties
+    const cnt = 6; // cnt = cloud count
+    for (let i = 0; i < cnt; i++) {
+      this.clds.push({
         x: Phaser.Math.Between(0, C.GW),
         y: Phaser.Math.Between(20, 90),
-        w: Phaser.Math.Between(32, 64),
-        h: Phaser.Math.Between(12, 20),
-        speed: Phaser.Math.FloatBetween(6, 12)
+        w: Phaser.Math.Between(32, 64), // w = width
+        h: Phaser.Math.Between(12, 20), // h = height
+        spd: Phaser.Math.FloatBetween(6, 12) // spd = speed
       });
     }
   }
 
-  updateClouds(delta) {
-    this.cloudsGfx.clear();
-    this.clouds.forEach(cloud => {
-      cloud.x += (cloud.speed * delta) / 1000;
-      if (cloud.x - cloud.w > C.GW) {
-        cloud.x = -cloud.w;
-        cloud.y = Phaser.Math.Between(20, 90);
-        cloud.speed = Phaser.Math.FloatBetween(6, 12);
+  updClds(d) {
+    // Update and draw clouds (d = delta)
+    this.clGfx.clear();
+    this.clds.forEach(c => {
+      c.x += (c.spd * d) / 1000;
+      if (c.x - c.w > C.GW) {
+        c.x = -c.w;
+        c.y = Phaser.Math.Between(20, 90);
+        c.spd = Phaser.Math.FloatBetween(6, 12);
       }
-      this.cloudsGfx.fillStyle(P[6], 0.82);
-      this.cloudsGfx.fillEllipse(cloud.x, cloud.y, cloud.w, cloud.h);
-      this.cloudsGfx.fillEllipse(cloud.x + cloud.w * 0.35, cloud.y + 3, cloud.w * 0.65, cloud.h * 0.85);
-      this.cloudsGfx.fillEllipse(cloud.x - cloud.w * 0.35, cloud.y + 4, cloud.w * 0.6, cloud.h * 0.75);
+      // Draw cloud with 3 overlapping ellipses
+      this.clGfx.fillStyle(P[6], 0.82);
+      this.clGfx.fillEllipse(c.x, c.y, c.w, c.h);
+      this.clGfx.fillEllipse(c.x + c.w * 0.35, c.y + 3, c.w * 0.65, c.h * 0.85);
+      this.clGfx.fillEllipse(c.x - c.w * 0.35, c.y + 4, c.w * 0.6, c.h * 0.75);
     });
   }
 
-  spawnObstacle() {
-    const emoji = OBS[Math.floor(Math.random() * OBS.length)];
-    const spawnX = Phaser.Math.Between(40, C.GW - 40);
-    const obstacle = new Obstacle(this.scene, spawnX, -50, emoji);
-    this.obstacles.push(obstacle);
+  spwnObs() {
+    // Spawn obstacle at random X position (spwnObs = spawn obstacle)
+    const emj = OBS[Math.floor(Math.random() * OBS.length)]; // emj = emoji
+    const spX = Phaser.Math.Between(40, C.GW - 40); // spX = spawn X
+    const o = new Obstacle(this.s, spX, -50, emj); // o = obstacle
+    this.obs.push(o);
   }
 
-  update(delta) {
-    this.updateClouds(delta);
+  update(d, camY = C.GH / 2) {
+    // Update clouds, apply parallax scrolling, spawn/update obstacles (d = delta, camY = camera Y)
+    this.updClds(d);
 
-    this.obstacleTimer += delta;
-    if (this.obstacleTimer >= C.OSI) {
-      this.obstacleTimer = 0;
-      if (this.withObstacles !== false) this.spawnObstacle();
+    // Apply parallax scrolling to background layers
+    // Each layer moves at different speed based on depth (slower = farther)
+    const bCamY = C.GH / 2; // bCamY = base camera Y (initial position)
+    const cDelta = camY - bCamY; // cDelta = camera delta (how much camera moved)
+
+    // Set Y offset for each layer with different parallax factors
+    this.bg.setY(-cDelta * 0.05); // Mountains slowest (0.05x)
+    this.fBGfx.setY(-cDelta * 0.15); // Far buildings (0.15x)
+    this.mBGfx.setY(-cDelta * 0.3); // Mid buildings (0.3x)
+    this.nBGfx.setY(-cDelta * 0.5); // Near buildings (0.5x)
+    this.grGfx.setY(-cDelta * 0.7); // Grass (0.7x)
+    this.clGfx.setY(-cDelta * 0.1); // Clouds (0.1x)
+
+    // Handle obstacle spawning
+    this.obsT += d;
+    if (this.obsT >= C.OSI) {
+      this.obsT = 0;
+      if (this.wo !== false) this.spwnObs();
     }
 
-    this.obstacles = this.obstacles.filter(o => o.active);
-    this.obstacles.forEach(o => o.update(delta));
+    // Update and clean up obstacles
+    this.obs = this.obs.filter(o => o.active);
+    this.obs.forEach(o => o.update(d));
   }
 
   destroy() {
+    // Clean up all graphics and obstacles
     this.bg.destroy();
-    this.grassGfx.destroy();
-    this.farBuildingsGfx.destroy();
-    this.midBuildingsGfx.destroy();
-    this.nearBuildingsGfx.destroy();
-    this.cloudsGfx.destroy();
-    this.obstacles.forEach(o => o.destroy());
+    this.grGfx.destroy();
+    this.fBGfx.destroy();
+    this.mBGfx.destroy();
+    this.nBGfx.destroy();
+    this.clGfx.destroy();
+    this.obs.forEach(o => o.destroy());
   }
 }
 
@@ -1840,6 +1827,7 @@ class MenuScene extends Phaser.Scene {
 
   goToNextScene() {
     this.transitioning = true;
+    SND.transition(); // Play transition sound
     this.time.delayedCall(200, () => {
       this.scene.start('CharacterSelection');
     });
@@ -1931,7 +1919,7 @@ class CharacterSelectionScene extends Phaser.Scene {
     this.p1TitleText = this.add.text(0, 0, 'Hacker 1', { fontSize: '12px', color: '#00f' });
     this.p2TitleText = this.add.text(0, 0, 'Hacker 2', { fontSize: '12px', color: '#f00' });
 
-    this.p2JoinText = this.add.text(0, 0, 'Press\nSTART\nto join', { fontSize: '10px', color: '#888', align: 'center' }).setVisible(false);
+    this.p2JoinText = this.add.text(0, 0, 'Press\nSTART\nto join', { fontSize: '10px', color: '#000', align: 'center' }).setVisible(false);
 
     this.p1NameText = this.add.text(0, 0, '', { fontSize: '10px', backgroundColor: '#000', padding: 3 }).setOrigin(.5, .5);
     this.p2NameText = this.add.text(0, 0, '', { fontSize: '10px', backgroundColor: '#000', padding: 3 }).setOrigin(.5, .5);
@@ -1996,7 +1984,10 @@ class CharacterSelectionScene extends Phaser.Scene {
         else if (input.l && col > 0) { selection.selIdx -= 1; moved = true; }
         else if (input.r && col < 3) { selection.selIdx += 1; moved = true; }
 
-        if (moved) this.lastMoveTime[i] = time;
+        if (moved) {
+          this.lastMoveTime[i] = time;
+          SND.select(); // Play selection change sound
+        }
       }
 
       // Confirmation toggle (with better debouncing using time)
@@ -2005,6 +1996,7 @@ class CharacterSelectionScene extends Phaser.Scene {
         selection.c = selection.confirm ? CHARACTERS[selection.selIdx] : null;
         input.act = false;
         this.lastButtonTime[i] = time;
+        SND.confirm(); // Play confirm sound
       }
     }
 
@@ -2014,6 +2006,7 @@ class CharacterSelectionScene extends Phaser.Scene {
       this.inputState.p2.any = false;
       this.inputState.p2.act = false; // Also clear action button to prevent immediate confirmation
       this.lastButtonTime[1] = time;
+      SND.select(); // Play join sound
     }
 
     // Check if ready to start (all joined players must confirm)
@@ -2022,6 +2015,7 @@ class CharacterSelectionScene extends Phaser.Scene {
 
     if (joinedPlayers.length > 0 && allJoinedConfirmed && !this.isTransitioning) {
       this.isTransitioning = true;
+      SND.transition(); // Play transition sound
 
       // Wait 1 second before transition
       this.time.delayedCall(1000, () => {
@@ -2125,7 +2119,7 @@ class CharacterSelectionScene extends Phaser.Scene {
   }
 
   drawCharacterSlot(char, x, y, size) {
-    const sprite = char.sprites.FRONT;
+    const sprite = char.sprites.F;
     if (!sprite || sprite.length === 0) return;
 
     const halfH = Math.floor(sprite.length / 2);
@@ -2170,7 +2164,7 @@ class CharacterSelectionScene extends Phaser.Scene {
 
     // Preview sprite
     const char = CHARACTERS[sel.selIdx];
-    const sprite = char.sprites.FRONT;
+    const sprite = char.sprites.F;
     if (sprite && sprite.length > 0) {
       const targetH = 90;
       const scale = targetH / sprite.length * 1.5;
@@ -2212,995 +2206,440 @@ class GameScene extends Phaser.Scene {
   }
 
   init(data) {
-    // Receive character selections
-    this.selectedCharacters = {
-      p1: data.p1Character || CHARACTERS[0],
-      p2: data.p2Character // null if 1 player mode
-    };
-
-    // Check if we're in 1 player mode
-    this.is1PlayerMode = !this.selectedCharacters.p2;
+    // sel = selected characters (p1, p2), is1P = is 1-player mode
+    this.sel = { p1: data.p1Character || CHARACTERS[0], p2: data.p2Character };
+    this.is1P = !this.sel.p2;
   }
 
   create() {
-    // Game state management
-    this.gameState = GAME_STATES.CINEMATIC;
-
-    // Setup camera with sky background
-    this.cameras.main.setBackgroundColor(COLORS.SKY);
-    this.cameras.main.setZoom(C.S);
-
-    // Use reusable background (it handles its own depth layers 0-2)
-    this.background = new DynamicBackground(this, false);
-
-    // Setup graphics (ensure depths are higher than background layers)
-    this.buildingGraphics = this.add.graphics();
-    this.buildingGraphics.setDepth(3); // Above background layers (0-2)
-    this.uiGraphics = this.add.graphics();
-    this.uiGraphics.setDepth(100);
-
-    // Initialize dialog system AFTER other graphics so it renders on top
+    // state = game state, bg = background, bGfx = building graphics, uiGfx = UI graphics
+    this.state = GAME_STATES.CINEMATIC;
+    this.cameras.main.setBackgroundColor(COLORS.SKY).setZoom(C.S);
+    this.bg = new DynamicBackground(this, false);
+    this.bGfx = this.add.graphics().setDepth(3);
+    this.uiGfx = this.add.graphics().setDepth(100);
     this.dialog = new Dialog(this);
-
-    // Initialize cinematic controller
     this.cinematic = new CinematicController(this);
-
-    // Create players (start in FRONT state for cinematic)
-    // Create players with selected characters from character selection scene
-    this.players = [
-      new Player(this, 1, this.is1PlayerMode ? 9.5 : 9, 0, this.selectedCharacters.p1)
-    ];
-
-    // Only create Hacker 2 if in 2 player mode
-    if (!this.is1PlayerMode) {
-      this.players.push(new Player(this, 2, 10.5, 0, this.selectedCharacters.p2));
-    }
-
-    // Set players to FRONT state initially (for cinematic)
-    this.players.forEach(player => {
-      player.animState = 'FRONT';
-    });
-
-    // Create guard (starts at middle column, row 0)
+    // Create players array with P1, optionally add P2
+    this.players = [new Player(this, 1, this.is1P ? 9.5 : 9, 0, this.sel.p1)];
+    if (!this.is1P) this.players.push(new Player(this, 2, 10.5, 0, this.sel.p2));
+    this.players.forEach(p => p.animState = 'F');
     this.guard = new Guard(this, 3.5, 0);
-    // Set guard to FRONT state initially (for cinematic)
-    this.guard.animState = 'FRONT';
-
-    // Obstacles array and spawning
-    this.obstacles = [];
-    this.obstacleSpawnTimer = 0;
-    this.obstaclesPaused = false; // Pause obstacles during guard catch dialog
-
-    // Camera tracking - start at floor level (matching the camera limit)
-    const groundY = C.GH;
-    const maxCameraY = groundY - (C.GH / 2);
-    this.cameraTargetY = maxCameraY;
-
-    // Input tracking
-    this.inputState = {
+    this.guard.animState = 'F';
+    // obs = obstacles, obsSpawnT = obstacle spawn timer, obsPause = obstacles paused
+    this.obs = [];
+    this.obsSpawnT = 0;
+    this.obsPause = false;
+    // camTY = camera target Y
+    this.camTY = C.GH - (C.GH / 2);
+    // inp = input state for both players
+    this.inp = {
       p1: { up: false, down: false, left: false, right: false },
       p2: { up: false, down: false, left: false, right: false }
     };
-
-    // Setup keyboard input
-    this.setupInput();
-
-    // UI Text
-    this.setupUI();
-
-    // Position camera at floor level at start
-    const camX = C.GW / 2;
-    this.cameras.main.centerOn(camX, this.cameraTargetY);
-  }
-
-  setupInput() {
-    this.input.keyboard.on('keydown', (event) => {
-      const key = KBD_TO_ARC[event.key] || event.key;
-      this.handleInput(key, true);
-    });
-
-    this.input.keyboard.on('keyup', (event) => {
-      const key = KBD_TO_ARC[event.key] || event.key;
-      this.handleInput(key, false);
-    });
-  }
-
-  handleInput(key, isDown) {
-    // Hacker 1 controls
-    if (key === 'P1U') this.inputState.p1.up = isDown;
-    if (key === 'P1D') this.inputState.p1.down = isDown;
-    if (key === 'P1L') this.inputState.p1.left = isDown;
-    if (key === 'P1R') this.inputState.p1.right = isDown;
-
-    // Hacker 2 controls
-    if (key === 'P2U') this.inputState.p2.up = isDown;
-    if (key === 'P2D') this.inputState.p2.down = isDown;
-    if (key === 'P2L') this.inputState.p2.left = isDown;
-    if (key === 'P2R') this.inputState.p2.right = isDown;
-  }
-
-  setupUI() {
-    // Hacker 1 Lives
-    this.p1LivesText = this.add.text(250, 190, 'P1:♥♥♥', {
-      fontSize: 11,
-      color: '#000'
-    });
-    this.p1LivesText.setScrollFactor(0);
-    this.p1LivesText.setDepth(100);
-
-    // Hacker 2 Lives (only in 2 player mode)
-    this.p2LivesText = this.add.text(250, 210, 'P2:♥♥♥', {
-      fontSize: 11,
-      color: '#000'
-    });
-
-    // Hide P2 lives in 1 player mode
-    if (this.is1PlayerMode) {
-      this.p2LivesText.setVisible(false);
-    }
-
-    // Floor indicator
-    this.floorText = this.add.text(C.GW / 2, 10, 'Floor: 0 / 90', {
-      fontSize: '14px',
-    fontFamily: 'Arial',
-      color: P[6],
-    });
-    this.floorText.setOrigin(0.5, 0);
-    this.floorText.setScrollFactor(0);
-    this.floorText.setDepth(100);
-
-    // Start the opening cinematic
+    // Setup keyboard input handlers for keydown and keyup
+    ['keydown', 'keyup'].forEach(e => this.input.keyboard.on(e, ev => this.handleInput(KBD_TO_ARC[ev.key] || ev.key, e === 'keydown')));
+    // p1Txt/p2Txt = player lives text displays
+    this.p1Txt = this.add.text(250, 190, '', { fontSize: 11, color: '#000' }).setScrollFactor(0).setDepth(100);
+    this.p2Txt = this.add.text(250, 205, '', { fontSize: 11, color: '#000' }).setScrollFactor(0).setDepth(100).setVisible(!this.is1P);
+    this.cameras.main.centerOn(C.GW / 2, this.camTY);
     this.cinematic.start();
   }
 
-  checkWinConditions() {
-    // Check if any players reached the goal floor
-    this.players.forEach(player => {
-      if (player.isDead || player.hasWon || player.isEnteringWindow) return;
+  handleInput(k, down) {
+    // Map arcade controls to input state using lookup table (k=key, down=isDown)
+    const m = { P1U: ['p1', 'up'], P1D: ['p1', 'down'], P1L: ['p1', 'left'], P1R: ['p1', 'right'], P2U: ['p2', 'up'], P2D: ['p2', 'down'], P2L: ['p2', 'left'], P2R: ['p2', 'right'] };
+    if (m[k]) this.inp[m[k][0]][m[k][1]] = down;
+  }
 
-      // Check if player's row is at or above goal floor
-      if (player.row >= C.GOAL) {
-        // Trigger win animation
-        player.isEnteringWindow = true;
-        player.enterWindowTimer = 0;
-        player.animState = 'FRONT'; // Face forward while entering
+  checkWin() {
+    // Check if players reached goal floor and trigger window entry animation
+    this.players.forEach(p => {
+      if (!p.isDd && !p.hasW && !p.isEntW && p.row >= C.GOAL) { // Changed isDead→isDd, hasWon→hasW, isEnteringWindow→isEntW
+        p.isEntW = true;
+        p.entWT = 0; // Changed enterWindowTimer→entWT
+        p.animSt = 'F'; // Changed animState→animSt
       }
     });
-
-    // Check if we should trigger victory/end cinematic
-    const allPlayersResolved = this.players.every(p => p.hasWon || p.isDead);
-    const anyoneWon = this.players.some(p => p.hasWon);
-    const allDead = this.players.every(p => p.isDead);
-
-    if (allPlayersResolved && this.gameState === GAME_STATES.PLAYING) {
-      if (anyoneWon) {
-        // At least one player won - trigger victory sequence
-        this.triggerVictory();
-      } else if (allDead) {
-        // All players dead - trigger loss sequence
-        this.triggerLoss();
-      }
+    // Check end conditions: all resolved (won or dead), trigger appropriate cinematic
+    const allRes = this.players.every(p => p.hasW || p.isDd); // Changed hasWon→hasW, isDead→isDd
+    const won = this.players.some(p => p.hasW); // Changed hasWon→hasW
+    const dead = this.players.every(p => p.isDd); // Changed isDead→isDd
+    if (allRes && this.state === GAME_STATES.PLAYING) {
+      won ? this.trigVict() : dead ? this.trigLoss() : null;
     }
   }
 
-  triggerLoss() {
-    this.gameState = GAME_STATES.GAME_OVER;
-
-    // Wait a moment then show loss screen (no dialog needed since nobody caught them)
-    this.time.delayedCall(1500, () => {
-      this.showLossEndScreen();
-    });
+  trigLoss() {
+    // Trigger loss state and show loss screen after delay
+    this.state = GAME_STATES.GAME_OVER;
+    SND.loss(); // Play loss music
+    this.time.delayedCall(1500, () => this.showLossEnd());
   }
 
-  triggerVictory() {
-    this.gameState = GAME_STATES.VICTORY; // Enter victory state
-
-    // Capture end time for scoring (time from start to victory trigger)
-    this.gameEndTime = this.time.now;
-
-    // Make guard fall
+  trigVict() {
+    // Trigger victory state: capture end time, make guard fall, start confetti if all won
+    this.state = GAME_STATES.VICTORY;
+    SND.victory(); // Play victory music
+    this.endT = this.time.now; // endT = end time for scoring
     if (this.guard) {
       this.guard.isFalling = true;
       this.guard.fallVelocity = 0;
     }
-
-    // Count winners
-    const winners = this.players.filter(p => p.hasWon);
-    const allWon = winners.length === this.players.length;
-    this.allWon = allWon;
-
-    // Start confetti if all players won
-    if (allWon) {
-      this.startConfetti();
-    }
-
-    // Wait 2 seconds then start final cinematic dialogs
-    this.time.delayedCall(2000, () => {
-      this.startVictoryCinematic();
-    });
+    const w = this.players.filter(p => p.hasW); // Changed hasWon→hasW
+    this.allWon = w.length === this.players.length;
+    if (this.allWon) this.mkConf();
+    this.time.delayedCall(2000, () => this.victCine());
   }
 
-  startConfetti() {
-    // Simple confetti particles falling from sky
-    this.confetti = [];
+  mkConf() {
+    // Make confetti: create 100 particles with random positions and velocities
+    this.conf = []; // conf = confetti array
     for (let i = 0; i < 100; i++) {
-      this.confetti.push({
+      this.conf.push({
         x: Phaser.Math.Between(0, C.GAME_WIDTH),
         y: Phaser.Math.Between(-200, -50),
-        vx: Phaser.Math.FloatBetween(-20, 20),
-        vy: Phaser.Math.FloatBetween(50, 150),
-        color: Phaser.Utils.Array.GetRandom([P[7], P[73], P[53], P[30], P[37]]),
-        size: Phaser.Math.Between(2, 4)
+        vx: Phaser.Math.FloatBetween(-20, 20), // vx = velocity x
+        vy: Phaser.Math.FloatBetween(50, 150), // vy = velocity y
+        c: Phaser.Utils.Array.GetRandom([P[7], P[73], P[53], P[30], P[37]]), // c = color
+        sz: Phaser.Math.Between(2, 4) // sz = size
       });
     }
   }
 
-  updateConfetti(delta) {
-    if (!this.confetti) return;
-
-    this.confetti.forEach(c => {
-      c.x += c.vx * (delta / 1000);
-      c.y += c.vy * (delta / 1000);
-      c.vy += 100 * (delta / 1000); // Gravity
+  updConf(d) {
+    // Update confetti: move particles with gravity, filter off-screen ones (d=delta)
+    if (!this.conf) return;
+    this.conf.forEach(c => {
+      const dt = d / 1000;
+      c.x += c.vx * dt;
+      c.y += c.vy * dt;
+      c.vy += 100 * dt; // Gravity acceleration
     });
-
-    // Remove confetti that fell off screen
-    this.confetti = this.confetti.filter(c => c.y < C.GAME_HEIGHT + 100);
+    this.conf = this.conf.filter(c => c.y < C.GAME_HEIGHT + 100);
   }
 
-  drawConfetti() {
-    if (!this.confetti || this.confetti.length === 0) return;
-
-    this.confetti.forEach(c => {
-      this.uiGraphics.fillStyle(c.color, 1);
-      this.uiGraphics.fillRect(c.x, c.y, c.size, c.size);
+  drawConf() {
+    // Draw confetti particles on UI graphics
+    if (!this.conf || !this.conf.length) return;
+    this.conf.forEach(c => {
+      this.uiGfx.fillStyle(c.c, 1);
+      this.uiGfx.fillRect(c.x, c.y, c.sz, c.sz);
     });
   }
 
-  startVictoryCinematic() {
-    // Create dialog sequence for victory
-    this.victoryDialogIndex = 0;
-    this.showingEndScreen = false;
-    this.waitingForDialogComplete = false;
-
-    const winners = this.players.filter(p => p.hasWon);
-    const allWon = winners.length === this.players.length;
-
-    // Build names string
-    const names = this.players.map(p => p.character.name).join(' y ');
-
-    // Create coordinator graphics for display
-    this.coordinatorGraphics = this.add.graphics().setDepth(50);
-
-    // Dialog sequence
-    this.victoryDialogs = [
+  victCine() {
+    // Victory cinematic: setup dialog sequence with coordinator speaking
+    this.vdIdx = 0; // vdIdx = victory dialog index
+    this.showEnd = false; // showEnd = showing end screen flag
+    this.waitDlg = false; // waitDlg = waiting for dialog to complete
+    const w = this.players.filter(p => p.hasW); // Changed hasWon→hasW
+    const all = w.length === this.players.length;
+    const nms = this.players.map(p => p.chr.name).join(' y '); // nms = names (Changed from character to chr)
+    this.cGfx = this.add.graphics().setDepth(50); // cGfx = coordinator graphics
+    // vdlgs = victory dialogs array - each function shows one dialog step
+    this.vdlgs = [
+      () => { this.drawCoor(); this.dialog.show('GUARD', 'Buenos días con todos', [GUARD_SPRITES.F]); this.waitDlg = true; },
+      () => { this.drawCoor(); this.dialog.show('GUARD', `Antes de comenzar la ${ph}, vamos a pasar asistencia`, [GUARD_SPRITES.F]); this.waitDlg = true; },
+      () => { this.drawCoor(); this.dialog.show('GUARD', `El equipo de ${nms} está presente?`, [GUARD_SPRITES.F]); this.waitDlg = true; },
       () => {
-        this.drawCoordinatorSprite();
-        this.dialog.show('GUARD', 'Buenos días con todos', [GUARD_SPRITES.FRONT]);
-        this.waitingForDialogComplete = true;
+        this.cGfx.clear();
+        all ? this.dialog.show('UNISON', 'Sí, estamos aquí!', this.players.map(p => p.sprites.F)) : this.dialog.show('PLAYER', 'Disculpe... no estamos completos...', [w[0].sprites.F]);
+        this.waitDlg = true;
       },
-      () => {
-        this.drawCoordinatorSprite();
-        this.dialog.show('GUARD', `Antes de comenzar la ${ph}, vamos a pasar asistencia`, [GUARD_SPRITES.FRONT]);
-        this.waitingForDialogComplete = true;
-      },
-      () => {
-        this.drawCoordinatorSprite();
-        this.dialog.show('GUARD', `El equipo de ${names} está presente?`, [GUARD_SPRITES.FRONT]);
-        this.waitingForDialogComplete = true;
-      },
-      () => {
-        this.coordinatorGraphics.clear(); // Remove coordinator
-        if (allWon) {
-          // Both players respond
-          this.dialog.show('UNISON', 'Sí, estamos aquí!', this.players.map(p => p.sprites.FRONT));
-        } else {
-          // Only survivor responds
-          const survivor = winners[0];
-          this.dialog.show('PLAYER', 'Disculpe... no estamos completos...', [survivor.sprites.FRONT]);
-        }
-        this.waitingForDialogComplete = true;
-      },
-      () => {
-        this.dialog.hide();
-        this.coordinatorGraphics.clear();
-        this.showVictoryEndScreen();
-      }
+      () => { this.dialog.hide(); this.cGfx.clear(); this.showVictEnd(); }
     ];
-
-    // Setup input handler for advancing dialogs (allows skipping)
-    this.victoryInputHandler = (event) => {
-      if (this.showingEndScreen) {
-        this.returnToMenu();
-      } else if (this.victoryDialogIndex < this.victoryDialogs.length) {
-        // Manual skip - cancel any pending auto-advance
-        if (this.dialogAutoAdvanceTimer) {
-          this.dialogAutoAdvanceTimer.remove();
-          this.dialogAutoAdvanceTimer = null;
-        }
-        this.waitingForDialogComplete = false;
-        this.advanceVictoryDialog();
+    // vInpH = victory input handler - allows skipping dialogs or returning to menu
+    this.vInpH = () => {
+      if (this.showEnd) this.toMenu();
+      else if (this.vdIdx < this.vdlgs.length) {
+        if (this.dlgAutoT) { this.dlgAutoT.remove(); this.dlgAutoT = null; } // dlgAutoT = dialog auto-advance timer
+        this.waitDlg = false;
+        this.advVictDlg();
       }
     };
-
-    this.input.keyboard.off('keydown', this.victoryInputHandler);
-    this.input.keyboard.on('keydown', this.victoryInputHandler);
-
-    // Start first dialog
-    this.time.delayedCall(500, () => {
-      this.advanceVictoryDialog();
-    });
+    this.input.keyboard.off('keydown', this.vInpH);
+    this.input.keyboard.on('keydown', this.vInpH);
+    this.time.delayedCall(500, () => this.advVictDlg());
   }
 
-  drawCoordinatorSprite() {
-    // Draw coordinator on left side using guard sprite
-    this.coordinatorGraphics.clear();
-    const coordX = 40;
-    const coordY = C.GAME_HEIGHT - 80;
-    drawSprite(this.coordinatorGraphics, GUARD_SPRITES.FRONT, coordX, coordY);
+  drawCoor() {
+    // Draw coordinator sprite on left side of screen
+    this.cGfx.clear();
+    drawSprite(this.cGfx, GUARD_SPRITES.F, 40, C.GAME_HEIGHT - 80);
   }
 
-  advanceVictoryDialog() {
-    if (this.victoryDialogIndex < this.victoryDialogs.length) {
-      this.victoryDialogs[this.victoryDialogIndex]();
-      this.victoryDialogIndex++;
+  advVictDlg() {
+    // Advance victory dialog to next step
+    if (this.vdIdx < this.vdlgs.length) {
+      this.vdlgs[this.vdIdx]();
+      this.vdIdx++;
     }
   }
 
-  showVictoryEndScreen() {
-    this.showingEndScreen = true;
-
-    // Calculate time from start to victory (when player reached goal)
-    const gameElapsedMs = (this.gameEndTime || this.time.now) - (this.gameStartTime || 0);
-    const timeSeconds = Math.floor(gameElapsedMs / 1000);
-    const minutes = Math.floor(timeSeconds / 60);
-    const seconds = timeSeconds % 60;
-    const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-
-    // When using scrollFactor(0,0) with a zoomed camera, we need canvas coordinates
-    // Canvas is 800x600, not game coords 320x240
-    const canvasWidth = 800;
-    const canvasHeight = 600;
-
-    // Create end screen graphics (fixed to camera)
-    this.endScreenGraphics = this.add.graphics().setDepth(150);
-    this.endScreenGraphics.setScrollFactor(0, 0);
-    this.endScreenGraphics.fillStyle(P[0], 0.85);
-    this.endScreenGraphics.fillRect(0, 0, canvasWidth, canvasHeight);
-
-    // Show victory or defeat message
-    let message, color;
-    if (this.allWon) {
-      message = `¡Felicidades!\nEstás dentro de la\n${ph}!`;
-      color = '#0f0';
-    } else {
-      message = 'Tu equipo no se pudo\npresentar a la hackathon';
-      color = '#f00';
-    }
-
-    this.endMessageText = this.add.text(canvasWidth / 2, 250, message, {
-      fontFamily: 'Arial',
-      fontSize: '24px',
-      color: color,
-      align: 'center'
-    }).setOrigin(0.5).setDepth(151).setScrollFactor(0, 0);
-
-    // Only show time if they won
-    if (this.allWon) {
-      this.endTimeText = this.add.text(canvasWidth / 2, 320, `Tiempo: ${timeStr}`, {
-        fontFamily: 'Arial',
-        fontSize: '20px',
-        color: '#ffffff'
-      }).setOrigin(0.5).setDepth(151).setScrollFactor(0, 0);
-    }
-
-    this.endPromptText = this.add.text(canvasWidth / 2, 350, pcb, {
-      fontFamily: 'Arial',
-      fontSize: '16px',
-      color: '#aaa',
-      align: 'center'
-    }).setOrigin(0.5).setDepth(151).setScrollFactor(0, 0);
+  showVictEnd() {
+    // Show victory end screen with time and message (cw=canvas width, ch=canvas height, ts=time string)
+    this.showEnd = true;
+    const ms = (this.endT || this.time.now) - (this.gameStartTime || 0);
+    const s = Math.floor(ms / 1000);
+    const m = Math.floor(s / 60);
+    const ts = `${m}:${(s % 60).toString().padStart(2, '0')}`;
+    const cw = 800, ch = 600;
+    // endGfx = end screen graphics, endMsgTxt = end message text, endTimeTxt = end time text, endPromptTxt = end prompt text
+    this.endGfx = this.add.graphics().setDepth(150).setScrollFactor(0, 0);
+    this.endGfx.fillStyle(P[0], 0.85).fillRect(0, 0, cw, ch);
+    const msg = this.allWon ? `¡Felicidades!\nEstás dentro de la\n${ph}!` : 'Tu equipo no se pudo\npresentar a la hackathon';
+    const col = this.allWon ? '#0f0' : '#f00';
+    this.endMsgTxt = this.add.text(cw / 2, 250, msg, { fontFamily: 'Arial', fontSize: '24px', color: col, align: 'center' }).setOrigin(0.5).setDepth(151).setScrollFactor(0, 0);
+    if (this.allWon) this.endTimeTxt = this.add.text(cw / 2, 320, `Tiempo: ${ts}`, { fontFamily: 'Arial', fontSize: '20px', color: '#fff' }).setOrigin(0.5).setDepth(151).setScrollFactor(0, 0);
+    this.endPromptTxt = this.add.text(cw / 2, 350, pcb, { fontFamily: 'Arial', fontSize: '16px', color: '#aaa', align: 'center' }).setOrigin(0.5).setDepth(151).setScrollFactor(0, 0);
   }
 
-  showLossEndScreen() {
-    this.showingEndScreen = true;
-
-    // When using scrollFactor(0,0) with a zoomed camera, we need canvas coordinates
-    // Canvas is 800x600, not game coords 320x240
-    const canvasWidth = 800;
-    const canvasHeight = 600;
-
-    // Create end screen graphics (fixed to camera)
-    this.endScreenGraphics = this.add.graphics().setDepth(150);
-    this.endScreenGraphics.setScrollFactor(0, 0);
-    this.endScreenGraphics.fillStyle(P[0], 0.85);
-    this.endScreenGraphics.fillRect(0, 0, canvasWidth, canvasHeight);
-
-    // Show loss message
-    const message = 'Tu equipo no se pudo\npresentar a la hackathon';
-    const color = '#f00';
-
-    this.endMessageText = this.add.text(canvasWidth / 2, 250, message, {
-      fontFamily: 'Arial',
-      fontSize: '24px',
-      color: color,
-      align: 'center'
-    }).setOrigin(0.5).setDepth(151).setScrollFactor(0, 0);
-
-    this.endPromptText = this.add.text(canvasWidth / 2, 350, pcb, {
-      fontFamily: 'Arial',
-      fontSize: '16px',
-      color: '#aaa',
-      align: 'center'
-    }).setOrigin(0.5).setDepth(151).setScrollFactor(0, 0);
-
-    // Setup input handler for returning to menu
-    this.lossInputHandler = () => {
-      this.returnToMenu();
-    };
-
-    this.input.keyboard.off('keydown', this.lossInputHandler);
-    this.input.keyboard.on('keydown', this.lossInputHandler);
+  showLossEnd() {
+    // Show loss end screen with message (lInpH = loss input handler)
+    this.showEnd = true;
+    const cw = 800, ch = 600;
+    this.endGfx = this.add.graphics().setDepth(150).setScrollFactor(0, 0);
+    this.endGfx.fillStyle(P[0], 0.85).fillRect(0, 0, cw, ch);
+    this.endMsgTxt = this.add.text(cw / 2, 250, 'Tu equipo no se pudo\npresentar a la hackathon', { fontFamily: 'Arial', fontSize: '24px', color: '#f00', align: 'center' }).setOrigin(0.5).setDepth(151).setScrollFactor(0, 0);
+    this.endPromptTxt = this.add.text(cw / 2, 350, pcb, { fontFamily: 'Arial', fontSize: '16px', color: '#aaa', align: 'center' }).setOrigin(0.5).setDepth(151).setScrollFactor(0, 0);
+    this.lInpH = () => this.toMenu();
+    this.input.keyboard.off('keydown', this.lInpH);
+    this.input.keyboard.on('keydown', this.lInpH);
   }
 
-  returnToMenu() {
+  toMenu() {
+    // Return to menu scene
     this.scene.start('MenuScene');
   }
 
-  checkCollisions() {
-    // Check guard catching players
+  checkColl() {
+    // Check all collision types: guard vs players, player vs player, falling objects vs players
+    // Guard catching players
     if (this.guard) {
-      this.players.forEach(player => {
-        // Skip if player is already caught, dead, falling, or entering window (invincible)
-        if (player.isCaught || player.isDead || player.isFalling || player.isEnteringWindow) return;
-
-        if (this.guard.checkCollision(player.getColliderBounds())) {
-          this.handlePlayerCaught(player);
-        }
+      this.players.forEach(p => {
+        if (p.isCgt || p.isDd || p.isFl || p.isEntW) return; // Changed isCaught→isCgt, isDead→isDd, isFalling→isFl, isEnteringWindow→isEntW
+        if (this.guard.checkCollision(p.getColliderBounds())) this.pCaught(p);
       });
     }
-
-    // Check player-player collisions (blocking each other while climbing) - only in 2 player mode
-    if (!this.is1PlayerMode && this.players[0].checkPlayerCollision(this.players[1])) {
-      // Don't resolve collision if either is falling, entering window, or dead
-      const p0Falling = this.players[0].isFallingOneRow || this.players[0].isFalling || this.players[0].isEnteringWindow;
-      const p1Falling = this.players[1].isFallingOneRow || this.players[1].isFalling || this.players[1].isEnteringWindow;
-
-      if (!p0Falling && !p1Falling) {
-        // Both players are normal - resolve collision (push apart)
-        this.resolvePlayerCollision(this.players[0], this.players[1]);
-      }
+    // Player-player collision (2P mode only) - f0/f1 = is falling flags
+    if (!this.is1P && this.players[0].chkPCol(this.players[1])) { // Changed checkPlayerCollision→chkPCol
+      const f0 = this.players[0].isFl1R || this.players[0].isFl || this.players[0].isEntW; // Changed isFallingOneRow→isFl1R, isFalling→isFl, isEnteringWindow→isEntW
+      const f1 = this.players[1].isFl1R || this.players[1].isFl || this.players[1].isEntW; // Changed isFallingOneRow→isFl1R, isFalling→isFl, isEnteringWindow→isEntW
+      if (!f0 && !f1) this.resolvePCol(this.players[0], this.players[1]);
     }
-
-    // Check all falling objects (obstacles + dying players + falling one row players)
-    this.players.forEach(player => {
-      // Skip if player is already affected by something or entering window (invincible)
-      if (player.isDead || player.isFalling || player.isFallingOneRow || player.isEnteringWindow) return;
-
-      // Check regular obstacles
-      this.obstacles.forEach(obstacle => {
-        if (!obstacle.active) return;
-
-        if (player.checkCollision(obstacle.getColliderBounds())) {
-          this.handleFallingObjectHit(player, `obstacle ${obstacle.emoji}`);
-          obstacle.destroy();
+    // Falling objects hitting players (o=obstacle, dp=dying player, fp=falling player)
+    this.players.forEach(p => {
+      if (p.isDd || p.isFl || p.isFl1R || p.isEntW) return; // Changed isDead→isDd, isFalling→isFl, isFallingOneRow→isFl1R, isEnteringWindow→isEntW
+      this.obs.forEach(o => {
+        if (o.active && p.checkCollision(o.getColliderBounds())) {
+          this.objHit(p, `obstacle ${o.emoji}`);
+          o.destroy();
         }
       });
-
-      // Check dying players (they act as falling obstacles)
-      this.players.forEach(dyingPlayer => {
-        if (!dyingPlayer.isFalling) return; // Only dying players
-        if (dyingPlayer === player) return; // Can't hit yourself
-        if (dyingPlayer.isEnteringWindow) return; // Skip if entering window
-
-        if (player.checkCollision(dyingPlayer.getColliderBounds())) {
-          this.handleFallingObjectHit(player, `dying Player ${dyingPlayer.playerNum}`);
-        }
+      this.players.forEach(dp => {
+        if (dp.isFl && dp !== p && !dp.isEntW && p.checkCollision(dp.getColliderBounds())) this.objHit(p, `dying Player ${dp.playerNum}`); // Changed isFalling→isFl, isEnteringWindow→isEntW
       });
-
-      // Check players falling one row (they also act as obstacles)
-      this.players.forEach(fallingPlayer => {
-        if (!fallingPlayer.isFallingOneRow) return; // Only falling one row
-        if (fallingPlayer === player) return; // Can't hit yourself
-        if (fallingPlayer.isEnteringWindow) return; // Skip if entering window
-
-        if (player.checkCollision(fallingPlayer.getColliderBounds())) {
-          this.handleFallingObjectHit(player, `falling Player ${fallingPlayer.playerNum}`);
-        }
+      this.players.forEach(fp => {
+        if (fp.isFl1R && fp !== p && !fp.isEntW && p.checkCollision(fp.getColliderBounds())) this.objHit(p, `falling Player ${fp.playerNum}`); // Changed isFallingOneRow→isFl1R, isEnteringWindow→isEntW
       });
     });
-
-    // Remove inactive obstacles
-    this.obstacles = this.obstacles.filter(obs => obs.active);
+    this.obs = this.obs.filter(o => o.active);
   }
 
-  handlePlayerCaught(player) {
-
-    // Pause obstacle spawning
-    this.obstaclesPaused = true;
-
-    // Check if there are other players still alive (not caught, not dead, not won)
-    const otherPlayers = this.players.filter(p => p !== player && !p.isCaught && !p.isDead && !p.hasWon);
-
-    // Check if any player has already won (no point in showing dialog)
-    const someoneAlreadyWon = this.players.some(p => p.hasWon);
-
-    // "Continúa sin mí" should only play if:
-    // 1. In 2-player mode
-    // 2. Exactly one other player is still alive
-    // 3. No one has won yet
-    if (!this.is1PlayerMode && otherPlayers.length === 1 && !someoneAlreadyWon) {
-      // Another player is still alive and no one has won yet
-      // Show dialog WHILE player falls (use caught player's sprite)
-      this.dialog.show('PLAYER', 'Continúa sin mí!!!', [player.sprites.FRONT]);
-
-      // IMMEDIATELY start death fall animation
-      player.die();
-
-      // After dialog, hide it and resume obstacles
-      this.time.delayedCall(2000, () => {
-        this.dialog.hide();
-        this.obstaclesPaused = false; // Resume obstacle spawning
-      });
-    } else if (otherPlayers.length > 0) {
-      // Other players alive but conditions not met for dialog - just die silently
-      player.die();
-      this.obstaclesPaused = false; // Resume obstacles immediately
+  pCaught(p) {
+    // Handle player caught by guard: show dialog if conditions met, trigger game over if last player (oth=other players, won=someone won flag)
+    this.obsPause = true;
+    const oth = this.players.filter(pl => pl !== p && !pl.isCgt && !pl.isDd && !pl.hasW); // Changed isCaught→isCgt, isDead→isDd, hasWon→hasW
+    const won = this.players.some(pl => pl.hasW); // Changed hasWon→hasW
+    if (!this.is1P && oth.length === 1 && !won) {
+      this.dialog.show('PLAYER', 'Continúa sin mí!!!', [p.spr.F]); // Changed sprites→spr
+      p.die();
+      this.time.delayedCall(2000, () => { this.dialog.hide(); this.obsPause = false; });
+    } else if (oth.length > 0) {
+      p.die();
+      this.obsPause = false;
     } else {
-      // No players left (or all won) - check if game over or someone won
-      if (someoneAlreadyWon) {
-        // Someone won, just die without dialog
-        player.die();
-        this.obstaclesPaused = false; // Resume obstacles immediately
+      if (won) {
+        p.die();
+        this.obsPause = false;
       } else {
-        // No players left - game over, freeze game
-        this.gameState = GAME_STATES.GAME_OVER;
+        this.state = GAME_STATES.GAME_OVER;
+        this.dialog.show('PLAYER', 'Súeltame, suéltame', [p.spr.F]); // Changed sprites→spr
+        p.isCgt = true; // Changed isCaught→isCgt
+        p.lostAnimT = 0; // Changed lostAnimTimer→lostAnimT
+        p.lostAnimSt = 'LUP0'; // Changed lostAnimState→lostAnimSt
+        this.time.delayedCall(2500, () => { this.dialog.hide(); this.showLossEnd(); });
+      }
+    }
+  }
 
-        // Show "Súeltame, suéltame" dialog
-        this.dialog.show('PLAYER', 'Súeltame, suéltame', [player.sprites.FRONT]);
+  objHit(p) {
+    // Handle when falling object hits player (calls player's takeDamage method)
+    p.takeDmg(); // Changed takeDamage→takeDmg
+  }
 
-        // Freeze player with LOST animation
-        player.isCaught = true;
-        player.lostAnimTimer = 0;
-        player.lostAnimState = 'LUP0';
+  spawnObs() {
+    // Spawn obstacles targeting alive players (high=highest player, tgt=target players)
+    const alive = this.players.filter(p => !p.isDd && !p.isFl); // Changed isDead→isDd, isFalling→isFl
+    if (!alive.length) return;
+    const high = alive.reduce((h, p) => p.row > h.row ? p : h);
+    if (high.row < C.OSR) return;
+    let tgt = [];
+    if (alive.length === 2) tgt = Math.random() < C.ODC ? alive : [Phaser.Utils.Array.GetRandom(alive)];
+    else tgt = [alive[0]];
+    const topY = this.camTY - (C.GH / 2) - 50;
+    tgt.forEach(t => this.obs.push(new Obstacle(this, t.x, topY, OBS[Math.floor(Math.random() * OBS.length)])));
+  }
 
-        // After dialog, show loss screen
-        this.time.delayedCall(2500, () => {
-          this.dialog.hide();
-          this.showLossEndScreen();
+  resolvePCol(p1, p2) {
+    // Resolve player-player collision by pushing them apart (b1/b2=bounds, ox/oy=overlap x/y, d=direction, amt=push amount)
+    const b1 = p1.getColliderBounds();
+    const b2 = p2.getColliderBounds();
+    const ox = Math.min(b1.right - b2.left, b2.right - b1.left);
+    const oy = Math.min(b1.bottom - b2.top, b2.bottom - b1.top);
+    if (ox < oy) {
+      const d = b1.centerX < b2.centerX ? -1 : 1;
+      const amt = ox / 2;
+      p1.x += d * amt;
+      p1.targetX = p1.x;
+      p1.col = Phaser.Math.Clamp((p1.x - ((C.GW - C.BW) / 2)) / (C.BW / (C.BAC - 1)), 0, C.BAC - 1);
+      p2.x -= d * amt;
+      p2.targetX = p2.x;
+      p2.col = Phaser.Math.Clamp((p2.x - ((C.GW - C.BW) / 2)) / (C.BW / (C.BAC - 1)), 0, C.BAC - 1);
+    } else {
+      const d = b1.centerY < b2.centerY ? -1 : 1;
+      const amt = oy / 2;
+      p1.y += d * amt;
+      p1.targetY = p1.y;
+      p2.y -= d * amt;
+      p2.targetY = p2.y;
+    }
+  }
+
+  update(t, d) {
+    // Main update loop: handle input based on game state, update entities, check collisions/win, update camera (t=time, d=delta)
+    this.bg.update(d, this.camTY); // Pass camera Y for parallax scrolling
+    const setInp = (p, inp) => p.setInp(inp.up, inp.down, inp.left, inp.right); // Changed setInput→setInp
+    // Handle state-specific logic: PLAYING=accept input, GAME_OVER=freeze, VICTORY=auto-advance dialogs, CINEMATIC=block input
+    if (this.state === GAME_STATES.PLAYING) {
+      setInp(this.players[0], this.inp.p1);
+      if (!this.is1P) setInp(this.players[1], this.inp.p2);
+      if (this.guard) this.guard.update(d);
+    } else if (this.state === GAME_STATES.GAME_OVER) {
+      setInp(this.players[0], { up: false, down: false, left: false, right: false });
+      if (!this.is1P) setInp(this.players[1], { up: false, down: false, left: false, right: false });
+      if (this.guard) this.guard.draw();
+    } else if (this.state === GAME_STATES.VICTORY) {
+      setInp(this.players[0], { up: false, down: false, left: false, right: false });
+      if (!this.is1P) setInp(this.players[1], { up: false, down: false, left: false, right: false });
+      if (this.guard) this.guard.update(d);
+      // Auto-advance victory dialogs after text completes
+      if (this.waitDlg && this.dialog.isTextComplete && !this.dlgAutoT) {
+        this.dlgAutoT = this.time.delayedCall(2000, () => {
+          this.waitDlg = false;
+          this.dlgAutoT = null;
+          this.advVictDlg();
         });
-
-        // Keep obstacles paused, game is frozen
       }
-    }
-  }
-
-  handleFallingObjectHit(player, objectName) {
-    // Unified logic for when any falling object hits a player
-    player.takeDamage(); // This handles: lose life, fall one row, or die
-  }
-
-  spawnObstacle() {
-    try {
-      // Choose a random alive player
-      const alivePlayers = this.players.filter(p => !p.isDead && !p.isFalling);
-      if (alivePlayers.length === 0) return;
-
-      // Only spawn obstacles if highest player has reached the start row
-      const highestPlayer = alivePlayers.reduce((highest, player) =>
-        player.row > highest.row ? player : highest
-      );
-
-      if (highestPlayer.row < C.OSR) return;
-
-      // Determine target players
-      let targetPlayers = [];
-
-      if (alivePlayers.length === 2) {
-        // Both players alive - 30% chance to target both
-        if (Math.random() < C.ODC) {
-          targetPlayers = alivePlayers;
-        } else {
-          targetPlayers = [Phaser.Utils.Array.GetRandom(alivePlayers)];
-        }
-      } else {
-        targetPlayers = [alivePlayers[0]];
-      }
-
-      // Spawn one obstacle per target player
-      const cameraTopY = this.cameraTargetY - (C.GH / 2);
-      const spawnY = cameraTopY - 50;
-
-      targetPlayers.forEach(targetPlayer => {
-        const emoji = OBS[Math.floor(Math.random() * OBS.length)];
-        const obstacle = new Obstacle(this, targetPlayer.x, spawnY, emoji);
-        this.obstacles.push(obstacle);
-      });
-    } catch (error) {
-    }
-  }
-
-  resolvePlayerCollision(player1, player2) {
-    // Simple collision resolution: push players apart slightly
-    const bounds1 = player1.getColliderBounds();
-    const bounds2 = player2.getColliderBounds();
-
-    // Calculate overlap
-    const overlapX = Math.min(bounds1.right - bounds2.left, bounds2.right - bounds1.left);
-    const overlapY = Math.min(bounds1.bottom - bounds2.top, bounds2.bottom - bounds1.top);
-
-    // Resolve collision along the axis with smallest overlap
-    if (overlapX < overlapY) {
-      // Separate horizontally
-      const direction = bounds1.centerX < bounds2.centerX ? -1 : 1;
-      const pushAmount = overlapX / 2;
-
-      player1.x += direction * pushAmount;
-      player1.targetX = player1.x;
-      player1.col = Phaser.Math.Clamp(
-        (player1.x - ((C.GW - C.BW) / 2)) /
-        (C.BW / (C.BAC - 1)),
-        0,
-        C.BAC - 1
-      );
-
-      player2.x -= direction * pushAmount;
-      player2.targetX = player2.x;
-      player2.col = Phaser.Math.Clamp(
-        (player2.x - ((C.GW - C.BW) / 2)) /
-        (C.BW / (C.BAC - 1)),
-        0,
-        C.BAC - 1
-      );
     } else {
-      // Separate vertically (block climbing)
-      const direction = bounds1.centerY < bounds2.centerY ? -1 : 1;
-      const pushAmount = overlapY / 2;
-
-      player1.y += direction * pushAmount;
-      player1.targetY = player1.y;
-
-      player2.y -= direction * pushAmount;
-      player2.targetY = player2.y;
+      if (this.guard) this.guard.draw();
+      setInp(this.players[0], { up: false, down: false, left: false, right: false });
+      if (!this.is1P) setInp(this.players[1], { up: false, down: false, left: false, right: false });
     }
+    // Always update players and obstacles
+    this.players.forEach(p => p.upd(d)); // Changed update→upd
+    this.obs.forEach(o => o.update(d));
+    // Spawn obstacles, check collisions, check win conditions (only during PLAYING state)
+    if (this.state === GAME_STATES.PLAYING) {
+      if (!this.obsPause) {
+        this.obsSpawnT += d;
+        if (this.obsSpawnT >= C.OSI) {
+          this.obsSpawnT = 0;
+          this.spawnObs();
+        }
+      }
+      this.checkColl();
+      this.checkWin();
+    }
+    // Update confetti if active
+    if (this.conf) this.updConf(d);
+    // Update camera to follow highest alive player (tgtY=target Y, maxY=max Y, clampY=clamped Y)
+    const alive = this.players.filter(p => !p.isDd && !p.isFl); // Changed isDead→isDd, isFalling→isFl
+    if (alive.length > 0) {
+      const high = alive.reduce((h, p) => p.row > h.row ? p : h);
+      const tgtY = high.getWorldY() - C.CO;
+      const maxY = (C.GH + 25) - (C.GH / 2);
+      const clampY = Math.min(tgtY, maxY);
+      this.camTY = Phaser.Math.Linear(this.camTY, clampY, C.CS);
+    }
+    this.cameras.main.centerOn(C.GW / 2, this.camTY);
+    this.drawBld();
+    this.updUI();
+    if (this.dialog) this.dialog.render(d);
   }
 
-  update(time, delta) {
-    // Update background animation
-    this.background.update(delta);
-
-    try {
-      // Only accept input and update guard when PLAYING
-      if (this.gameState === GAME_STATES.PLAYING) {
-        // Update players with input
-        this.players[0].setInput(
-          this.inputState.p1.up,
-          this.inputState.p1.down,
-          this.inputState.p1.left,
-          this.inputState.p1.right
-        );
-
-        // Only update Hacker 2 input in 2 player mode
-        if (!this.is1PlayerMode) {
-          this.players[1].setInput(
-            this.inputState.p2.up,
-            this.inputState.p2.down,
-            this.inputState.p2.left,
-            this.inputState.p2.right
-          );
-        }
-
-        // Update guard (only during gameplay)
-        if (this.guard) {
-          try {
-            this.guard.update(delta);
-          } catch (error) {
-          }
-        }
-      } else if (this.gameState === GAME_STATES.GAME_OVER) {
-        // During game over, freeze everything except LOST animation
-        this.players[0].setInput(false, false, false, false);
-        if (!this.is1PlayerMode) {
-          this.players[1].setInput(false, false, false, false);
-        }
-        // Guard freezes (don't update)
-        if (this.guard) {
-          this.guard.draw(); // Just redraw in current state
-        }
-      } else if (this.gameState === GAME_STATES.VICTORY) {
-        // During victory, freeze input but update guard (for falling animation)
-        this.players[0].setInput(false, false, false, false);
-        if (!this.is1PlayerMode) {
-          this.players[1].setInput(false, false, false, false);
-        }
-        // Update guard for falling animation
-        if (this.guard) {
-          this.guard.update(delta);
-        }
-
-        // Auto-advance dialogs after text completes
-        if (this.waitingForDialogComplete && this.dialog.isTextComplete && !this.dialogAutoAdvanceTimer) {
-          // Text finished typing, wait 2 seconds then advance
-          this.dialogAutoAdvanceTimer = this.time.delayedCall(2000, () => {
-            this.waitingForDialogComplete = false;
-            this.dialogAutoAdvanceTimer = null;
-            this.advanceVictoryDialog();
-          });
-        }
-      } else {
-        // During cinematic, block all input
-        this.guard.draw();
-        this.players[0].setInput(false, false, false, false);
-        if (!this.is1PlayerMode) {
-          this.players[1].setInput(false, false, false, false);
-        }
-      }
-
-      // Always update players (for animations)
-      this.players.forEach(player => {
-        try {
-          player.update(delta);
-        } catch (error) {
-        }
-      });
-
-      // Update obstacles
-      this.obstacles.forEach(obstacle => {
-        try {
-          obstacle.update(delta);
-        } catch (error) {
-        }
-      });
-
-      // Spawn obstacles and check collisions only during active gameplay
-      if (this.gameState === GAME_STATES.PLAYING) {
-        // Only spawn obstacles if not paused (e.g., during guard catch dialog)
-        if (!this.obstaclesPaused) {
-          this.obstacleSpawnTimer += delta;
-          if (this.obstacleSpawnTimer >= C.OSI) {
-            this.obstacleSpawnTimer = 0;
-            this.spawnObstacle();
-          }
-        }
-
-        // Check collisions (only during active gameplay, not during GAME_OVER)
-        this.checkCollisions();
-
-        // Check win conditions
-        this.checkWinConditions();
-      }
-      // During GAME_OVER, no spawning and no collision checking
-
-      // Update confetti if active
-      if (this.confetti) {
-        this.updateConfetti(delta);
-      }
-    } catch (error) {
-    }
-
-    try {
-      // Update camera to follow highest ALIVE player smoothly
-      const alivePlayers = this.players.filter(p => !p.isDead && !p.isFalling);
-
-      if (alivePlayers.length > 0) {
-        // Follow highest alive player
-        const highestPlayer = alivePlayers.reduce((highest, player) =>
-          player.row > highest.row ? player : highest
-        );
-
-        // Calculate target camera center Y (in game coordinates)
-        // Offset camera upward (lower Y) to keep player slightly below center
-        // This leaves more room above to see falling obstacles and chase elements
-        const targetCameraY = highestPlayer.getWorldY() - C.CO;
-
-        // Floor limit - camera shouldn't show anything below ground
-        // Ground is at Y = GAME_HEIGHT + 20 = 260
-        // Camera shows GAME_HEIGHT/2 = 120 pixels above and below center
-        // So camera center max = 260 - 120 = 140 (camera bottom edge at 260)
-        const groundY = C.GH + 25;
-        const maxCameraY = groundY - (C.GH / 2);
-
-        // Clamp camera to not go below floor
-        const clampedTargetY = Math.min(targetCameraY, maxCameraY);
-
-        // Smoothly interpolate camera target
-        this.cameraTargetY = Phaser.Math.Linear(
-          this.cameraTargetY,
-          clampedTargetY,
-          C.CS
-        );
-      }
-      // If no alive players, camera stays where it is
-
-      // Update camera to center on target Y
-      this.cameras.main.centerOn(C.GW / 2, this.cameraTargetY);
-    } catch (error) {
-    }
-
-    try {
-      // Draw building
-      this.drawBuilding();
-
-      // Update UI
-      this.updateUI();
-    } catch (error) {
-    }
-
-    try {
-      // Render dialog AFTER everything else (needs to be called every frame)  <-- SEPARATED INTO OWN BLOCK
-      if (this.dialog) {
-        this.dialog.render(delta);
-      }
-    } catch (error) {
-    }
-  }
-
-  drawBuilding() {
-    this.buildingGraphics.clear();
-
-    // Building boundaries
-    const buildingStartX = (C.GW - C.BW) / 2;
-    const buildingEndX = buildingStartX + C.BW;
-
-    // Calculate building height - extend well above and below visible area
-    const topY = -1500; // High above
-    const bottomY = C.GH + 100; // Below start
-
-    // Draw building background - glass blue with gradient effect
-    this.buildingGraphics.fillStyle(COLORS.GLASSB, 1);
-    this.buildingGraphics.fillRect(
-      buildingStartX,
-      topY,
-      C.BW,
-      bottomY - topY
-    );
-
-    // Add glass texture overlay (lighter blue streaks)
+  drawBld() {
+    // Draw building with glass windows, metal structure, and ground (bX=building X, bX2=building X end, cW=column width, isG=is goal floor)
+    this.bGfx.clear();
+    const bX = (C.GW - C.BW) / 2;
+    const bX2 = bX + C.BW;
+    const topY = -1500;
+    const botY = C.GH + 100;
+    // Building background with glass texture overlay
+    this.bGfx.fillStyle(COLORS.GLASSB, 1).fillRect(bX, topY, C.BW, botY - topY);
     for (let i = 0; i < 15; i++) {
-      const offsetX = buildingStartX + (i * C.BW / 15);
-      this.buildingGraphics.fillStyle(COLORS.GLASSSTR, 0.3);
-      this.buildingGraphics.fillRect(offsetX, topY, 2, bottomY - topY);
+      this.bGfx.fillStyle(COLORS.GLASSSTR, 0.3).fillRect(bX + (i * C.BW / 15), topY, 2, botY - topY);
     }
-
-    // Draw windows/rows
-    const colWidth = C.BW / C.BVC;
-
-    for (let row = 0; row < C.ROWS; row++) {
-      const y = this.players[0].rowToY(row);
-
-      // Draw horizontal row line (metallic frame)
-      this.buildingGraphics.lineStyle(2, COLORS.METAL1, 0.8);
-      this.buildingGraphics.lineBetween(buildingStartX, y, buildingEndX, y);
-
-      // Check if this is the goal floor (open windows)
-      const isGoalFloor = row === C.GOAL;
-
-      // Draw glass windows with reflections
-      for (let col = 0; col < C.BVC; col++) {
-        const x = buildingStartX + col * colWidth + colWidth / 2;
-
-        if (isGoalFloor) {
-          // Draw open window at goal floor
-          // Dark interior showing room inside
-          this.buildingGraphics.fillStyle(P[0], 0.9); // Black interior
-          this.buildingGraphics.fillRect(
-            x - 12,
-            y - C.RHEIGHT / 2 - 5,
-            24,
-            10
-          );
-
-          // Window frame (yellow-ish for Platanus branding)
-          this.buildingGraphics.lineStyle(2, P[73], 1); // Yellow/gold
-          this.buildingGraphics.strokeRect(
-            x - 12,
-            y - C.RHEIGHT / 2 - 5,
-            24,
-            10
-          );
-
-          // Add some interior detail (lights on)
-          this.buildingGraphics.fillStyle(P[7], 0.4); // Warm yellow glow
-          this.buildingGraphics.fillRect(
-            x - 10,
-            y - C.RHEIGHT / 2 - 4,
-            20,
-            8
-          );
+    const cW = C.BW / C.BVC;
+    // Draw rows and windows: horizontal lines, then windows (open at goal floor, glass otherwise)
+    for (let r = 0; r < C.ROWS; r++) {
+      const y = this.players[0].rowToY(r);
+      this.bGfx.lineStyle(2, COLORS.METAL1, 0.8).lineBetween(bX, y, bX2, y);
+      const isG = r === C.GOAL;
+      for (let c = 0; c < C.BVC; c++) {
+        const x = bX + c * cW + cW / 2;
+        if (isG) {
+          // Open window at goal floor: dark interior, yellow frame, warm glow
+          this.bGfx.fillStyle(P[0], 0.9).fillRect(x - 12, y - C.RHEIGHT / 2 - 5, 24, 10);
+          this.bGfx.lineStyle(2, P[73], 1).strokeRect(x - 12, y - C.RHEIGHT / 2 - 5, 24, 10);
+          this.bGfx.fillStyle(P[7], 0.4).fillRect(x - 10, y - C.RHEIGHT / 2 - 4, 20, 8);
         } else {
-          // Regular glass window - alternating blue tones for depth
-          const baseColor = (row + col) % 2 === 0 ? COLORS.GLASSW1 : COLORS.GLASSW2;
-          this.buildingGraphics.fillStyle(baseColor, 0.7);
-          this.buildingGraphics.fillRect(
-            x - 10,
-            y - C.RHEIGHT / 2 - 4,
-            20,
-            8
-          );
-
-          // Glass reflection/highlight (lighter area)
-          this.buildingGraphics.fillStyle(COLORS.GLASSREF, 0.4);
-          this.buildingGraphics.fillRect(
-            x - 8,
-            y - C.RHEIGHT / 2 - 3,
-            12,
-            2
-          );
+          // Regular glass window: alternating blue tones with reflection
+          this.bGfx.fillStyle((r + c) % 2 === 0 ? COLORS.GLASSW1 : COLORS.GLASSW2, 0.7).fillRect(x - 10, y - C.RHEIGHT / 2 - 4, 20, 8);
+          this.bGfx.fillStyle(COLORS.GLASSREF, 0.4).fillRect(x - 8, y - C.RHEIGHT / 2 - 3, 12, 2);
         }
       }
     }
-
-    // Draw vertical column lines (metallic structure)
-    for (let col = 0; col <= C.BVC; col++) {
-      const x = buildingStartX + col * colWidth;
-      this.buildingGraphics.lineStyle(3, COLORS.METAL1, 0.9);
-      this.buildingGraphics.lineBetween(x, topY, x, bottomY);
-
-      // Add highlight for metallic effect
-      this.buildingGraphics.lineStyle(1, COLORS.METAL2, 0.6);
-      this.buildingGraphics.lineBetween(x - 1, topY, x - 1, bottomY);
+    // Vertical columns with metallic highlights
+    for (let c = 0; c <= C.BVC; c++) {
+      const x = bX + c * cW;
+      this.bGfx.lineStyle(3, COLORS.METAL1, 0.9).lineBetween(x, topY, x, botY);
+      this.bGfx.lineStyle(1, COLORS.METAL2, 0.6).lineBetween(x - 1, topY, x - 1, botY);
     }
-
-    // Draw ground/sidewalk at the bottom with subtle concrete texture
-    const groundY = C.GH - 10;
-    const groundHeight = 50;
-
-    // Base concrete color
-    this.buildingGraphics.fillStyle(COLORS.BASE1, 1);
-    this.buildingGraphics.fillRect(0, groundY, C.GW, groundHeight);
-
-    // Add subtle concrete texture (static pattern using position-based seed)
+    // Ground with concrete texture (gY=ground Y, gH=ground height, s=seed for pattern)
+    const gY = C.GH - 10;
+    const gH = 50;
+    this.bGfx.fillStyle(COLORS.BASE1, 1).fillRect(0, gY, C.GW, gH);
     for (let x = 0; x < C.GW; x += 8) {
-      for (let y = 0; y < groundHeight; y += 8) {
-        // Use position as seed for consistent pattern
-        const seed = (x * 7 + y * 13) % 100;
-        if (seed > 85) {
-          // Darker spots (fewer and more subtle)
-          this.buildingGraphics.fillStyle(COLORS.BASE2, 0.4);
-          this.buildingGraphics.fillRect(x, groundY + y, 6, 6);
-        } else if (seed < 15) {
-          // Lighter spots (fewer and more subtle)
-          this.buildingGraphics.fillStyle(COLORS.BASE3, 0.4);
-          this.buildingGraphics.fillRect(x, groundY + y, 6, 6);
-        }
+      for (let y = 0; y < gH; y += 8) {
+        const s = (x * 7 + y * 13) % 100;
+        if (s > 85) this.bGfx.fillStyle(COLORS.BASE2, 0.4).fillRect(x, gY + y, 6, 6);
+        else if (s < 15) this.bGfx.fillStyle(COLORS.BASE3, 0.4).fillRect(x, gY + y, 6, 6);
       }
     }
-
-    // Add horizontal lines for sidewalk panels
-    this.buildingGraphics.lineStyle(2, COLORS.PANEL_LINE, 0.6);
-    for (let i = 1; i < 5; i++) {
-      const crackY = groundY + (i * groundHeight / 5);
-      this.buildingGraphics.lineBetween(0, crackY, C.GW, crackY);
-    }
-
-    // Add vertical lines for panel divisions
-    this.buildingGraphics.lineStyle(2, COLORS.PANEL_LINE, 0.6);
-    for (let i = 0; i < C.GW; i += 40) {
-      this.buildingGraphics.lineBetween(i, groundY, i, groundY + groundHeight);
-    }
+    // Sidewalk panel lines
+    this.bGfx.lineStyle(2, COLORS.PANEL_LINE, 0.6);
+    for (let i = 1; i < 5; i++) this.bGfx.lineBetween(0, gY + (i * gH / 5), C.GW, gY + (i * gH / 5));
+    for (let i = 0; i < C.GW; i += 40) this.bGfx.lineBetween(i, gY, i, gY + gH);
   }
 
-  updateUI() {
-    this.uiGraphics.clear();
-
-    // Draw confetti first (behind text)
-    this.drawConfetti();
-
-    // Update lives display
-    const p1Hearts = '♥'.repeat(this.players[0].lives);
-    this.p1LivesText.setText(`P1:${p1Hearts}`);
-
-    // Only update P2 lives in 2 player mode
-    if (!this.is1PlayerMode) {
-      const p2Hearts = '♥'.repeat(this.players[1].lives);
-      this.p2LivesText.setText(`P2:${p2Hearts}`);
-    }
-
-    // Update floor indicator
-    const maxFloor = this.is1PlayerMode
-      ? this.players[0].row
-      : Math.max(this.players[0].row, this.players[1].row);
-    this.floorText.setText(`Floor: ${maxFloor} / ${C.GOAL}`);
+  updUI() {
+    // Update UI: clear graphics, draw confetti, update lives text
+    this.uiGfx.clear();
+    this.drawConf();
+    this.p1Txt.setText(`P1:${'♥'.repeat(this.players[0].liv)}`); // Changed lives→liv
+    if (!this.is1P) this.p2Txt.setText(`P2:${'♥'.repeat(this.players[1].liv)}`); // Changed lives→liv
   }
 }
 
@@ -3215,8 +2654,8 @@ const config = {
   //   target: 60,
   //   forceSetTimeOut: true,
   // },
-  scene: [GameScene],
-  // scene: [MenuScene, CharacterSelectionScene, GameScene],
+  // scene: [GameScene],
+  scene: [MenuScene, CharacterSelectionScene, GameScene],
   // pixelArt: true,
   // antialias: false,
   // autoRound: true,
