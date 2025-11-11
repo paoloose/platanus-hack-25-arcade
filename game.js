@@ -62,9 +62,9 @@ const C = {
   BW: 200, // Building width pixels in game coords
   BVC: 6, // Building # visual columns vc = visual column
   BAC: 13, // Buillding # actual column, players can be between visual columns
-  ROWS: 135,
+  ROWS: 160,
   RHEIGHT: 12, // pixels per row
-  GOAL: 125, // Win at row 90
+  GOAL: 150, // Win at row 90
 
   // Player
   PW: 30, // Player width
@@ -85,7 +85,7 @@ const C = {
 
   // Guard AI
   GCmD: 530, // Guard Climb min delay | Min ms between climb steps
-  GCMD: 700, // Guard climb max delay |  Max ms between climb steps
+  GCMD: 670, // Guard climb max delay |  Max ms between climb steps
   GCS: 0.02, // Guard chase speed |  How aggressively guard moves toward player (0-1)
   GISM: 0.75, // Guard initial slow multiplier | Guard is slower initially (until row 10)
   GOB: 2.5, // Guard off-screen buff | Speed multiplier when guard is off-camera below players
@@ -1562,7 +1562,7 @@ class CinematicController {
         });
         if (++this.p >= this.t) {
           this.s.time.delayedCall(500, () => {
-            this.s.dialog.show('GUARD', this.s.is1P ? 'A dónde vas, no puedes trepar el edificio!' : 'A dónde van, no pueden trepar el edificio!', this.s.is1P ? [GUARD_SPRITES.F] : [GUARD_SPRITES.F, GUARD_SPRITES.F]); // Changed from is1PlayerMode to is1P
+            this.s.dialog.show('GUARD', this.s.is1P ? 'A dónde vas!?, no puedes trepar el edificio!' : 'A dónde van!?, no pueden trepar el edificio!', this.s.is1P ? [GUARD_SPRITES.F] : [GUARD_SPRITES.F, GUARD_SPRITES.F]); // Changed from is1PlayerMode to is1P
             this.s.time.delayedCall(2000, () => {
               this.s.dialog.hide();
               this.a = false;
