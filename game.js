@@ -62,9 +62,9 @@ const C = {
   BW: 200, // Building width pixels in game coords
   BVC: 6, // Building # visual columns vc = visual column
   BAC: 13, // Buillding # actual column, players can be between visual columns
-  ROWS: 120,
+  ROWS: 135,
   RHEIGHT: 12, // pixels per row
-  GOAL: 10, // Win at row 90
+  GOAL: 125, // Win at row 90
 
   // Player
   PW: 30, // Player width
@@ -75,15 +75,19 @@ const C = {
   // Obstacles
   OS: 14, // obstacle size 14x14 pixels
   OSI: 1000, // ostacle spawn interval | ms between spawns
+  VAR: 200, // interval variance | random variation in spawn interval (±VAR/2)
   OFS: 100, // obstacle fall speed |  pixels per second
   OSR: 10, // obstacle start row |  Obstacles only start falling after this row
   ODC: 0.3, // obstacle dual chance | 30% chance both players get obstacles when both alive
+  ORC: 0.2, // obstacle random chance | chance to spawn additional random obstacle
+  OOR: 20, // obstacle offset range | random X offset from player position (±OOR)
+  OD: 150, // obstacle delay | ms delay between multiple obstacles in same spawn
 
   // Guard AI
-  GCmD: 700, // Guard Climb min delay | Min ms between climb steps
-  GCMD: 900, // Guard climb max delay |  Max ms between climb steps
+  GCmD: 530, // Guard Climb min delay | Min ms between climb steps
+  GCMD: 700, // Guard climb max delay |  Max ms between climb steps
   GCS: 0.02, // Guard chase speed |  How aggressively guard moves toward player (0-1)
-  GISM: 0.7, // Guard initial slow multiplier | Guard is slower initially (until row 10)
+  GISM: 0.75, // Guard initial slow multiplier | Guard is slower initially (until row 10)
   GOB: 2.5, // Guard off-screen buff | Speed multiplier when guard is off-camera below players
 
   // Camera
@@ -264,7 +268,7 @@ const CLIMB_CYCLE = ['I', 'R0', 'R1', 'R0', 'I', 'LUP0', 'LUP1', 'LUP0', 'I'];
 
 
 // Game States
-const GAME_STATES = {
+const STATES = {
   CINEMATIC: 'CINEMATIC',
   PLAYING: 'PLAYING',
   VICTORY: 'VICTORY',
@@ -404,20 +408,20 @@ class SoundManager {
   // Play a tone with frequency, duration, volume, and optional envelope
   play(freq, dur = 0.1, vol = 1, type = 'square', envelope = { a: 0.01, d: 0.05, s: 0.7, r: 0.05 }) {
     const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
+    const g = this.ctx.createGain();
+    osc.connect(g);
+    g.connect(this.ctx.destination);
     osc.type = type;
     osc.frequency.value = freq;
     const now = this.ctx.currentTime;
     const { a, d, s, r } = envelope;
     const v = vol * this.masterVol;
     // ADSR envelope
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(v, now + a); // Attack
-    gain.gain.linearRampToValueAtTime(v * s, now + a + d); // Decay to sustain
-    gain.gain.setValueAtTime(v * s, now + dur - r); // Sustain
-    gain.gain.linearRampToValueAtTime(0, now + dur); // Release
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(v, now + a); // Attack
+    g.gain.linearRampToValueAtTime(v * s, now + a + d); // Decay to sustain
+    g.gain.setValueAtTime(v * s, now + dur - r); // Sustain
+    g.gain.linearRampToValueAtTime(0, now + dur); // Release
     osc.start(now);
     osc.stop(now + dur);
     return osc;
@@ -491,7 +495,7 @@ const OBS = '🖨️|🧰|🪴|📦|🍌|🧯|🪑|📠|📺|🗃️|🍎|🍏|�
 // OBSTACLE ENTITY CLASS
 // =============================================================================
 class Obstacle {
-  constructor(scene, x, y, emoji) {
+  constructor(scene, x, y, emoji, speed = null) {
     this.scene = scene;
     this.x = x;
     this.y = y;
@@ -499,6 +503,7 @@ class Obstacle {
     this.active = true;
     this.size = C.OS;
     this.playedSound = false; // Track if fall sound played
+    this.speed = speed !== null ? speed : (0.9 + Math.random() * 0.2) * C.OFS; // Random speed 0.9-1.1 * C.OFS
 
     // Create text object for emoji
     this.text = scene.add.text(x, y, emoji, {
@@ -523,12 +528,13 @@ class Obstacle {
   update(delta) {
     if (!this.active) return;
 
-    this.y += C.OFS * (delta / 1000);
+    this.y += this.speed * (delta / 1000);
     this.text.setPosition(this.x, this.y);
 
-    // Remove if fallen far below camera
+    // Remove if out of visible area (above or below camera view)
+    const cameraTopY = this.scene.camTY - (C.GH / 2);
     const cameraBottomY = this.scene.camTY + (C.GH / 2);
-    if (this.y > cameraBottomY + 200) this.destroy();
+    if (this.y > cameraBottomY + 100 || this.y < cameraTopY - 100) this.destroy();
   }
 
   destroy() {
@@ -1535,7 +1541,7 @@ class CinematicController {
 
     // Dialog sequence
     S.time.delayedCall(2000, () => S.dialog.show(dt, p1 ? `Hola, vengo para la ${ph} 🍌` : `Hola, venimos para la ${ph} 🍌`, ps));
-    S.time.delayedCall(4500, () => S.dialog.show('GUARD', 'La hackathon ya ha iniciado, no puedo recibir más participantes', [GUARD_SPRITES.F]));
+    S.time.delayedCall(5500, () => S.dialog.show('GUARD', 'Lo siento, han llegado tarde, ya hemos cerrado las puertas', [GUARD_SPRITES.F]));
     S.time.delayedCall(10000, () => S.dialog.show(dt, p1 ? 'Qué? No puedo perderme la hackathon!' : 'Qué? No podemos perdernos la hackathon', ps));
     S.time.delayedCall(13000, () => {
       S.dialog.hide();
@@ -1556,11 +1562,11 @@ class CinematicController {
         });
         if (++this.p >= this.t) {
           this.s.time.delayedCall(500, () => {
-            this.s.dialog.show('GUARD', this.s.is1P ? 'A dónde vas, no puedes trepar el edificio!' : 'A dónde van, no pueden trepar el edicio!', this.s.is1P ? [GUARD_SPRITES.F] : [GUARD_SPRITES.F, GUARD_SPRITES.F]); // Changed from is1PlayerMode to is1P
+            this.s.dialog.show('GUARD', this.s.is1P ? 'A dónde vas, no puedes trepar el edificio!' : 'A dónde van, no pueden trepar el edificio!', this.s.is1P ? [GUARD_SPRITES.F] : [GUARD_SPRITES.F, GUARD_SPRITES.F]); // Changed from is1PlayerMode to is1P
             this.s.time.delayedCall(2000, () => {
               this.s.dialog.hide();
               this.a = false;
-              this.s.state = GAME_STATES.PLAYING; // Changed from gameState to state
+              this.s.state = STATES.PLAYING; // Changed from gameState to state
               this.s.gameStartTime = this.s.time.now;
               this.s.players.forEach(p => {
                 p.animState = 'I';
@@ -1893,7 +1899,6 @@ class MenuScene extends Phaser.Scene {
 
     this.setupInput();
     this.promptTimer = 0;
-    this.titleBounce = 0;
   }
 
   setupInput() {
@@ -1915,7 +1920,7 @@ class MenuScene extends Phaser.Scene {
 
     // Flash effect on transition
     this.gfx.clear();
-    this.gfx.fillStyle(0xffffff, 0.5);
+    this.gfx.fillStyle(P[6], 0.5);
     this.gfx.fillRect(0, 0, C.GW, C.GH);
 
     this.time.delayedCall(200, () => {
@@ -1926,36 +1931,31 @@ class MenuScene extends Phaser.Scene {
   update(time, delta) {
     // Update timers
     this.promptTimer += delta;
-    this.titleBounce += delta;
 
     // Pulsing prompt text
     const pulse = 0.7 + Math.sin(this.promptTimer / 300) * 0.3;
     this.promptText.setAlpha(pulse);
 
-    // Subtle title bounce
-    const bounce = Math.sin(this.titleBounce / 800) * 2;
-    this.titleText.setY(260 + bounce);
-
     // Animated decorative corners around title
     this.cornerGfx.clear();
     const cSize = 12 + Math.sin(this.promptTimer / 200) * 2; // cSize = corner size (animated)
-    const tBounds = this.titleText.getBounds(); // tBounds = title bounds
+    const tB = this.titleText.getBounds(); // tBounds = title bounds
     const pad = 8; // Padding from title
 
     // Draw corner brackets with animation
     this.cornerGfx.lineStyle(2, 0xf7bb1b, 1);
     // Top-left
-    this.cornerGfx.lineBetween(tBounds.left - pad, tBounds.top - pad, tBounds.left - pad - cSize, tBounds.top - pad);
-    this.cornerGfx.lineBetween(tBounds.left - pad, tBounds.top - pad, tBounds.left - pad, tBounds.top - pad - cSize);
+    this.cornerGfx.lineBetween(tB.left - pad, tB.top - pad, tB.left - pad - cSize, tB.top - pad);
+    this.cornerGfx.lineBetween(tB.left - pad, tB.top - pad, tB.left - pad, tB.top - pad - cSize);
     // Top-right
-    this.cornerGfx.lineBetween(tBounds.right + pad, tBounds.top - pad, tBounds.right + pad + cSize, tBounds.top - pad);
-    this.cornerGfx.lineBetween(tBounds.right + pad, tBounds.top - pad, tBounds.right + pad, tBounds.top - pad - cSize);
+    this.cornerGfx.lineBetween(tB.right + pad, tB.top - pad, tB.right + pad + cSize, tB.top - pad);
+    this.cornerGfx.lineBetween(tB.right + pad, tB.top - pad, tB.right + pad, tB.top - pad - cSize);
     // Bottom-left
-    this.cornerGfx.lineBetween(tBounds.left - pad, tBounds.bottom + pad, tBounds.left - pad - cSize, tBounds.bottom + pad);
-    this.cornerGfx.lineBetween(tBounds.left - pad, tBounds.bottom + pad, tBounds.left - pad, tBounds.bottom + pad + cSize);
+    this.cornerGfx.lineBetween(tB.left - pad, tB.bottom + pad, tB.left - pad - cSize, tB.bottom + pad);
+    this.cornerGfx.lineBetween(tB.left - pad, tB.bottom + pad, tB.left - pad, tB.bottom + pad + cSize);
     // Bottom-right
-    this.cornerGfx.lineBetween(tBounds.right + pad, tBounds.bottom + pad, tBounds.right + pad + cSize, tBounds.bottom + pad);
-    this.cornerGfx.lineBetween(tBounds.right + pad, tBounds.bottom + pad, tBounds.right + pad, tBounds.bottom + pad + cSize);
+    this.cornerGfx.lineBetween(tB.right + pad, tB.bottom + pad, tB.right + pad + cSize, tB.bottom + pad);
+    this.cornerGfx.lineBetween(tB.right + pad, tB.bottom + pad, tB.right + pad, tB.bottom + pad + cSize);
 
     // Draw glowing boxes around subtitle
     this.gfx.clear();
@@ -2002,345 +2002,347 @@ class CharacterSelectionScene extends Phaser.Scene {
     this.overlay.fillRect(0, 0, C.GW, C.GH);
     this.overlay.setDepth(0); // Above background, below UI
 
-    // Player selection state
-    this.playerSelections = [
+    // Player selection state (pSel=player selections)
+    this.pSel = [
       { join: true, selIdx: 0, confirm: false, c: null },  // P1
       { join: false, selIdx: 3, confirm: false, c: null }  // P2 c = character
     ];
 
-    // Input state with debouncing
-    this.inputState = {
+    // Input state with debouncing (inp=input state)
+    this.inp = {
       p1: { u: false, d: false, l: false, r: false, any: false, act: false },
       p2: { u: false, d: false, l: false, r: false, any: false, act: false }
     };
-    this.moveTimers = [0, 0];
-    this.buttonTimers = [0, 0];
-    this.lastMoveTime = [0, 0];
-    this.lastButtonTime = [0, 0];
+    this.lMvT = [0, 0]; // lMvT = last move time
+    this.lBtnT = [0, 0]; // lBtnT = last button time
 
-    // Transition state
-    this.isTransitioning = false;
+    // Transition state (isTrans=is transitioning)
+    this.isTrans = false;
 
     // Graphics
     this.gr = this.add.graphics();
-    this.p1PreviewGraphics = this.add.graphics();
-    this.p2PreviewGraphics = this.add.graphics();
+    this.p1Gfx = this.add.graphics(); // p1Gfx = player 1 graphics
+    this.p2Gfx = this.add.graphics(); // p2Gfx = player 2 graphics
 
     // Create text objects once (reuse them)
-    this.createTextObjects();
+    this.crTxtObjs();
 
     // Setup keyboard input using arcade mapping
-    this.setupInput();
+    this.stpInp();
   }
 
-  setupInput() {
-    this.input.keyboard.on('keydown', (event) => {
-      const key = KBD_TO_ARC[event.key] || event.key;
-      this.handleInput(key, true);
+  stpInp() {
+    // Setup input handlers (stpInp=setup input)
+    this.input.keyboard.on('keydown', (e) => {
+      const k = KBD_TO_ARC[e.key] || e.key; // k = key
+      this.hdlInp(k, true);
     });
 
-    this.input.keyboard.on('keyup', (event) => {
-      const key = KBD_TO_ARC[event.key] || event.key;
-      this.handleInput(key, false);
+    this.input.keyboard.on('keyup', (e) => {
+      const k = KBD_TO_ARC[e.key] || e.key;
+      this.hdlInp(k, false);
     });
   }
 
-  createTextObjects() {
-    // Slot indicator texts (8 slots)
-    this.slotTexts = [];
+  crTxtObjs() {
+    // Create text objects (crTxtObjs=create text objects)
+    // Slot indicator texts (8 slots) (slTxts=slot texts)
+    this.slTxts = [];
     for (let i = 0; i < 8; i++) {
-      this.slotTexts.push({
+      this.slTxts.push({
         p1: this.add.text(0, 0, 'P1', { fontSize: '8px' }).setVisible(false),
         p2: this.add.text(0, 0, 'P2', { fontSize: '8px' }).setVisible(false)
       });
     }
 
-    // Player preview texts
-    this.p1TitleText = this.add.text(0, 0, 'Hacker 1', { fontSize: '12px', color: '#00f' });
-    this.p2TitleText = this.add.text(0, 0, 'Hacker 2', { fontSize: '12px', color: '#f00' });
+    // Player preview texts (ttl=title, jn=join, nm=name, cnf=confirmed)
+    this.p1Ttl = this.add.text(0, 0, 'Hacker 1', { fontSize: '12px', color: '#00f' });
+    this.p2Ttl = this.add.text(0, 0, 'Hacker 2', { fontSize: '12px', color: '#f00' });
+    this.p2Jn = this.add.text(0, 0, 'Press\nSTART\nto join', { fontSize: '10px', color: '#000', align: 'center' }).setVisible(false);
+    this.p1Nm = this.add.text(0, 0, '', { fontSize: '10px', backgroundColor: '#000', padding: 3 }).setOrigin(.5, .5);
+    this.p2Nm = this.add.text(0, 0, '', { fontSize: '10px', backgroundColor: '#000', padding: 3 }).setOrigin(.5, .5);
 
-    this.p2JoinText = this.add.text(0, 0, 'Press\nSTART\nto join', { fontSize: '10px', color: '#000', align: 'center' }).setVisible(false);
-
-    this.p1NameText = this.add.text(0, 0, '', { fontSize: '10px', backgroundColor: '#000', padding: 3 }).setOrigin(.5, .5);
-    this.p2NameText = this.add.text(0, 0, '', { fontSize: '10px', backgroundColor: '#000', padding: 3 }).setOrigin(.5, .5);
-
-    let z = '#409740ff';
-    this.p1ConfirmedText = this.add.text(0, 0, '✓READY', { fontSize: '12px', color: '#000', backgroundColor: z }).setOrigin(.5, .5).setVisible(false);
-    this.p2ConfirmedText = this.add.text(0, 0, '✓READY', { fontSize: '12px', color: '#000', backgroundColor: z }).setOrigin(.5, .5).setVisible(false);
+    const z = '#409740ff';
+    this.p1Cnf = this.add.text(0, 0, '✓READY', { fontSize: '12px', color: '#000', backgroundColor: z }).setOrigin(.5, .5).setVisible(false);
+    this.p2Cnf = this.add.text(0, 0, '✓READY', { fontSize: '12px', color: '#000', backgroundColor: z }).setOrigin(.5, .5).setVisible(false);
   }
 
-  handleInput(key, isDown) {
+  hdlInp(k, dn) {
+    // Handle input (hdlInp=handle input, k=key, dn=is down)
     // Hacker 1 directional controls
-    if (key === 'P1U') this.inputState.p1.u = isDown;
-    else if (key === 'P1D') this.inputState.p1.d = isDown;
-    else if (key === 'P1L') this.inputState.p1.l = isDown;
-    else if (key === 'P1R') this.inputState.p1.r = isDown;
+    if (k === 'P1U') this.inp.p1.u = dn;
+    else if (k === 'P1D') this.inp.p1.d = dn;
+    else if (k === 'P1L') this.inp.p1.l = dn;
+    else if (k === 'P1R') this.inp.p1.r = dn;
 
-    const any1 = key.includes('1');
-    const any2 = key.includes('2');
+    const a1 = k.includes('1'); // a1 = any player 1 button
+    const a2 = k.includes('2'); // a2 = any player 2 button
 
     // Hacker 1 action buttons (any button except joystick for ready confirmation)
-    if (isDown && any1 && !['P1U', 'P1D', 'P1L', 'P1R'].includes(key)) {
-      this.inputState.p1.act = true;
+    if (dn && a1 && !['P1U', 'P1D', 'P1L', 'P1R'].includes(k)) {
+      this.inp.p1.act = true;
     }
 
     // Hacker 1 any button (including joystick for joining - though P1 auto-joins)
-    if (any1) {
-      this.inputState.p1.any = isDown;
+    if (a1) {
+      this.inp.p1.any = dn;
     }
 
     // Hacker 2 directional controls
-    if (key === 'P2U') this.inputState.p2.u = isDown;
-    else if (key === 'P2D') this.inputState.p2.d = isDown;
-    else if (key === 'P2L') this.inputState.p2.l = isDown;
-    else if (key === 'P2R') this.inputState.p2.r = isDown;
+    if (k === 'P2U') this.inp.p2.u = dn;
+    else if (k === 'P2D') this.inp.p2.d = dn;
+    else if (k === 'P2L') this.inp.p2.l = dn;
+    else if (k === 'P2R') this.inp.p2.r = dn;
 
     // Hacker 2 action buttons (any button except joystick for ready confirmation)
-    if (isDown && any2 && !['P2U', 'P2D', 'P2L', 'P2R'].includes(key)) {
-      this.inputState.p2.act = true;
+    if (dn && a2 && !['P2U', 'P2D', 'P2L', 'P2R'].includes(k)) {
+      this.inp.p2.act = true;
     }
 
     // Hacker 2 any button (including joystick for joining)
-    if (any2) {
-      this.inputState.p2.any = isDown;
+    if (a2) {
+      this.inp.p2.any = dn;
     }
   }
 
-  update(time, delta) {
+  update(t, d) {
+    // Update scene (t=time, d=delta)
     // Don't process any input if transitioning to next scene
-    if (this.isTransitioning) {
-      this.background.update(delta);
-      this.renderUI();
+    if (this.isTrans) {
+      this.background.update(d);
+      this.rndrUI();
       return;
     }
 
     // Handle selector movement and confirmation
     for (let i = 0; i < 2; i++) {
-      const selection = this.playerSelections[i];
-      const input = i === 0 ? this.inputState.p1 : this.inputState.p2;
+      const sel = this.pSel[i]; // sel = selection
+      const inp = i === 0 ? this.inp.p1 : this.inp.p2;
 
-      if (!selection.join) continue;
+      if (!sel.join) continue;
 
       // Movement (with better debouncing using time)
-      if (!selection.confirm && (time - this.lastMoveTime[i]) >= 150) {
-        const col = selection.selIdx % 4;
-        const row = Math.floor(selection.selIdx / 4);
-        let moved = false;
+      if (!sel.confirm && (t - this.lMvT[i]) >= 150) {
+        const c = sel.selIdx % 4; // c = column
+        const r = Math.floor(sel.selIdx / 4); // r = row
+        let mv = false; // mv = moved
 
-        if (input.u && row > 0) { selection.selIdx -= 4; moved = true; }
-        else if (input.d && row < 1) { selection.selIdx += 4; moved = true; }
-        else if (input.l && col > 0) { selection.selIdx -= 1; moved = true; }
-        else if (input.r && col < 3) { selection.selIdx += 1; moved = true; }
+        if (inp.u && r > 0) { sel.selIdx -= 4; mv = true; }
+        else if (inp.d && r < 1) { sel.selIdx += 4; mv = true; }
+        else if (inp.l && c > 0) { sel.selIdx -= 1; mv = true; }
+        else if (inp.r && c < 3) { sel.selIdx += 1; mv = true; }
 
-        if (moved) {
-          this.lastMoveTime[i] = time;
+        if (mv) {
+          this.lMvT[i] = t;
           SND.select(); // Play selection change sound
         }
       }
 
       // Confirmation toggle (with better debouncing using time)
-      if (input.act && (time - this.lastButtonTime[i]) >= 250) {
-        selection.confirm = !selection.confirm;
-        selection.c = selection.confirm ? CHARACTERS[selection.selIdx] : null;
-        input.act = false;
-        this.lastButtonTime[i] = time;
+      if (inp.act && (t - this.lBtnT[i]) >= 250) {
+        sel.confirm = !sel.confirm;
+        sel.c = sel.confirm ? CHARACTERS[sel.selIdx] : null;
+        inp.act = false;
+        this.lBtnT[i] = t;
         SND.confirm(); // Play confirm sound
       }
     }
 
     // Handle P2 join (any button including joystick)
-    if (!this.playerSelections[1].join && this.inputState.p2.any) {
-      this.playerSelections[1].join = true;
-      this.inputState.p2.any = false;
-      this.inputState.p2.act = false; // Also clear action button to prevent immediate confirmation
-      this.lastButtonTime[1] = time;
+    if (!this.pSel[1].join && this.inp.p2.any) {
+      this.pSel[1].join = true;
+      this.inp.p2.any = false;
+      this.inp.p2.act = false; // Also clear action button to prevent immediate confirmation
+      this.lBtnT[1] = t;
       SND.select(); // Play join sound
     }
 
-    // Check if ready to start (all joined players must confirm)
-    const joinedPlayers = this.playerSelections.filter(p => p.join);
-    const allJoinedConfirmed = joinedPlayers.every(p => p.confirm);
+    // Check if ready to start (all joined players must confirm) (jPs=joined players, allCnf=all confirmed)
+    const jPs = this.pSel.filter(p => p.join);
+    const allCnf = jPs.every(p => p.confirm);
 
-    if (joinedPlayers.length > 0 && allJoinedConfirmed && !this.isTransitioning) {
-      this.isTransitioning = true;
+    if (jPs.length > 0 && allCnf && !this.isTrans) {
+      this.isTrans = true;
       SND.transition(); // Play transition sound
 
       // Wait 1 second before transition
       this.time.delayedCall(1000, () => {
         this.scene.start('GameScene', {
-          p1Character: this.playerSelections[0].c,
-          p2Character: this.playerSelections[1].join ? this.playerSelections[1].c : null
-    });
-  });
+          p1Character: this.pSel[0].c,
+          p2Character: this.pSel[1].join ? this.pSel[1].c : null
+        });
+      });
     }
 
     // Update background
-    this.background.update(delta);
+    this.background.update(d);
 
     // Render only once per frame
-    this.renderUI();
+    this.rndrUI();
   }
 
-  renderUI() {
+  rndrUI() {
+    // Render UI (rndrUI=render UI)
     this.gr.clear();
-    this.p1PreviewGraphics.clear();
-    this.p2PreviewGraphics.clear();
+    this.p1Gfx.clear();
+    this.p2Gfx.clear();
 
     // Hide all slot texts first
-    this.slotTexts.forEach(slot => {
-      slot.p1.setVisible(false);
-      slot.p2.setVisible(false);
+    this.slTxts.forEach(sl => {
+      sl.p1.setVisible(false);
+      sl.p2.setVisible(false);
     });
 
     // Draw character slots grid
-    this.drawCharacterGrid();
+    this.drwGrid();
 
     // Draw player previews
-    this.drawPlayerPreview(0, 11, 20);
-    this.drawPlayerPreview(1, C.GW - 83, 20);
+    this.drwPvw(0, 11, 20);
+    this.drwPvw(1, C.GW - 83, 20);
   }
 
-  drawCharacterGrid() {
-    const slotSize = 30;
-    const gap = 5;
-    const gridW = 4 * (slotSize + gap) - gap;
-    const startX = (C.GW - gridW) / 2;
-    const startY = C.GH - 105;
-    const b = 0x0000ff;
-    const r = 0xff0000;
+  drwGrid() {
+    // Draw character grid (drwGrid=draw grid, sz=slot size, gp=gap, gW=grid width, sX/sY=start X/Y, b=blue, r=red)
+    const sz = 30, gp = 5;
+    const gW = 4 * (sz + gp) - gp;
+    const sX = (C.GW - gW) / 2;
+    const sY = C.GH - 105;
+    const b = 0x0000ff, r = 0xff0000;
 
     for (let row = 0; row < 2; row++) {
       for (let col = 0; col < 4; col++) {
         const idx = row * 4 + col;
-        const x = startX + col * (slotSize + gap);
-        const y = startY + row * (slotSize + gap);
+        const x = sX + col * (sz + gp);
+        const y = sY + row * (sz + gp);
 
-        const p1Hover = this.playerSelections[0].join && this.playerSelections[0].selIdx === idx;
-        const p2Hover = this.playerSelections[1].join && this.playerSelections[1].selIdx === idx;
+        const p1H = this.pSel[0].join && this.pSel[0].selIdx === idx; // p1H = p1 hover
+        const p2H = this.pSel[1].join && this.pSel[1].selIdx === idx; // p2H = p2 hover
 
         // Background
         this.gr.fillStyle(idx < CHARACTERS.length ? 0x333333 : P[0], 1);
-        this.gr.fillRect(x, y, slotSize, slotSize);
+        this.gr.fillRect(x, y, sz, sz);
 
         // Border
-        if (p1Hover && p2Hover) {
+        if (p1H && p2H) {
           // Left half blue border
           this.gr.fillStyle(b, 1);
-          this.gr.fillRect(x, y, slotSize / 2, 2); // top
-          this.gr.fillRect(x, y, 2, slotSize); // left
-          this.gr.fillRect(x, y + slotSize - 2, slotSize / 2, 2); // bottom
+          this.gr.fillRect(x, y, sz / 2, 2); // top
+          this.gr.fillRect(x, y, 2, sz); // left
+          this.gr.fillRect(x, y + sz - 2, sz / 2, 2); // bottom
 
           // Right half red border
           this.gr.fillStyle(r, 1);
-          this.gr.fillRect(x + slotSize / 2, y, slotSize / 2, 2); // top
-          this.gr.fillRect(x + slotSize - 2, y, 2, slotSize); // right
-          this.gr.fillRect(x + slotSize / 2, y + slotSize - 2, slotSize / 2, 2); // bottom
-        } else if (p1Hover) {
+          this.gr.fillRect(x + sz / 2, y, sz / 2, 2); // top
+          this.gr.fillRect(x + sz - 2, y, 2, sz); // right
+          this.gr.fillRect(x + sz / 2, y + sz - 2, sz / 2, 2); // bottom
+        } else if (p1H) {
           this.gr.lineStyle(2, b, 1);
-          this.gr.strokeRect(x, y, slotSize, slotSize);
-        } else if (p2Hover) {
+          this.gr.strokeRect(x, y, sz, sz);
+        } else if (p2H) {
           this.gr.lineStyle(2, r, 1);
-          this.gr.strokeRect(x, y, slotSize, slotSize);
+          this.gr.strokeRect(x, y, sz, sz);
         } else {
           this.gr.lineStyle(1, 0x555555, 1);
-          this.gr.strokeRect(x, y, slotSize, slotSize);
+          this.gr.strokeRect(x, y, sz, sz);
         }
 
         // Draw character (top half)
         if (idx < CHARACTERS.length) {
-          this.drawCharacterSlot(CHARACTERS[idx], x - 15, y - 4, slotSize);
+          this.drwSl(CHARACTERS[idx], x - 15, y - 4, sz);
         }
 
         // P1/P2 indicators (only show when hovering)
-        if (p1Hover) {
+        if (p1H) {
           this.gr.fillStyle(b, 1);
           this.gr.fillRect(x + 1, y + 1, 10, 8);
-          this.slotTexts[idx].p1.setPosition(x + 2, y + 1).setVisible(true);
+          this.slTxts[idx].p1.setPosition(x + 2, y + 1).setVisible(true);
         }
-        if (p2Hover) {
+        if (p2H) {
           this.gr.fillStyle(r, 1);
-          this.gr.fillRect(x + slotSize - 11, y + 1, 10, 8);
-          this.slotTexts[idx].p2.setPosition(x + slotSize - 10, y + 1).setVisible(true);
+          this.gr.fillRect(x + sz - 11, y + 1, 10, 8);
+          this.slTxts[idx].p2.setPosition(x + sz - 10, y + 1).setVisible(true);
         }
       }
     }
   }
 
-  drawCharacterSlot(char, x, y, size) {
-    const sprite = char.sprites.F;
-    if (!sprite || sprite.length === 0) return;
+  drwSl(chr, x, y, sz) {
+    // Draw character slot (drwSl=draw slot, chr=character, sz=size, spr=sprite, hH=half height, sc=scale)
+    const spr = chr.sprites.F;
+    if (!spr || spr.length === 0) return;
 
-    const halfH = Math.floor(sprite.length / 2);
-    const scale = (size * 1.8) / sprite[0].length;
+    const hH = Math.floor(spr.length / 2);
+    const sc = (sz * 1.8) / spr[0].length;
 
-    for (let r = 0; r < halfH; r++) {
-      for (let c = 0; c < sprite[0].length; c++) {
-        const code = sprite[r][c];
-        if (code && code !== '.') {
-          const color = COLOR_MAP[code];
-          if (color !== null && color !== undefined) {
-            this.gr.fillStyle(color, 1);
-            this.gr.fillRect(x + c * scale + size * 0.1, y + r * scale + size * 0.2, scale, scale);
+    for (let r = 0; r < hH; r++) {
+      for (let c = 0; c < spr[0].length; c++) {
+        const cd = spr[r][c]; // cd = code
+        if (cd && cd !== '.') {
+          const col = COLOR_MAP[cd]; // col = color
+          if (col !== null && col !== undefined) {
+            this.gr.fillStyle(col, 1);
+            this.gr.fillRect(x + c * sc + sz * 0.1, y + r * sc + sz * 0.2, sc, sc);
           }
         }
       }
     }
   }
 
-  drawPlayerPreview(pIdx, x, y) {
-    const sel = this.playerSelections[pIdx];
-    const g = pIdx === 0 ? this.p1PreviewGraphics : this.p2PreviewGraphics;
+  drwPvw(pIdx, x, y) {
+    // Draw player preview (drwPvw=draw preview, pIdx=player index, sel=selection, g=graphics)
+    const sel = this.pSel[pIdx];
+    const g = pIdx === 0 ? this.p1Gfx : this.p2Gfx;
 
-    // Update title text position
-    const titleText = pIdx === 0 ? this.p1TitleText : this.p2TitleText;
-    titleText.setPosition(x + 5, y);
+    // Update title text position (ttl=title text)
+    const ttl = pIdx === 0 ? this.p1Ttl : this.p2Ttl;
+    ttl.setPosition(x + 5, y);
 
     // Show/hide join text
-    const joinText = this.p2JoinText;
+    const jnTxt = this.p2Jn; // jnTxt = join text
     if (!sel.join) {
-      joinText.setPosition(x + 13, y + 55).setVisible(true);
+      jnTxt.setPosition(x + 13, y + 55).setVisible(true);
 
-      // Hide other texts
-      const nameText = pIdx === 0 ? this.p1NameText : this.p2NameText;
-      const confirmedText = pIdx === 0 ? this.p1ConfirmedText : this.p2ConfirmedText;
-      nameText.setVisible(false);
-      confirmedText.setVisible(false);
+      // Hide other texts (nm=name, cnf=confirmed)
+      const nm = pIdx === 0 ? this.p1Nm : this.p2Nm;
+      const cnf = pIdx === 0 ? this.p1Cnf : this.p2Cnf;
+      nm.setVisible(false);
+      cnf.setVisible(false);
       return;
     }
 
-    joinText.setVisible(false);
+    jnTxt.setVisible(false);
 
-    // Preview sprite
-    const char = CHARACTERS[sel.selIdx];
-    const sprite = char.sprites.F;
-    if (sprite && sprite.length > 0) {
-      const targetH = 90;
-      const scale = targetH / sprite.length * 1.5;
+    // Preview sprite (chr=character, spr=sprite)
+    const chr = CHARACTERS[sel.selIdx];
+    const spr = chr.sprites.F;
+    if (spr && spr.length > 0) {
+      const tH = 90; // tH = target height
+      const sc = tH / spr.length * 1.5; // sc = scale
 
-      for (let r = 0; r < sprite.length; r++) {
-        for (let c = 0; c < sprite[0].length; c++) {
-          const code = sprite[r][c];
-          if (code && code !== '.') {
-            const col = COLOR_MAP[code];
+      for (let r = 0; r < spr.length; r++) {
+        for (let c = 0; c < spr[0].length; c++) {
+          const cd = spr[r][c]; // cd = code
+          if (cd && cd !== '.') {
+            const col = COLOR_MAP[cd]; // col = color
             if (col !== null && col !== undefined) {
               g.fillStyle(col, 1);
-              g.fillRect(x + c * scale - 35, y + 25 + r * scale, scale, scale);
+              g.fillRect(x + c * sc - 35, y + 25 + r * sc, sc, sc);
             }
           }
         }
       }
     }
 
-    // Update name text
-    const nameText = pIdx === 0 ? this.p1NameText : this.p2NameText;
-    nameText.setText(char.name).setPosition(x + 35, y + 175).setVisible(true);
+    // Update name text (nm=name text)
+    const nm = pIdx === 0 ? this.p1Nm : this.p2Nm;
+    nm.setText(chr.name).setPosition(x + 35, y + 175).setVisible(true);
 
-    // Update confirmation status
-    const confirmedText = pIdx === 0 ? this.p1ConfirmedText : this.p2ConfirmedText;
+    // Update confirmation status (cnf=confirmed text)
+    const cnf = pIdx === 0 ? this.p1Cnf : this.p2Cnf;
     if (sel.confirm) {
-      confirmedText.setPosition(x + 35, y + 195).setVisible(true);
+      cnf.setPosition(x + 35, y + 195).setVisible(true);
     } else {
-      confirmedText.setVisible(false);
+      cnf.setVisible(false);
     }
   }
 }
@@ -2361,7 +2363,7 @@ class GameScene extends Phaser.Scene {
 
   create() {
     // state = game state, bg = background, bGfx = building graphics, uiGfx = UI graphics
-    this.state = GAME_STATES.CINEMATIC;
+    this.state = STATES.CINEMATIC;
     this.cameras.main.setBackgroundColor(COLORS.SKY).setZoom(C.S);
     this.bg = new DynamicBackground(this, false);
     this.bGfx = this.add.graphics().setDepth(3);
@@ -2374,10 +2376,13 @@ class GameScene extends Phaser.Scene {
     this.players.forEach(p => p.animState = 'F');
     this.guard = new Guard(this, 3.5, 0);
     this.guard.animState = 'F';
-    // obs = obstacles, obsSpawnT = obstacle spawn timer, obsPause = obstacles paused
+    // obs = obstacles, obsSpawnT = obstacle spawn timer, obsPause = obstacles paused, obsRounds = obstacle spawn round counter, nxtInt = next spawn interval
     this.obs = [];
     this.obsSpawnT = 0;
     this.obsPause = false;
+    this.obsRounds = 0; // Track spawn rounds for giant ball spawning
+    this.nxtInt = C.OSI; // Next spawn interval with variance
+    this.pendObs = []; // Pending obstacles to spawn with delay (pendObs = pending obstacles)
     // camTY = camera target Y
     this.camTY = C.GH - (C.GH / 2);
     // inp = input state for both players
@@ -2415,21 +2420,21 @@ class GameScene extends Phaser.Scene {
     const allRes = this.players.every(p => p.hasW || p.isDd); // Changed hasWon→hasW, isDead→isDd
     const won = this.players.some(p => p.hasW); // Changed hasWon→hasW
     const dead = this.players.every(p => p.isDd); // Changed isDead→isDd
-    if (allRes && this.state === GAME_STATES.PLAYING) {
+    if (allRes && this.state === STATES.PLAYING) {
       won ? this.trigVict() : dead ? this.trigLoss() : null;
     }
   }
 
   trigLoss() {
     // Trigger loss state and show loss screen after delay
-    this.state = GAME_STATES.GAME_OVER;
+    this.state = STATES.GAME_OVER;
     SND.loss(); // Play loss music
     this.time.delayedCall(1500, () => this.showLossEnd());
   }
 
   trigVict() {
-    // Trigger victory state: capture end time, make guard fall, start confetti if all won
-    this.state = GAME_STATES.VICTORY;
+    // Trigger victory state: capture end time, make guard fall
+    this.state = STATES.VICTORY;
     SND.victory(); // Play victory music
     this.endT = this.time.now; // endT = end time for scoring
     if (this.guard) {
@@ -2438,44 +2443,7 @@ class GameScene extends Phaser.Scene {
     }
     const w = this.players.filter(p => p.hasW); // Changed hasWon→hasW
     this.allWon = w.length === this.players.length;
-    if (this.allWon) this.mkConf();
     this.time.delayedCall(2000, () => this.victCine());
-  }
-
-  mkConf() {
-    // Make confetti: create 100 particles with random positions and velocities
-    this.conf = []; // conf = confetti array
-    for (let i = 0; i < 100; i++) {
-      this.conf.push({
-        x: Phaser.Math.Between(0, C.GAME_WIDTH),
-        y: Phaser.Math.Between(-200, -50),
-        vx: Phaser.Math.FloatBetween(-20, 20), // vx = velocity x
-        vy: Phaser.Math.FloatBetween(50, 150), // vy = velocity y
-        c: Phaser.Utils.Array.GetRandom([P[7], P[73], P[53], P[30], P[37]]), // c = color
-        sz: Phaser.Math.Between(2, 4) // sz = size
-      });
-    }
-  }
-
-  updConf(d) {
-    // Update confetti: move particles with gravity, filter off-screen ones (d=delta)
-    if (!this.conf) return;
-    this.conf.forEach(c => {
-      const dt = d / 1000;
-      c.x += c.vx * dt;
-      c.y += c.vy * dt;
-      c.vy += 100 * dt; // Gravity acceleration
-    });
-    this.conf = this.conf.filter(c => c.y < C.GAME_HEIGHT + 100);
-  }
-
-  drawConf() {
-    // Draw confetti particles on UI graphics
-    if (!this.conf || !this.conf.length) return;
-    this.conf.forEach(c => {
-      this.uiGfx.fillStyle(c.c, 1);
-      this.uiGfx.fillRect(c.x, c.y, c.sz, c.sz);
-    });
   }
 
   victCine() {
@@ -2614,7 +2582,7 @@ class GameScene extends Phaser.Scene {
         p.die();
         this.obsPause = false;
       } else {
-        this.state = GAME_STATES.GAME_OVER;
+        this.state = STATES.GAME_OVER;
         this.dialog.show('PLAYER', 'Súeltame, suéltame', [p.spr.F]); // Changed sprites→spr
         p.isCgt = true; // Changed isCaught→isCgt
         p.lostAnimT = 0; // Changed lostAnimTimer→lostAnimT
@@ -2630,16 +2598,89 @@ class GameScene extends Phaser.Scene {
   }
 
   spawnObs() {
-    // Spawn obstacles targeting alive players (high=highest player, tgt=target players)
+    // Spawn obstacles with new mechanics (high=highest player, tgt=targets, topY=spawn Y, prog=progress)
     const alive = this.players.filter(p => !p.isDd && !p.isFl); // Changed isDead→isDd, isFalling→isFl
     if (!alive.length) return;
     const high = alive.reduce((h, p) => p.row > h.row ? p : h);
     if (high.row < C.OSR) return;
-    let tgt = [];
-    if (alive.length === 2) tgt = Math.random() < C.ODC ? alive : [Phaser.Utils.Array.GetRandom(alive)];
-    else tgt = [alive[0]];
+
     const topY = this.camTY - (C.GH / 2) - 50;
-    tgt.forEach(t => this.obs.push(new Obstacle(this, t.x, topY, OBS[Math.floor(Math.random() * OBS.length)])));
+    const prog = high.row / C.GOAL; // Progress through building (0-1)
+    const obsToSpawn = []; // Array of {x, delay, speed} objects
+
+    // Check for giant ball spawning at 50% and 80% progress
+    const isGBRound = (this.obsRounds % (C.OSI * 8 / C.OSI) === 0); // Every 10 rounds
+    const spawnGB50 = prog >= 0.5 && prog < 0.8 && isGBRound; // 50% checkpoint window
+    const spawnGB80 = prog >= 0.8 && prog < 1 && isGBRound; // 80% checkpoint window
+
+
+    if (spawnGB80) {
+      // Spawn 2 giant balls at random positions (80% progress)
+      for (let gb = 0; gb < 2; gb++) {
+        const gbX = Phaser.Math.Between(60, C.GW - 60);
+        this.spawnGiantBall(gbX, topY);
+      }
+      return; // Giant balls replace normal obstacles
+    } else if (spawnGB50) {
+      // Spawn 1 giant ball at random position (50% progress)
+      const gbX = Phaser.Math.Between(60, C.GW - 60);
+      this.spawnGiantBall(gbX, topY);
+      return; // Giant balls replace normal obstacles
+    }
+
+    // Normal obstacle spawning with player targeting
+    let tgt = [];
+    if (alive.length === 2) {
+      // C.ODC chance both players get obstacles
+      tgt = Math.random() < C.ODC ? alive : [Phaser.Utils.Array.GetRandom(alive)];
+    } else {
+      tgt = [alive[0]];
+    }
+
+    // Add obstacles at player positions with offset and delay
+    let delay = 0;
+    tgt.forEach((t, idx) => {
+      const offset = (Math.random() - 0.5) * C.OOR * 2; // Random offset ±OOR
+      const x = Phaser.Math.Clamp(t.x + offset, 40, C.GW - 40);
+      obsToSpawn.push({ x, delay, speed: null }); // Random speed assigned in spawn
+      delay += C.OD; // Stagger spawns
+    });
+
+    // C.ORC chance to add a completely random obstacle
+    if (Math.random() < C.ORC) {
+      const randX = Phaser.Math.Between(60, C.GW - 60);
+      obsToSpawn.push({ x: randX, delay, speed: null });
+      delay += C.OD;
+    }
+
+    // Schedule all obstacles with delays
+    obsToSpawn.forEach(o => {
+      if (o.delay === 0) {
+        this.obs.push(new Obstacle(this, o.x, topY, OBS[Math.floor(Math.random() * OBS.length)], o.speed));
+      } else {
+        this.time.delayedCall(o.delay, () => {
+          this.obs.push(new Obstacle(this, o.x, topY, OBS[Math.floor(Math.random() * OBS.length)], o.speed));
+        });
+      }
+    });
+  }
+
+  spawnGiantBall(cx, cy) {
+    // Spawn giant ball - 8 overlapping obstacles in circle pattern (cx=center X, cy=center Y, r=radius, spd=speed)
+    const r = 25; // Radius of circle
+    const spd = C.OFS * 0.8; // 80% of normal speed
+    const angles = [0, 45, 90, 135, 180, 225, 270, 315]; // 8 positions around circle
+
+    angles.forEach((ang, idx) => {
+      const rad = (ang * Math.PI) / 180;
+      const x = cx + r * Math.cos(rad);
+      const y = cy + r * Math.sin(rad);
+      const delay = idx * 50; // Small delay between each obstacle (50ms)
+
+      this.time.delayedCall(delay, () => {
+        this.obs.push(new Obstacle(this, x, y, OBS[Math.floor(Math.random() * OBS.length)], spd));
+      });
+    });
   }
 
   resolvePCol(p1, p2) {
@@ -2672,15 +2713,15 @@ class GameScene extends Phaser.Scene {
     this.bg.update(d, this.camTY); // Pass camera Y for parallax scrolling
     const setInp = (p, inp) => p.setInp(inp.up, inp.down, inp.left, inp.right); // Changed setInput→setInp
     // Handle state-specific logic: PLAYING=accept input, GAME_OVER=freeze, VICTORY=auto-advance dialogs, CINEMATIC=block input
-    if (this.state === GAME_STATES.PLAYING) {
+    if (this.state === STATES.PLAYING) {
       setInp(this.players[0], this.inp.p1);
       if (!this.is1P) setInp(this.players[1], this.inp.p2);
       if (this.guard) this.guard.update(d);
-    } else if (this.state === GAME_STATES.GAME_OVER) {
+    } else if (this.state === STATES.GAME_OVER) {
       setInp(this.players[0], { up: false, down: false, left: false, right: false });
       if (!this.is1P) setInp(this.players[1], { up: false, down: false, left: false, right: false });
       if (this.guard) this.guard.draw();
-    } else if (this.state === GAME_STATES.VICTORY) {
+    } else if (this.state === STATES.VICTORY) {
       setInp(this.players[0], { up: false, down: false, left: false, right: false });
       if (!this.is1P) setInp(this.players[1], { up: false, down: false, left: false, right: false });
       if (this.guard) this.guard.update(d);
@@ -2701,19 +2742,20 @@ class GameScene extends Phaser.Scene {
     this.players.forEach(p => p.upd(d)); // Changed update→upd
     this.obs.forEach(o => o.update(d));
     // Spawn obstacles, check collisions, check win conditions (only during PLAYING state)
-    if (this.state === GAME_STATES.PLAYING) {
+    if (this.state === STATES.PLAYING) {
       if (!this.obsPause) {
         this.obsSpawnT += d;
-        if (this.obsSpawnT >= C.OSI) {
+        if (this.obsSpawnT >= this.nxtInt) {
           this.obsSpawnT = 0;
+          this.obsRounds++;
+          // Calculate next interval with variance (±VAR/2)
+          this.nxtInt = C.OSI + (Math.random() - 0.5) * C.VAR;
           this.spawnObs();
         }
       }
       this.checkColl();
       this.checkWin();
     }
-    // Update confetti if active
-    if (this.conf) this.updConf(d);
     // Update camera to follow highest alive player (tgtY=target Y, maxY=max Y, clampY=clamped Y)
     const alive = this.players.filter(p => !p.isDd && !p.isFl); // Changed isDead→isDd, isFalling→isFl
     if (alive.length > 0) {
@@ -2809,9 +2851,8 @@ class GameScene extends Phaser.Scene {
   }
 
   updUI() {
-    // Update UI: clear graphics, draw confetti, update lives text
+    // Update UI: clear graphics, update lives text
     this.uiGfx.clear();
-    this.drawConf();
     this.p1Txt.setText(`P1:${'♥'.repeat(this.players[0].liv)}`); // Changed lives→liv
     if (!this.is1P) this.p2Txt.setText(`P2:${'♥'.repeat(this.players[1].liv)}`); // Changed lives→liv
   }
