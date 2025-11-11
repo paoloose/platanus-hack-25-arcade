@@ -64,7 +64,7 @@ const C = {
   BAC: 13, // Buillding # actual column, players can be between visual columns
   ROWS: 120,
   RHEIGHT: 12, // pixels per row
-  GOAL: 90, // Win at row 90
+  GOAL: 10, // Win at row 90
 
   // Player
   PW: 30, // Player width
@@ -242,7 +242,7 @@ const CHARACTERS = [
 ];
 
 // Guard sprites (reuses player sprites for now)
-const RAWGUARD = {
+const GUARD = {
   I: '~~~9.2.4A>8.2{1.4A>7.2{2.4A>7.3{1.4U>7.2D2.4U>6.3A2.4U>5.3A3.1{3U>5.4A3.3{>5.4A3.6A2.5A5.6.9A8A7.7.9A6A8.9.9A2A9.1.9.2.4A>^^9.2.1B2}5B9.2.^9.2.4A>^9.1.5A>9.1.4A1.>9.4A2.>9.3A3.>^^9.3B3.>8.4B3.>',
   // LUP0: null, // Will be mirrored from R0 below
   // LUP1: null, // Will be mirrored from R1 below
@@ -252,11 +252,11 @@ const RAWGUARD = {
 };
 
 // Mirror sprites for guard (must be done after RAW_GUARD_SPRITES is defined)
-if (RAWGUARD.R0 && !RAWGUARD.LUP0) {
-  RAWGUARD.LUP0 = mirror(RAWGUARD.R0);
+if (GUARD.R0 && !GUARD.LUP0) {
+  GUARD.LUP0 = mirror(GUARD.R0);
 }
-if (RAWGUARD.R1 && !RAWGUARD.LUP1) {
-  RAWGUARD.LUP1 = mirror(RAWGUARD.R1);
+if (GUARD.R1 && !GUARD.LUP1) {
+  GUARD.LUP1 = mirror(GUARD.R1);
 }
 
 // Player animation cycle for climbing
@@ -307,66 +307,71 @@ function parseCSEF(s, w) {
 
 // Parse sprite using CSEF (Compact Sprite Encoding Format)
 // Can accept either a CSEF string or a pre-parsed 2D array
-function parseSprite(spriteData, width = 30) {
-  if (!spriteData) return [];
+function parseSprite(sData, w = 30) {
+  // sData = sprite data, w = width
+  if (!sData) return [];
   // If it's already an array, return it directly
-  if (Array.isArray(spriteData)) return spriteData;
+  if (Array.isArray(sData)) return sData;
   // Otherwise parse as CSEF string
-  return parseCSEF(spriteData, width);
+  return parseCSEF(sData, w);
 }
 
-function mirror(spriteString, width = C.PW) {
-  // Parse sprite and mirror each row
-  const spriteData = parseCSEF(spriteString, width);
+function mirror(sStr, w = C.PW) {
+  // Mirror sprite horizontally (sStr = sprite string, w = width)
+  const sData = parseCSEF(sStr, w); // sData = sprite data
 
   // Mirror each row
-  const mirrored = spriteData.map(row => {
-    const paddedRow = [...row];
-    while (paddedRow.length < width) paddedRow.push(' ');
-    return paddedRow.reverse();
+  const mir = sData.map(r => {
+    // r = row, pRow = padded row
+    const pRow = [...r];
+    while (pRow.length < w) pRow.push(' ');
+    return pRow.reverse();
   });
 
   // Return the 2D array directly (no need to encode back to string)
-  return mirrored;
+  return mir;
 }
 
-function buildSpriteSet(rawMap, width = C.PW) {
+function buildSpriteSet(rawMap, w = C.PW) {
+  // Build sprite set from raw map (w = width)
   const parsed = {};
-  for (const key in rawMap) {
-    const value = rawMap[key];
-    parsed[key] = value ? parseSprite(value, width) : null;
+  for (const k in rawMap) {
+    const v = rawMap[k]; // k = key, v = value
+    parsed[k] = v ? parseSprite(v, w) : null;
   }
   return parsed;
 }
 
-CHARACTERS.forEach(char => {
-  const raw = char.raw;
+CHARACTERS.forEach(chr => {
+  // chr = character
+  const raw = chr.raw;
   if (raw.R0 && !raw.LUP0) raw.LUP0 = mirror(raw.R0);
   if (raw.R1 && !raw.LUP1) raw.LUP1 = mirror(raw.R1);
-  char.sprites = buildSpriteSet(raw);
+  chr.sprites = buildSpriteSet(raw);
 });
 
-const GUARD_SPRITES = buildSpriteSet(RAWGUARD);
+const GUARD_SPRITES = buildSpriteSet(GUARD);
 
-function drawSprite(graphics, spriteData, x, y, options = {}) {
-  if (!spriteData || !spriteData.length) return;
+function drawSprite(gfx, sData, x, y, opt = {}) {
+  // Draw sprite to graphics (gfx = graphics, sData = sprite data, opt = options)
+  if (!sData || !sData.length) return;
 
-  const h = spriteData.length;
-  const w = spriteData[0]?.length || 0;
+  const h = sData.length; // h = height
+  const w = sData[0]?.length || 0; // w = width
   if (!w) return;
 
-  const cx = w >> 1; // Faster than w/2
-  const cy = h >> 1;
+  const cx = w >> 1; // cx = center X (faster than w/2)
+  const cy = h >> 1; // cy = center Y
 
   // Shadow pass
-  if (!options.noShadow) {
+  if (!opt.noShadow) {
     for (let r = 0; r < h; r++) {
-      const row = spriteData[r];
+      const row = sData[r]; // r = row index
       for (let c = 0; c < row.length; c++) {
-        const color = COLOR_MAP[row[c]];
-        if (color != null) {
-          graphics.fillStyle(P[0], 0.3);
-          graphics.fillRect(x - cx + c + 1 | 0, y - cy + r + 2 | 0, 1, 1);
+        const col = COLOR_MAP[row[c]]; // c = column index, col = color
+        if (col != null) {
+          gfx.fillStyle(P[0], 0.3);
+          gfx.fillRect(x - cx + c + 1 | 0, y - cy + r + 2 | 0, 1, 1);
         }
       }
     }
@@ -374,12 +379,12 @@ function drawSprite(graphics, spriteData, x, y, options = {}) {
 
   // Main sprite pass
   for (let r = 0; r < h; r++) {
-    const row = spriteData[r];
+    const row = sData[r]; // r = row index
     for (let c = 0; c < row.length; c++) {
-      const color = COLOR_MAP[row[c]];
-      if (color != null) {
-        graphics.fillStyle(color, 1);
-        graphics.fillRect(x - cx + c | 0, y - cy + r | 0, 1, 1);
+      const col = COLOR_MAP[row[c]]; // c = column index, col = color
+      if (col != null) {
+        gfx.fillStyle(col, 1);
+        gfx.fillRect(x - cx + c | 0, y - cy + r | 0, 1, 1);
       }
     }
   }
@@ -559,8 +564,8 @@ class Character {
     this.colliderHeight = 26;
 
     // Graphics
-    this.graphics = scene.add.graphics();
-    this.graphics.setDepth(50);
+    this.gr = scene.add.graphics();
+    this.gr.setDepth(50);
   }
 
   colToX(col) {
@@ -602,8 +607,8 @@ class Character {
   }
 
   destroy() {
-    if (this.graphics) {
-      this.graphics.destroy();
+    if (this.gr) {
+      this.gr.destroy();
     }
   }
 }
@@ -656,7 +661,7 @@ class Player extends Character {
     this.colOfsY = (C.PH - this.colliderHeight) / 2; // colOfsY = collider offset Y (2)
 
     // Override graphics depth for players
-    this.graphics.setDepth(10);
+    this.gr.setDepth(10);
   }
 
   // Check collision with another player (player-specific)
@@ -773,9 +778,6 @@ class Player extends Character {
     // Handle entering window animation (winning)
     if (this.isEntW) {
       this.entWT += d;
-
-      // Fade out and move into window
-      const prg = this.entWT / this.entWDur; // prg = progress
 
       // Move slightly into the building (toward center)
       const bCX = C.GW / 2; // bCX = building center X
@@ -907,7 +909,7 @@ class Player extends Character {
 
   drw() {
     // drw = draw
-    this.graphics.clear();
+    this.gr.clear();
 
     // Get sprite data for current animation state
     const sprD = this.spr[this.animState] || this.spr.I; // sprD = sprite data
@@ -915,28 +917,28 @@ class Player extends Character {
     // Apply alpha for entering window animation
     if (this.isEntW) {
       const prg = this.entWT / this.entWDur; // prg = progress
-      this.graphics.setAlpha(1 - prg); // Fade out
+      this.gr.setAlpha(1 - prg); // Fade out
     } else if (this.hasW) {
-      this.graphics.setAlpha(0); // Fully invisible after entering
+      this.gr.setAlpha(0); // Fully invisible after entering
       return; // Don't draw anything
     } else {
-      this.graphics.setAlpha(1); // Normal
+      this.gr.setAlpha(1); // Normal
     }
 
     // Draw the sprite (rotation effect is visual only, we just flip/mirror for falling)
     if (this.isCgt) {
       // LOST animation - alternate between LUP0 and R0
       const lostSprD = this.spr[this.lostAnimSt] || this.spr.I; // lostSprD = lost sprite data
-      drawSprite(this.graphics, lostSprD, this.x, this.y);
+      drawSprite(this.gr, lostSprD, this.x, this.y);
     } else if (this.isFl) {
       // For death fall, we'll alternate the sprite for a tumbling effect
       const tmbFrm = Math.floor(this.flRot * 2) % 2; // tmbFrm = tumble frame
       const tmbSpr = tmbFrm === 0 ? 'LUP1' : 'R1'; // tmbSpr = tumble sprite
       const flSprD = this.spr[tmbSpr] || this.spr.I; // flSprD = falling sprite data
-      drawSprite(this.graphics, flSprD, this.x, this.y, { showSpriteBorder: false, noShadow: false });
+      drawSprite(this.gr, flSprD, this.x, this.y, { showSpriteBorder: false, noShadow: false });
     } else {
       // Use normal sprite (includes climbing down animation when isFl1R)
-      drawSprite(this.graphics, sprD, this.x, this.y);
+      drawSprite(this.gr, sprD, this.x, this.y);
     }
   }
 
@@ -974,6 +976,8 @@ class Player extends Character {
   }
 
   die() {
+    // Instant kill: set lives to zero and start falling animation
+    this.liv = 0; // Set lives to zero
     this.isFl = true;
     this.flVel = -200; // Initial upward velocity (Mario bounce)
     this.flRot = 0;
@@ -999,46 +1003,46 @@ class Guard extends Character {
   constructor(scene, col, row) {
     super(scene, 0, col, row); // playerNum=0 for guard (not a real player)
 
-    // AI state
-    this.nextClimbDelay = this.getRandomClimbDelay();
-    this.climbTimer = 0;
-    this.targetPlayer = null; // Which player to chase
+    // AI state (nCD=next climb delay, cTmr=climb timer, tP=target player)
+    this.nCD = this.getRndCD();
+    this.cTmr = 0;
+    this.tP = null;
 
-    // Falling state (for death)
-    this.isFalling = false;
-    this.fallVelocity = 0;
-    this.fallRotation = 0;
-    this.isDead = false; // Guard is dead after falling
+    // Falling state for death (isFl=is falling, fVel=fall velocity, fRot=fall rotation, isDd=is dead)
+    this.isFl = false;
+    this.fVel = 0;
+    this.fRot = 0;
+    this.isDd = false;
   }
 
-  getRandomClimbDelay() {
+  getRndCD() {
+    // Get random climb delay (getRndCD=get random climb delay)
     const min = C.GCmD;
     const max = C.GCMD;
     return min + Math.random() * (max - min);
   }
 
-  update(delta) {
-    // Don't do anything if dead
-    if (this.isDead) {
+  update(d) {
+    // Update guard AI and movement (d=delta)
+    if (this.isDd) {
       this.draw();
       return;
     }
 
-    // Handle falling animation (when defeated)
-    if (this.isFalling) {
-      this.fallVelocity += 500 * (delta / 1000); // Gravity
-      this.y += this.fallVelocity * (delta / 1000);
-      this.fallRotation += (delta / 1000) * 5;
-
+    // Handle falling animation when defeated
+    if (this.isFl) {
+      this.fVel += 500 * (d / 1000); // Gravity
+      this.y += this.fVel * (d / 1000);
+      this.fRot += (d / 1000) * 5;
       this.targetX = this.x;
       this.targetY = this.y;
 
       // Check if hit the ground
-      const floorLevel = C.GAME_HEIGHT;
-      if (this.y >= floorLevel) {
-        this.y = floorLevel;
-        this.isFalling = false;
-        this.isDead = true; // Guard is dead now
+      const flLvl = C.GAME_HEIGHT; // flLvl = floor level
+      if (this.y >= flLvl) {
+        this.y = flLvl;
+        this.isFl = false;
+        this.isDd = true; // Guard is dead now
       }
 
       this.draw();
@@ -1046,11 +1050,11 @@ class Guard extends Character {
     }
 
     // AI: Find target player (chase the highest one)
-    this.findTargetPlayer();
+    this.fndTgt();
 
     // AI: Move toward target
-    if (this.targetPlayer) {
-      this.moveTowardTarget(delta);
+    if (this.tP) {
+      this.mvTwd(d);
     }
 
     // Smooth position interpolation
@@ -1061,75 +1065,72 @@ class Guard extends Character {
     this.draw();
   }
 
-  findTargetPlayer() {
-    const alivePlayers = this.scene.players.filter(p => !p.isDd && !p.isFl); // Changed isDead to isDd, isFalling to isFl
+  fndTgt() {
+    // Find target player to chase (fndTgt=find target, aP=alive players)
+    const aP = this.scene.players.filter(p => !p.isDd && !p.isFl);
 
-    if (alivePlayers.length === 0) {
-      this.targetPlayer = null;
+    if (aP.length === 0) {
+      this.tP = null;
       return;
     }
 
-    // Chase the nearest player (by distance)
-    this.targetPlayer = alivePlayers.reduce((nearest, player) => {
-      const distToPlayer = Math.sqrt(
-        Math.pow(player.x - this.x, 2) + Math.pow(player.y - this.y, 2)
-      );
-      const distToNearest = Math.sqrt(
-        Math.pow(nearest.x - this.x, 2) + Math.pow(nearest.y - this.y, 2)
-      );
-      return distToPlayer < distToNearest ? player : nearest;
+    // Chase the nearest player by distance
+    this.tP = aP.reduce((nst, p) => {
+      // nst=nearest, p=player, dP=distance to player, dN=distance to nearest
+      const dP = Math.sqrt(Math.pow(p.x - this.x, 2) + Math.pow(p.y - this.y, 2));
+      const dN = Math.sqrt(Math.pow(nst.x - this.x, 2) + Math.pow(nst.y - this.y, 2));
+      return dP < dN ? p : nst;
     });
   }
 
-  moveTowardTarget(delta) {
-    if (!this.targetPlayer) return;
+  mvTwd(d) {
+    // Move toward target player (mvTwd=move toward, d=delta)
+    if (!this.tP) return;
 
-    const targetRow = this.targetPlayer.row;
-    const targetCol = this.targetPlayer.col;
+    const tR = this.tP.row; // tR = target row
+    const tC = this.tP.col; // tC = target col
 
-    // Calculate speed multipliers based on game state
-    let speedMultiplier = 1.0;
+    // Calculate speed multipliers based on game state (sM=speed multiplier)
+    let sM = 1.0;
 
     // 1. Initial slow multiplier (before row 10)
-    if (this.targetPlayer.row < C.OSR) {
-      speedMultiplier *= C.GISM;
+    if (this.tP.row < C.OSR) {
+      sM *= C.GISM;
     }
 
     // 2. Off-screen boost (when guard is below camera view)
-    const cameraBottomY = this.scene.cameraTargetY + (C.GH / 2);
-    const guardY = this.getWorldY();
+    const cBY = this.scene.cameraTargetY + (C.GH / 2); // cBY = camera bottom Y
+    const gY = this.getWorldY(); // gY = guard Y
 
-    if (guardY > cameraBottomY) {
+    if (gY > cBY) {
       // Guard is below camera (off-screen) - boost speed to catch up
-      speedMultiplier *= C.GOB;
+      sM *= C.GOB;
     }
 
     // Vertical movement (climbing) with speed multiplier
-    this.climbTimer += delta * speedMultiplier;
+    this.cTmr += d * sM;
 
-    if (this.climbTimer >= this.nextClimbDelay) {
-      this.climbTimer = 0;
-      this.nextClimbDelay = this.getRandomClimbDelay();
+    if (this.cTmr >= this.nCD) {
+      this.cTmr = 0;
+      this.nCD = this.getRndCD();
 
       // Climb toward target
-      if (this.row < targetRow) {
+      if (this.row < tR) {
         // Need to climb up
         if (!this.isClimbing) {
-        this.isClimbing = true;
+          this.isClimbing = true;
           this.animTimer = 0;
           this.animIndex = 0;
         }
-
-        this.advanceClimbAnimation(false); // Climbing up
-      } else if (this.row > targetRow) {
+        this.advCA(false); // Climbing up
+      } else if (this.row > tR) {
         // Need to climb down
         if (!this.isClimbing) {
           this.isClimbing = true;
           this.animTimer = 0;
           this.animIndex = 5; // Start at LUP0 for going down
         }
-
-        this.advanceClimbAnimation(true); // Climbing down
+        this.advCA(true); // Climbing down
       } else {
         this.isClimbing = false;
       }
@@ -1137,41 +1138,40 @@ class Guard extends Character {
 
     // Continue climbing animation if climbing
     if (this.isClimbing) {
-      this.animTimer += delta * speedMultiplier;
+      this.animTimer += d * sM;
       if (this.animTimer >= C.STEP) {
         this.animTimer = 0;
-        const goingDown = this.row > targetRow;
-        this.advanceClimbAnimation(goingDown);
+        const gDwn = this.row > tR; // gDwn = going down
+        this.advCA(gDwn);
       }
     }
 
     // Horizontal movement (move toward target column) with speed multiplier
-    const colDifference = targetCol - this.col;
+    const cDif = tC - this.col; // cDif = column difference
 
-    if (Math.abs(colDifference) > 0.5) {
+    if (Math.abs(cDif) > 0.5) {
       // Move horizontally with chase speed and multiplier
-      const direction = colDifference > 0 ? 1 : -1;
-      this.col += direction * C.GCS * speedMultiplier;
+      const dir = cDif > 0 ? 1 : -1; // dir = direction
+      this.col += dir * C.GCS * sM;
 
       // Clamp to valid columns
       this.col = Math.max(0, Math.min(C.BAC - 1, this.col));
-
       this.targetX = this.colToX(this.col);
     }
   }
 
-  advanceClimbAnimation(goingDown = false) {
-    // Move through the climb cycle
+  advCA(gDwn = false) {
+    // Advance climb animation (advCA=advance climb animation, gDwn=going down)
     this.animIndex = (this.animIndex + 1) % CLIMB_CYCLE.length;
     this.animState = CLIMB_CYCLE[this.animIndex];
 
     // Movement happens at LUP1 and R1 states
     if (this.animState === 'LUP1' || this.animState === 'R1') {
-      const newRow = goingDown ? this.row - 1 : this.row + 1;
+      const nR = gDwn ? this.row - 1 : this.row + 1; // nR = new row
 
       // Clamp to valid rows
-      if (newRow >= 0 && newRow <= C.ROWS) {
-        this.row = newRow;
+      if (nR >= 0 && nR <= C.ROWS) {
+        this.row = nR;
         this.targetY = this.rowToY(this.row);
       }
     }
@@ -1183,18 +1183,20 @@ class Guard extends Character {
   }
 
   draw() {
-    this.graphics.clear();
+    // Draw guard sprite
+    this.gr.clear();
 
-    // Get sprite data for current animation state
-    const spriteData = GUARD_SPRITES[this.animState] || GUARD_SPRITES.I;
+    // Get sprite data for current animation state (sData=sprite data)
+    const sData = GUARD_SPRITES[this.animState] || GUARD_SPRITES.I;
 
-    // Draw the guard sprite (different color tint would be nice, but we'll use same for now)
-    drawSprite(this.graphics, spriteData, this.x, this.y);
+    // Draw the guard sprite
+    drawSprite(this.gr, sData, this.x, this.y);
   }
 
   destroy() {
-    if (this.graphics) {
-      this.graphics.destroy();
+    // Clean up graphics
+    if (this.gr) {
+      this.gr.destroy();
     }
   }
 }
@@ -1205,41 +1207,41 @@ class Guard extends Character {
 class Dialog {
   constructor(scene) {
     this.scene = scene;
-    this.isActive = false;
-    this.currentDialog = null;
+    this.act = false; // act = is active
+    this.cur = null; // cur = current dialog
 
-    // Dialog box dimensions
-    this.boxHeight = 60;
-    this.boxPadding = 8;
-    this.portraitSize = 44; // 44x44 portrait (scaled from 30x30)
-    this.portraitPadding = 4;
+    // Dialog box dimensions (bH=box height, bP=box padding, pS=portrait size, pP=portrait padding)
+    this.bH = 60;
+    this.bP = 8;
+    this.pS = 44; // 44x44 portrait (scaled from 30x30)
+    this.pP = 4;
 
-    // Text animation state
-    this.fullText = '';
-    this.displayedText = '';
-    this.charIndex = 0;
-    this.charDelay = 30; // ms per character
-    this.charTimer = 0;
-    this.isTextComplete = false;
+    // Text animation state (fTxt=full text, dTxt=displayed text, cIdx=char index, cDly=char delay, cTmr=char timer, tCmp=text complete)
+    this.fTxt = '';
+    this.dTxt = '';
+    this.cIdx = 0;
+    this.cDly = 30; // ms per character
+    this.cTmr = 0;
+    this.tCmp = false;
 
     // Audio context for beep sounds
-    this.audioContext = null;
-    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    this.aCtx = null;
+    this.aCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     // Create graphics objects - use Graphics for everything for consistency
-    this.graphics = scene.add.graphics();
-    this.graphics.setDepth(2000); // Way above everything
-    this.graphics.setScrollFactor(0, 0); // Fixed to camera
-    this.graphics.setVisible(true);
+    this.gfx = scene.add.graphics();
+    this.gfx.setDepth(2000); // Way above everything
+    this.gfx.setScrollFactor(0, 0); // Fixed to camera
+    this.gfx.setVisible(true);
 
     // Portrait graphics
-    this.portraitGraphics = scene.add.graphics();
-    this.portraitGraphics.setDepth(2001);
-    this.portraitGraphics.setScrollFactor(0, 0);
-    this.portraitGraphics.setVisible(true);
+    this.pGfx = scene.add.graphics();
+    this.pGfx.setDepth(2001);
+    this.pGfx.setScrollFactor(0, 0);
+    this.pGfx.setVisible(true);
 
     // Create text object
-    this.textObject = scene.add.text(0, 0, '', {
+    this.tObj = scene.add.text(0, 0, '', {
       fontFamily: 'Courier New, monospace',
       fontSize: '11px',
       color: '#fff',
@@ -1247,240 +1249,239 @@ class Dialog {
       strokeThickness: 2,
       wordWrap: { width: 200 }
     });
-    this.textObject.setDepth(2002);
-    this.textObject.setScrollFactor(0, 0);
-    this.textObject.setVisible(true);
+    this.tObj.setDepth(2002);
+    this.tObj.setScrollFactor(0, 0);
+    this.tObj.setVisible(true);
 
     // Force graphics to top of render list
-    scene.children.bringToTop(this.graphics);
-    scene.children.bringToTop(this.portraitGraphics);
-    scene.children.bringToTop(this.textObject);
+    scene.children.bringToTop(this.gfx);
+    scene.children.bringToTop(this.pGfx);
+    scene.children.bringToTop(this.tObj);
   }
 
   show(type, text, sprites = []) {
-    this.isActive = true;
-    this.currentDialog = { type, text, sprites };
-    this.textObject.setVisible(true);
+    // Show dialog with text animation
+    this.act = true;
+    this.cur = { type, text, sprites };
+    this.tObj.setVisible(true);
 
     // Initialize text animation
-    this.fullText = text;
-    this.displayedText = '';
-    this.charIndex = 0;
-    this.charTimer = 0;
-    this.isTextComplete = false;
+    this.fTxt = text;
+    this.dTxt = '';
+    this.cIdx = 0;
+    this.cTmr = 0;
+    this.tCmp = false;
   }
 
   hide() {
-    this.isActive = false;
-    this.currentDialog = null;
-    this.graphics.clear();
-    this.portraitGraphics.clear();
-    this.textObject.setText('');
-    this.textObject.setVisible(false);
+    // Hide dialog and reset state
+    this.act = false;
+    this.cur = null;
+    this.gfx.clear();
+    this.pGfx.clear();
+    this.tObj.setText('');
+    this.tObj.setVisible(false);
 
     // Reset text animation
-    this.fullText = '';
-    this.displayedText = '';
-    this.charIndex = 0;
-    this.isTextComplete = false;
+    this.fTxt = '';
+    this.dTxt = '';
+    this.cIdx = 0;
+    this.tCmp = false;
   }
 
-  playBeep(voiceType = 'PLAYER') {
-    if (!this.audioContext) return;
+  playBeep(vType = 'PLAYER') {
+    // Play voice beep sound (vType=voice type)
+    if (!this.aCtx) return;
 
     // Create a short beep sound
-    const oscillator = this.audioContext.createOscillator();
-    const gainNode = this.audioContext.createGain();
+    const osc = this.aCtx.createOscillator(); // osc = oscillator
+    const gain = this.aCtx.createGain();
 
-    oscillator.connect(gainNode);
-    gainNode.connect(this.audioContext.destination);
+    osc.connect(gain);
+    gain.connect(this.aCtx.destination);
 
-    // Different pitch ranges for different voices
-    let baseFreq, variation;
-    if (voiceType === 'GUARD') {
+    // Different pitch ranges for different voices (bFreq=base frequency, vari=variation)
+    let bFreq, vari;
+    if (vType === 'GUARD') {
       // Deeper voice for guard (250-350 Hz)
-      baseFreq = 275;
-      variation = 75;
+      bFreq = 275;
+      vari = 75;
     } else {
       // Higher voice for players (450-600 Hz)
-      baseFreq = 450;
-      variation = 150;
+      bFreq = 450;
+      vari = 150;
     }
 
-    oscillator.frequency.value = baseFreq + Math.random() * variation;
-    oscillator.type = 'square';
+    osc.frequency.value = bFreq + Math.random() * vari;
+    osc.type = 'square';
 
     // Quick fade out
-    gainNode.gain.setValueAtTime(C.VOL, this.audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.05);
+    gain.gain.setValueAtTime(C.VOL, this.aCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.aCtx.currentTime + 0.05);
 
     // Play for 50ms
-    oscillator.start(this.audioContext.currentTime);
-    oscillator.stop(this.audioContext.currentTime + 0.05);
+    osc.start(this.aCtx.currentTime);
+    osc.stop(this.aCtx.currentTime + 0.05);
   }
 
-  updateTextAnimation(delta) {
-    if (this.isTextComplete || !this.fullText) return;
+  updTxtAnim(d) {
+    // Update text animation (d=delta)
+    if (this.tCmp || !this.fTxt) return;
 
-    this.charTimer += delta;
+    this.cTmr += d;
 
-    if (this.charTimer >= this.charDelay) {
-      this.charTimer = 0;
+    if (this.cTmr >= this.cDly) {
+      this.cTmr = 0;
 
-      if (this.charIndex < this.fullText.length) {
+      if (this.cIdx < this.fTxt.length) {
         // Add next character
-        this.displayedText += this.fullText[this.charIndex];
-        this.charIndex++;
+        this.dTxt += this.fTxt[this.cIdx];
+        this.cIdx++;
 
         // Play beep (skip spaces) with voice type
-        if (this.fullText[this.charIndex - 1] !== ' ') {
-          const voiceType = this.currentDialog ? this.currentDialog.type : 'PLAYER';
-          this.playBeep(voiceType);
+        if (this.fTxt[this.cIdx - 1] !== ' ') {
+          const vType = this.cur ? this.cur.type : 'PLAYER'; // vType = voice type
+          this.playBeep(vType);
         }
       } else {
         // Text complete
-        this.isTextComplete = true;
+        this.tCmp = true;
       }
     }
   }
 
-  render(delta = 16) {
-    // Update text animation
-    this.updateTextAnimation(delta);
+  render(d = 16) {
+    // Render dialog box with portrait and text (d=delta)
+    this.updTxtAnim(d);
 
     // Clear graphics every frame
-    this.graphics.clear();
-    this.portraitGraphics.clear();
+    this.gfx.clear();
+    this.pGfx.clear();
 
-    if (!this.currentDialog) {
+    if (!this.cur) {
       // No dialog to show
-      this.textObject.setVisible(false);
+      this.tObj.setVisible(false);
       return;
     }
 
-    const { type, sprites } = this.currentDialog;
+    const { type, sprites } = this.cur;
 
-    const screenHeight = C.GH;
-    const screenWidth = C.GW;
-    const boxY = screenHeight - this.boxHeight + 10; // At the top of the screen
-    const boxWidth = screenWidth - 20;
-    const boxX = 250; // Hardcoded value i don't know why
+    const sH = C.GH; // sH = screen height
+    const sW = C.GW; // sW = screen width
+    const bY = sH - this.bH + 10; // bY = box Y (at the top of the screen)
+    const bW = sW - 20; // bW = box width
+    const bX = 250; // bX = box X (hardcoded value)
 
     // Draw black background box
-    this.graphics.fillStyle(P[0], 0.95);
-    this.graphics.fillRect(boxX, boxY, boxWidth, this.boxHeight);
+    this.gfx.fillStyle(P[0], 0.95);
+    this.gfx.fillRect(bX, bY, bW, this.bH);
 
     // Draw white border
-    this.graphics.lineStyle(4, P[6], 1);
-    this.graphics.strokeRect(boxX, boxY, boxWidth, this.boxHeight);
+    this.gfx.lineStyle(4, P[6], 1);
+    this.gfx.strokeRect(bX, bY, bW, this.bH);
 
     // Make sure text is visible
-    this.textObject.setVisible(true);
+    this.tObj.setVisible(true);
 
     // Use displayed text (animated) instead of full text
-    const displayText = this.displayedText;
+    const dTxt = this.dTxt;
 
     if (type === 'PLAYER') {
       // Player dialog: portrait on right, text on left
-      this.renderDialogWithLayout(displayText, sprites, 'right', boxY, boxX, screenWidth);
+      this.rndrLay(dTxt, sprites, 'right', bY, bX, sW);
     } else if (type === 'GUARD') {
       // Guard dialog: portrait on left, text on right
-      this.renderDialogWithLayout(displayText, sprites, 'left', boxY, boxX, screenWidth);
+      this.rndrLay(dTxt, sprites, 'left', bY, bX, sW);
     } else if (type === 'UNISON') {
       // Unison dialog: both portraits on right, text on left
-      this.renderDialogWithLayout(displayText, sprites, 'right-dual', boxY, boxX, screenWidth);
+      this.rndrLay(dTxt, sprites, 'right-dual', bY, bX, sW);
     }
   }
 
-  renderDialogWithLayout(text, sprites, layout, boxY, boxX, screenWidth) {
-    const boxWidth = screenWidth - 20;
-    const numSprites = sprites.filter(s => s).length;
+  rndrLay(txt, spr, lay, bY, bX, sW) {
+    // Render dialog with portrait layout (txt=text, spr=sprites, lay=layout, bY=box Y, bX=box X, sW=screen width)
+    const bW = sW - 20; // bW = box width
+    const nS = spr.filter(s => s).length; // nS = num sprites
 
-    if (layout === 'right') {
-      // Portrait(s) on right, text on left
-      const portraitX = boxX + boxWidth - this.portraitSize - this.portraitPadding;
-      const portraitY = boxY + this.boxPadding;
-      this.renderPortrait(sprites[0], portraitX, portraitY);
-
-      const textX = boxX + this.boxPadding + 4;
-      const textY = boxY + this.boxPadding + 2;
-      const textWidth = boxWidth - this.portraitSize - this.boxPadding * 3 - this.portraitPadding - 8;
-
-      this.textObject.setWordWrapWidth(textWidth);
-      this.textObject.setPosition(textX, textY);
-      this.textObject.setText(text);
-    } else if (layout === 'left') {
+    if (lay === 'right') {
+      // Portrait on right, text on left
+      const pX = bX + bW - this.pS - this.pP; // pX = portrait X
+      const pY = bY + this.bP; // pY = portrait Y
+      this.rndrPort(spr[0], pX, pY);
+      const tX = bX + this.bP + 4; // tX = text X
+      const tY = bY + this.bP + 2; // tY = text Y
+      const tW = bW - this.pS - this.bP * 3 - this.pP - 8; // tW = text width
+      this.tObj.setWordWrapWidth(tW);
+      this.tObj.setPosition(tX, tY);
+      this.tObj.setText(txt);
+    } else if (lay === 'left') {
       // Portrait on left, text on right
-      const portraitX = boxX + this.boxPadding + this.portraitPadding;
-      const portraitY = boxY + this.boxPadding;
-      this.renderPortrait(sprites[0], portraitX, portraitY);
-
-      const textX = boxX + this.portraitSize + this.boxPadding * 2 + this.portraitPadding + 4;
-      const textY = boxY + this.boxPadding + 2;
-      const textWidth = boxWidth - this.portraitSize - this.boxPadding * 3 - this.portraitPadding - 8;
-
-      this.textObject.setWordWrapWidth(textWidth);
-      this.textObject.setPosition(textX, textY);
-      this.textObject.setText(text);
-    } else if (layout === 'right-dual') {
-      // Two portraits on right (if available), text on left
-      if (numSprites === 1) {
+      const pX = bX + this.bP + this.pP; // pX = portrait X
+      const pY = bY + this.bP; // pY = portrait Y
+      this.rndrPort(spr[0], pX, pY);
+      const tX = bX + this.pS + this.bP * 2 + this.pP + 4; // tX = text X
+      const tY = bY + this.bP + 2; // tY = text Y
+      const tW = bW - this.pS - this.bP * 3 - this.pP - 8; // tW = text width
+      this.tObj.setWordWrapWidth(tW);
+      this.tObj.setPosition(tX, tY);
+      this.tObj.setText(txt);
+    } else if (lay === 'right-dual') {
+      // Two portraits on right, text on left
+      if (nS === 1) {
         // Only one sprite, render as single portrait
-        this.renderDialogWithLayout(text, sprites, 'right', boxY, boxX, screenWidth);
+        this.rndrLay(txt, spr, 'right', bY, bX, sW);
       } else {
         // Two portraits side by side
-        const portraitX1 = boxX + boxWidth - this.portraitSize * 2 - this.portraitPadding * 2 - 4;
-        const portraitX2 = boxX + boxWidth - this.portraitSize - this.portraitPadding;
-        const portraitY = boxY + this.boxPadding;
-
-        this.renderPortrait(sprites[0], portraitX1, portraitY);
-        this.renderPortrait(sprites[1], portraitX2, portraitY);
-
-        const textX = boxX + this.boxPadding + 4;
-        const textY = boxY + this.boxPadding + 2;
-        const textWidth = boxWidth - this.portraitSize * 2 - this.boxPadding * 3 - this.portraitPadding * 2 - 12;
-
-        this.textObject.setWordWrapWidth(textWidth);
-        this.textObject.setPosition(textX, textY);
-        this.textObject.setText(text);
+        const pX1 = bX + bW - this.pS * 2 - this.pP * 2 - 4; // pX1 = portrait 1 X
+        const pX2 = bX + bW - this.pS - this.pP; // pX2 = portrait 2 X
+        const pY = bY + this.bP; // pY = portrait Y
+        this.rndrPort(spr[0], pX1, pY);
+        this.rndrPort(spr[1], pX2, pY);
+        const tX = bX + this.bP + 4; // tX = text X
+        const tY = bY + this.bP + 2; // tY = text Y
+        const tW = bW - this.pS * 2 - this.bP * 3 - this.pP * 2 - 12; // tW = text width
+        this.tObj.setWordWrapWidth(tW);
+        this.tObj.setPosition(tX, tY);
+        this.tObj.setText(txt);
       }
     }
   }
 
-  renderPortrait(sprite, x, y) {
-    if (!sprite) return;
+  rndrPort(spr, x, y) {
+    // Render portrait sprite (spr=sprite, x=X position, y=Y position)
+    if (!spr) return;
 
-    // Parse and render the F sprite
-    const spriteData = sprite;
-    if (!spriteData || spriteData.length === 0) return;
+    // Parse and render the sprite
+    const sData = spr; // sData = sprite data
+    if (!sData || sData.length === 0) return;
 
-    const spriteHeight = spriteData.length;
-    const spriteWidth = spriteData[0] ? spriteData[0].length : 0;
+    const sH = sData.length; // sH = sprite height
+    const sW = sData[0] ? sData[0].length : 0; // sW = sprite width
 
-    // Scale factor to fit portrait in 44x44 box
-    const scale = Math.min(this.portraitSize / spriteWidth, this.portraitSize / spriteHeight);
+    // Scale factor to fit portrait in box (sc=scale)
+    const sc = Math.min(this.pS / sW, this.pS / sH);
 
     // Draw pixel by pixel with scaling
-    for (let row = 0; row < spriteHeight; row++) {
-      for (let col = 0; col < spriteData[row].length; col++) {
-        const char = spriteData[row][col];
-        const color = COLOR_MAP[char];
+    for (let r = 0; r < sH; r++) {
+      for (let c = 0; c < sData[r].length; c++) {
+        const ch = sData[r][c]; // ch = character
+        const col = COLOR_MAP[ch]; // col = color
 
-        if (color !== null && color !== undefined) {
-          this.portraitGraphics.fillStyle(color, 1);
-          this.portraitGraphics.fillRect(
-            Math.floor(x + col * scale),
-            Math.floor(y + row * scale),
-            Math.ceil(scale),
-            Math.ceil(scale)
+        if (col !== null && col !== undefined) {
+          this.pGfx.fillStyle(col, 1);
+          this.pGfx.fillRect(
+            Math.floor(x + c * sc),
+            Math.floor(y + r * sc),
+            Math.ceil(sc),
+            Math.ceil(sc)
           );
         }
       }
     }
 
     // Draw border around portrait
-    this.portraitGraphics.lineStyle(1, P[6], 0.5);
-    this.portraitGraphics.strokeRect(x - 1, y - 1, this.portraitSize + 2, this.portraitSize + 2);
+    this.pGfx.lineStyle(1, P[6], 0.5);
+    this.pGfx.strokeRect(x - 1, y - 1, this.pS + 2, this.pS + 2);
   }
 
   update() {
@@ -1534,9 +1535,9 @@ class CinematicController {
 
     // Dialog sequence
     S.time.delayedCall(2000, () => S.dialog.show(dt, p1 ? `Hola, vengo para la ${ph} 🍌` : `Hola, venimos para la ${ph} 🍌`, ps));
-    S.time.delayedCall(5000, () => S.dialog.show('GUARD', 'La hackathon ya ha iniciado, no estamos recibiendo más participantes', [GUARD_SPRITES.F]));
-    S.time.delayedCall(8000, () => S.dialog.show(dt, p1 ? 'Cómo? Tengo que entrar!!' : 'Cómo? Tenemos que entrar!!', ps));
-    S.time.delayedCall(11000, () => {
+    S.time.delayedCall(4500, () => S.dialog.show('GUARD', 'La hackathon ya ha iniciado, no puedo recibir más participantes', [GUARD_SPRITES.F]));
+    S.time.delayedCall(10000, () => S.dialog.show(dt, p1 ? 'Qué? No puedo perderme la hackathon!' : 'Qué? No podemos perdernos la hackathon', ps));
+    S.time.delayedCall(13000, () => {
       S.dialog.hide();
       this.climb();
     });
@@ -1555,7 +1556,7 @@ class CinematicController {
         });
         if (++this.p >= this.t) {
           this.s.time.delayedCall(500, () => {
-            this.s.dialog.show('GUARD', this.s.is1P ? 'A dónde vas, vuelve!' : 'A dónde van, vengan aquí!', this.s.is1P ? [GUARD_SPRITES.F] : [GUARD_SPRITES.F, GUARD_SPRITES.F]); // Changed from is1PlayerMode to is1P
+            this.s.dialog.show('GUARD', this.s.is1P ? 'A dónde vas, no puedes trepar el edificio!' : 'A dónde van, no pueden trepar el edicio!', this.s.is1P ? [GUARD_SPRITES.F] : [GUARD_SPRITES.F, GUARD_SPRITES.F]); // Changed from is1PlayerMode to is1P
             this.s.time.delayedCall(2000, () => {
               this.s.dialog.hide();
               this.a = false;
@@ -1592,40 +1593,53 @@ class DynamicBackground {
     this.fBGfx = scene.add.graphics().setDepth(-1.1); // fBGfx = far buildings graphics
     this.mBGfx = scene.add.graphics().setDepth(-1); // mBGfx = mid buildings graphics
     this.nBGfx = scene.add.graphics().setDepth(-.9); // nBGfx = near buildings graphics
-    this.clGfx = scene.add.graphics().setDepth(-1); // clGfx = clouds graphics
+    this.clGfx = scene.add.graphics().setDepth(-0.8); // clGfx = clouds graphics (above buildings)
 
     // Initialize
-    this.drwMts(); // drwMts = draw mountains
-    this.genBlds(); // genBlds = generate buildings
-    this.genClds(); // genClds = generate clouds
+    this.drwMts(); // drwMts = draw mountains (Los Andes)
+    this.genBlds(); // genBlds = generate buildings (Santiago skyline)
+    this.genClds(); // genClds = generate clouds (cloudy Santiago)
   }
 
   drwMts() {
-    // Draw mountains in background
+    // Draw Los Andes mountains in background - majestic snow-capped peaks
     this.bg.clear();
-    const bY = C.GH - 40; // bY = base Y
-    const cnt = 8; // cnt = count
-    for (let i = 0; i < cnt; i++) {
-      const pX = (i / (cnt - 1)) * C.GW + Phaser.Math.Between(-20, 20); // pX = peak X
-      const pY = Phaser.Math.Between(bY - 65, bY - 35) - 15; // pY = peak Y
-      const l = pX - Phaser.Math.Between(45, 75); // l = left
-      const r = pX + Phaser.Math.Between(45, 75); // r = right
+    const bY = C.GH - 40; // bY = base Y (horizon line)
 
-      this.bg.fillStyle(P[5], 0.9);
+    // Draw distant mountain range with multiple peaks (Los Andes style)
+    const peaks = 12; // More peaks for realistic mountain range
+    for (let i = 0; i < peaks; i++) {
+      const pX = (i / (peaks - 1)) * (C.GW + 200) - 100; // pX = peak X (extend beyond screen)
+      const pY = Phaser.Math.Between(bY - 120, bY - 80); // pY = peak Y (taller mountains)
+      const l = pX - Phaser.Math.Between(60, 100); // l = left base
+      const r = pX + Phaser.Math.Between(60, 100); // r = right base
+
+      // Main mountain body (dark blue-gray)
+      this.bg.fillStyle(P[4], 0.85);
       this.bg.fillTriangle(l, bY, pX, pY, r, bY);
 
-      this.bg.fillStyle(P[6], 1);
-      this.bg.fillTriangle(pX - 15, pY + 12, pX, pY, pX + 15, pY + 12);
+      // Snow caps (white/light gray)
+      const snowH = Phaser.Math.Between(15, 25); // snowH = snow height
+      this.bg.fillStyle(P[6], 0.95);
+      this.bg.fillTriangle(pX - 20, pY + snowH, pX, pY, pX + 20, pY + snowH);
+
+      // Add highlights to snow for depth
+      this.bg.fillStyle(P[7], 0.3);
+      this.bg.fillTriangle(pX - 8, pY + snowH / 2, pX, pY, pX + 8, pY + snowH / 2);
     }
+
+    // Add atmospheric haze at mountain base
+    this.bg.fillStyle(P[5], 0.3);
+    this.bg.fillRect(0, bY - 40, C.GW, 40);
   }
 
   genBlds() {
-    // Generate buildings in 3 depth layers
+    // Generate Santiago skyline - mix of modern high-rises and medium buildings
     this.blds = [];
-    const lyrs = [ // lyrs = layers [color, depth, baseY, count, minW, maxW, minH, maxH]
-      [P[5], 1, C.GH, 20, 25, 30, 50, 90],
-      [P[4], 2, C.GH, 24, 20, 25, 35, 80],
-      [P[3], 3, C.GH, 30, 10, 15, 25, 50]
+    const lyrs = [ // lyrs = layers [color, depth, baseY, count, minW, maxW, minH, maxH, hasWindows]
+      [P[5], 1, C.GH, 15, 30, 45, 80, 140, true],   // Far layer - tall buildings
+      [P[4], 2, C.GH, 18, 25, 40, 60, 120, true],   // Mid layer - varied heights
+      [P[3], 3, C.GH, 20, 20, 35, 40, 100, true]    // Near layer - more detail
     ];
 
     lyrs.forEach(lyr => {
@@ -1633,15 +1647,21 @@ class DynamicBackground {
       for (let i = 0; i < lyr[3]; i++) {
         const w = Phaser.Math.Between(lyr[4], lyr[5]); // w = width
         const h = Phaser.Math.Between(lyr[6], lyr[7]); // h = height
+        const hasAntenna = Math.random() < 0.3; // 30% chance of antenna
+        const roofType = Math.floor(Math.random() * 3); // 0=flat, 1=peaked, 2=stepped
+
         this.blds.push({
           x,
           w,
           h,
           col: lyr[0], // col = color
           d: lyr[1], // d = depth
-          bY: lyr[2] // bY = base Y
+          bY: lyr[2], // bY = base Y
+          ant: hasAntenna, // ant = has antenna
+          rType: roofType, // rType = roof type
+          hasWin: lyr[8] // hasWin = has windows
         });
-        x += w + Phaser.Math.Between(1, 2 * i);
+        x += w + Phaser.Math.Between(2, 8);
       }
     });
 
@@ -1649,38 +1669,76 @@ class DynamicBackground {
   }
 
   drwBlds() {
-    // Draw all buildings to their respective depth layers
+    // Draw all buildings to their respective depth layers with details
     this.grGfx.clear();
     this.fBGfx.clear();
     this.mBGfx.clear();
     this.nBGfx.clear();
 
-    // Draw grass
+    // Draw grass/ground
     this.grGfx.fillStyle(P[16], 1);
     this.grGfx.fillRect(0, C.GH - 45, C.GW, 45);
 
-    // Draw buildings by depth
+    // Draw buildings by depth with windows and details
     this.blds.forEach(b => {
       const gfx = b.d === 3 ? this.fBGfx : b.d === 2 ? this.mBGfx : this.nBGfx;
-      const alp = b.d === 3 ? 0.75 : b.d === 2 ? 0.85 : 0.95; // alp = alpha
-      const lAlp = b.d === 3 ? 0.1 : b.d === 2 ? 0.15 : 0.2; // lAlp = line alpha
+      const alp = b.d === 3 ? 0.7 : b.d === 2 ? 0.8 : 0.9; // alp = alpha
+
+      // Building body
       gfx.fillStyle(b.col, alp);
       gfx.fillRect(b.x, b.bY - b.h, b.w, b.h);
-      gfx.lineStyle(1, P[0], lAlp);
+
+      // Add windows (if has windows)
+      if (b.hasWin) {
+        const winSize = b.d === 3 ? 2 : b.d === 2 ? 3 : 4; // winSize = window size
+        const winSpacing = b.d === 3 ? 4 : b.d === 2 ? 6 : 8; // winSpacing = window spacing
+        const winCol = Math.random() < 0.7 ? P[73] : P[7]; // winCol = window color (mostly orange, some yellow)
+
+        for (let wy = b.bY - b.h + 5; wy < b.bY - 5; wy += winSpacing) {
+          for (let wx = b.x + 3; wx < b.x + b.w - 3; wx += winSpacing) {
+            if (Math.random() < 0.8) { // 80% windows lit
+              gfx.fillStyle(winCol, 0.6);
+              gfx.fillRect(wx, wy, winSize, winSize);
+            }
+          }
+        }
+      }
+
+      // Building outline
+      gfx.lineStyle(1, P[0], 0.2);
       gfx.strokeRect(b.x, b.bY - b.h, b.w, b.h);
+
+      // Roof details
+      if (b.rType === 1) { // Peaked roof
+        gfx.fillStyle(b.col, alp * 0.8);
+        gfx.fillTriangle(b.x, b.bY - b.h, b.x + b.w / 2, b.bY - b.h - 5, b.x + b.w, b.bY - b.h);
+      } else if (b.rType === 2) { // Stepped roof
+        gfx.fillStyle(b.col, alp * 0.9);
+        gfx.fillRect(b.x + b.w * 0.2, b.bY - b.h - 3, b.w * 0.6, 3);
+      }
+
+      // Antenna (if has antenna)
+      if (b.ant) {
+        gfx.lineStyle(1, P[0], 0.5);
+        gfx.lineBetween(b.x + b.w / 2, b.bY - b.h - (b.rType === 1 ? 5 : 0), b.x + b.w / 2, b.bY - b.h - 15);
+        // Antenna light
+        gfx.fillStyle(P[53], 0.8);
+        gfx.fillCircle(b.x + b.w / 2, b.bY - b.h - 15, 2);
+      }
     });
   }
 
   genClds() {
-    // Generate clouds with random properties
-    const cnt = 6; // cnt = cloud count
+    // Generate fluffy clouds - Santiago can be very cloudy!
+    const cnt = 12; // cnt = cloud count (more clouds for Santiago)
     for (let i = 0; i < cnt; i++) {
       this.clds.push({
         x: Phaser.Math.Between(0, C.GW),
-        y: Phaser.Math.Between(20, 90),
-        w: Phaser.Math.Between(32, 64), // w = width
-        h: Phaser.Math.Between(12, 20), // h = height
-        spd: Phaser.Math.FloatBetween(6, 12) // spd = speed
+        y: Phaser.Math.Between(10, 150), // Higher altitude range
+        w: Phaser.Math.Between(40, 80), // w = width (larger clouds)
+        h: Phaser.Math.Between(15, 30), // h = height (fluffier)
+        spd: Phaser.Math.FloatBetween(3, 8), // spd = speed (slower, more realistic)
+        dens: Math.random() // dens = density (for varied opacity)
       });
     }
   }
@@ -1692,14 +1750,26 @@ class DynamicBackground {
       c.x += (c.spd * d) / 1000;
       if (c.x - c.w > C.GW) {
         c.x = -c.w;
-        c.y = Phaser.Math.Between(20, 90);
-        c.spd = Phaser.Math.FloatBetween(6, 12);
+        c.y = Phaser.Math.Between(10, 150);
+        c.spd = Phaser.Math.FloatBetween(3, 8);
+        c.dens = Math.random();
       }
-      // Draw cloud with 3 overlapping ellipses
-      this.clGfx.fillStyle(P[6], 0.82);
+
+      // Draw cloud with multiple overlapping puffs for fluffy look
+      const baseAlp = 0.5 + c.dens * 0.4; // baseAlp = base alpha (0.5-0.9)
+
+      // Main cloud body
+      this.clGfx.fillStyle(P[6], baseAlp);
       this.clGfx.fillEllipse(c.x, c.y, c.w, c.h);
-      this.clGfx.fillEllipse(c.x + c.w * 0.35, c.y + 3, c.w * 0.65, c.h * 0.85);
-      this.clGfx.fillEllipse(c.x - c.w * 0.35, c.y + 4, c.w * 0.6, c.h * 0.75);
+
+      // Additional puffs for volume
+      this.clGfx.fillEllipse(c.x + c.w * 0.25, c.y - c.h * 0.2, c.w * 0.7, c.h * 0.9);
+      this.clGfx.fillEllipse(c.x - c.w * 0.25, c.y + c.h * 0.1, c.w * 0.6, c.h * 0.8);
+      this.clGfx.fillEllipse(c.x + c.w * 0.4, c.y + c.h * 0.15, c.w * 0.55, c.h * 0.75);
+
+      // Highlight on top for depth
+      this.clGfx.fillStyle(P[6], baseAlp * 0.6);
+      this.clGfx.fillEllipse(c.x - c.w * 0.15, c.y - c.h * 0.3, c.w * 0.5, c.h * 0.5);
     });
   }
 
@@ -1770,6 +1840,16 @@ class MenuScene extends Phaser.Scene {
 
     this.cameraTargetY = C.GH / 2;
 
+    // Add transparent black overlay for better contrast
+    this.overlay = this.add.graphics();
+    this.overlay.fillStyle(P[0], 0.2); // 50% transparent black
+    this.overlay.fillRect(0, 0, C.GW, C.GH);
+    this.overlay.setDepth(0); // Above background, below UI
+
+
+    // Create animated graphics layer for visual effects
+    this.gfx = this.add.graphics().setDepth(8).setScrollFactor(0);
+
     this.titleText = this.add.text(
       400,
       260,
@@ -1778,38 +1858,42 @@ class MenuScene extends Phaser.Scene {
         font: "bold 24px arial",
         color: '#000',
         backgroundColor: '#f7bb1b',
-        padding: {
-          left: 100, // 100px left padding
-          right: 100, // 100px right padding
-          top: 5, // 5px top padding
-          bottom: 5 // 5px bottom padding
-        }
+        padding: { left: 100, right: 100, top: 5, bottom: 5 },
+        align: 'center'
       }
     ).setOrigin(0.5).setDepth(9).setScrollFactor(0);
 
+    // Add decorative corner brackets around title
+    this.cornerGfx = this.add.graphics().setDepth(9.5).setScrollFactor(0);
+
+    // Subtitle with glowing effect
     this.subtitleText = this.add.text(
       400,
-      310,
+      315,
       `🍌🇨🇱 ${ph} Edition 🇨🇱🍌`,
       {
         fontFamily: 'arial',
-        fontSize: 13,
-        color: 1,
+        fontSize: 16,
+        color: '#000',
+        fontStyle: 'bold'
       }
     ).setOrigin(0.5).setDepth(9).setScrollFactor(0);
 
+    // Animated prompt with icon
     this.promptText = this.add.text(
       400,
-      370,
-      'Press any button',
+      375,
+      '▶ Presiona cualquier botón ◀',
       {
         fontSize: 14,
-        color: 1,
+        color: '#000',
+        fontStyle: 'bold'
       }
     ).setOrigin(0.5).setDepth(9).setScrollFactor(0);
 
     this.setupInput();
     this.promptTimer = 0;
+    this.titleBounce = 0;
   }
 
   setupInput() {
@@ -1828,14 +1912,64 @@ class MenuScene extends Phaser.Scene {
   goToNextScene() {
     this.transitioning = true;
     SND.transition(); // Play transition sound
+
+    // Flash effect on transition
+    this.gfx.clear();
+    this.gfx.fillStyle(0xffffff, 0.5);
+    this.gfx.fillRect(0, 0, C.GW, C.GH);
+
     this.time.delayedCall(200, () => {
       this.scene.start('CharacterSelection');
     });
   }
 
   update(time, delta) {
+    // Update timers
     this.promptTimer += delta;
-    this.promptText.setAlpha(0.6 + Math.sin(this.promptTimer / 450) * 0.4);
+    this.titleBounce += delta;
+
+    // Pulsing prompt text
+    const pulse = 0.7 + Math.sin(this.promptTimer / 300) * 0.3;
+    this.promptText.setAlpha(pulse);
+
+    // Subtle title bounce
+    const bounce = Math.sin(this.titleBounce / 800) * 2;
+    this.titleText.setY(260 + bounce);
+
+    // Animated decorative corners around title
+    this.cornerGfx.clear();
+    const cSize = 12 + Math.sin(this.promptTimer / 200) * 2; // cSize = corner size (animated)
+    const tBounds = this.titleText.getBounds(); // tBounds = title bounds
+    const pad = 8; // Padding from title
+
+    // Draw corner brackets with animation
+    this.cornerGfx.lineStyle(2, 0xf7bb1b, 1);
+    // Top-left
+    this.cornerGfx.lineBetween(tBounds.left - pad, tBounds.top - pad, tBounds.left - pad - cSize, tBounds.top - pad);
+    this.cornerGfx.lineBetween(tBounds.left - pad, tBounds.top - pad, tBounds.left - pad, tBounds.top - pad - cSize);
+    // Top-right
+    this.cornerGfx.lineBetween(tBounds.right + pad, tBounds.top - pad, tBounds.right + pad + cSize, tBounds.top - pad);
+    this.cornerGfx.lineBetween(tBounds.right + pad, tBounds.top - pad, tBounds.right + pad, tBounds.top - pad - cSize);
+    // Bottom-left
+    this.cornerGfx.lineBetween(tBounds.left - pad, tBounds.bottom + pad, tBounds.left - pad - cSize, tBounds.bottom + pad);
+    this.cornerGfx.lineBetween(tBounds.left - pad, tBounds.bottom + pad, tBounds.left - pad, tBounds.bottom + pad + cSize);
+    // Bottom-right
+    this.cornerGfx.lineBetween(tBounds.right + pad, tBounds.bottom + pad, tBounds.right + pad + cSize, tBounds.bottom + pad);
+    this.cornerGfx.lineBetween(tBounds.right + pad, tBounds.bottom + pad, tBounds.right + pad, tBounds.bottom + pad + cSize);
+
+    // Draw glowing boxes around subtitle
+    this.gfx.clear();
+    const glowAlpha = 0.1 + Math.sin(this.promptTimer / 400) * 0.05;
+    this.gfx.lineStyle(1, 0xf7bb1b, glowAlpha);
+    for (let i = 0; i < 3; i++) {
+      const offset = i * 4;
+      this.gfx.strokeRect(
+        this.subtitleText.x - this.subtitleText.width / 2 - offset,
+        this.subtitleText.y - this.subtitleText.height / 2 - offset,
+        this.subtitleText.width + offset * 2,
+        this.subtitleText.height + offset * 2
+      );
+    }
 
     // Update background
     this.background.update(delta);
@@ -1862,6 +1996,12 @@ class CharacterSelectionScene extends Phaser.Scene {
     // Use reusable background
     this.background = new DynamicBackground(this, false);
 
+    // Add transparent black overlay for better contrast
+    this.overlay = this.add.graphics();
+    this.overlay.fillStyle(P[0], 0.5); // 50% transparent black
+    this.overlay.fillRect(0, 0, C.GW, C.GH);
+    this.overlay.setDepth(0); // Above background, below UI
+
     // Player selection state
     this.playerSelections = [
       { join: true, selIdx: 0, confirm: false, c: null },  // P1
@@ -1882,7 +2022,7 @@ class CharacterSelectionScene extends Phaser.Scene {
     this.isTransitioning = false;
 
     // Graphics
-    this.graphics = this.add.graphics();
+    this.gr = this.add.graphics();
     this.p1PreviewGraphics = this.add.graphics();
     this.p2PreviewGraphics = this.add.graphics();
 
@@ -1924,8 +2064,9 @@ class CharacterSelectionScene extends Phaser.Scene {
     this.p1NameText = this.add.text(0, 0, '', { fontSize: '10px', backgroundColor: '#000', padding: 3 }).setOrigin(.5, .5);
     this.p2NameText = this.add.text(0, 0, '', { fontSize: '10px', backgroundColor: '#000', padding: 3 }).setOrigin(.5, .5);
 
-    this.p1ConfirmedText = this.add.text(0, 0, '✓READY', { fontSize: '12px', color: '#000', backgroundColor: '#0f0' }).setOrigin(.5, .5).setVisible(false);
-    this.p2ConfirmedText = this.add.text(0, 0, '✓READY', { fontSize: '12px', color: '#000', backgroundColor: '#0f0' }).setOrigin(.5, .5).setVisible(false);
+    let z = '#409740ff';
+    this.p1ConfirmedText = this.add.text(0, 0, '✓READY', { fontSize: '12px', color: '#000', backgroundColor: z }).setOrigin(.5, .5).setVisible(false);
+    this.p2ConfirmedText = this.add.text(0, 0, '✓READY', { fontSize: '12px', color: '#000', backgroundColor: z }).setOrigin(.5, .5).setVisible(false);
   }
 
   handleInput(key, isDown) {
@@ -1966,6 +2107,13 @@ class CharacterSelectionScene extends Phaser.Scene {
   }
 
   update(time, delta) {
+    // Don't process any input if transitioning to next scene
+    if (this.isTransitioning) {
+      this.background.update(delta);
+      this.renderUI();
+      return;
+    }
+
     // Handle selector movement and confirmation
     for (let i = 0; i < 2; i++) {
       const selection = this.playerSelections[i];
@@ -2034,7 +2182,7 @@ class CharacterSelectionScene extends Phaser.Scene {
   }
 
   renderUI() {
-    this.graphics.clear();
+    this.gr.clear();
     this.p1PreviewGraphics.clear();
     this.p2PreviewGraphics.clear();
 
@@ -2071,31 +2219,31 @@ class CharacterSelectionScene extends Phaser.Scene {
         const p2Hover = this.playerSelections[1].join && this.playerSelections[1].selIdx === idx;
 
         // Background
-        this.graphics.fillStyle(idx < CHARACTERS.length ? 0x333333 : P[0], 1);
-        this.graphics.fillRect(x, y, slotSize, slotSize);
+        this.gr.fillStyle(idx < CHARACTERS.length ? 0x333333 : P[0], 1);
+        this.gr.fillRect(x, y, slotSize, slotSize);
 
         // Border
         if (p1Hover && p2Hover) {
           // Left half blue border
-          this.graphics.fillStyle(b, 1);
-          this.graphics.fillRect(x, y, slotSize / 2, 2); // top
-          this.graphics.fillRect(x, y, 2, slotSize); // left
-          this.graphics.fillRect(x, y + slotSize - 2, slotSize / 2, 2); // bottom
+          this.gr.fillStyle(b, 1);
+          this.gr.fillRect(x, y, slotSize / 2, 2); // top
+          this.gr.fillRect(x, y, 2, slotSize); // left
+          this.gr.fillRect(x, y + slotSize - 2, slotSize / 2, 2); // bottom
 
           // Right half red border
-          this.graphics.fillStyle(r, 1);
-          this.graphics.fillRect(x + slotSize / 2, y, slotSize / 2, 2); // top
-          this.graphics.fillRect(x + slotSize - 2, y, 2, slotSize); // right
-          this.graphics.fillRect(x + slotSize / 2, y + slotSize - 2, slotSize / 2, 2); // bottom
+          this.gr.fillStyle(r, 1);
+          this.gr.fillRect(x + slotSize / 2, y, slotSize / 2, 2); // top
+          this.gr.fillRect(x + slotSize - 2, y, 2, slotSize); // right
+          this.gr.fillRect(x + slotSize / 2, y + slotSize - 2, slotSize / 2, 2); // bottom
         } else if (p1Hover) {
-          this.graphics.lineStyle(2, b, 1);
-          this.graphics.strokeRect(x, y, slotSize, slotSize);
+          this.gr.lineStyle(2, b, 1);
+          this.gr.strokeRect(x, y, slotSize, slotSize);
         } else if (p2Hover) {
-          this.graphics.lineStyle(2, r, 1);
-          this.graphics.strokeRect(x, y, slotSize, slotSize);
+          this.gr.lineStyle(2, r, 1);
+          this.gr.strokeRect(x, y, slotSize, slotSize);
         } else {
-          this.graphics.lineStyle(1, 0x555555, 1);
-          this.graphics.strokeRect(x, y, slotSize, slotSize);
+          this.gr.lineStyle(1, 0x555555, 1);
+          this.gr.strokeRect(x, y, slotSize, slotSize);
         }
 
         // Draw character (top half)
@@ -2105,13 +2253,13 @@ class CharacterSelectionScene extends Phaser.Scene {
 
         // P1/P2 indicators (only show when hovering)
         if (p1Hover) {
-          this.graphics.fillStyle(b, 1);
-          this.graphics.fillRect(x + 1, y + 1, 10, 8);
+          this.gr.fillStyle(b, 1);
+          this.gr.fillRect(x + 1, y + 1, 10, 8);
           this.slotTexts[idx].p1.setPosition(x + 2, y + 1).setVisible(true);
         }
         if (p2Hover) {
-          this.graphics.fillStyle(r, 1);
-          this.graphics.fillRect(x + slotSize - 11, y + 1, 10, 8);
+          this.gr.fillStyle(r, 1);
+          this.gr.fillRect(x + slotSize - 11, y + 1, 10, 8);
           this.slotTexts[idx].p2.setPosition(x + slotSize - 10, y + 1).setVisible(true);
         }
       }
@@ -2131,8 +2279,8 @@ class CharacterSelectionScene extends Phaser.Scene {
         if (code && code !== '.') {
           const color = COLOR_MAP[code];
           if (color !== null && color !== undefined) {
-            this.graphics.fillStyle(color, 1);
-            this.graphics.fillRect(x + c * scale + size * 0.1, y + r * scale + size * 0.2, scale, scale);
+            this.gr.fillStyle(color, 1);
+            this.gr.fillRect(x + c * scale + size * 0.1, y + r * scale + size * 0.2, scale, scale);
           }
         }
       }
@@ -2242,6 +2390,8 @@ class GameScene extends Phaser.Scene {
     // p1Txt/p2Txt = player lives text displays
     this.p1Txt = this.add.text(250, 190, '', { fontSize: 11, color: '#000' }).setScrollFactor(0).setDepth(100);
     this.p2Txt = this.add.text(250, 205, '', { fontSize: 11, color: '#000' }).setScrollFactor(0).setDepth(100).setVisible(!this.is1P);
+    // signTxt = sign text for "Platanus Hack 25"
+    this.signTxt = this.add.text(0, 0, 'PLATANUS HACK 25', { fontSize: 14, fontFamily: 'Arial', fontStyle: 'bold', color: '#000' }).setDepth(5).setOrigin(0.5);
     this.cameras.main.centerOn(C.GW / 2, this.camTY);
     this.cinematic.start();
   }
@@ -2283,8 +2433,8 @@ class GameScene extends Phaser.Scene {
     SND.victory(); // Play victory music
     this.endT = this.time.now; // endT = end time for scoring
     if (this.guard) {
-      this.guard.isFalling = true;
-      this.guard.fallVelocity = 0;
+      this.guard.isFl = true; // Changed isFalling→isFl
+      this.guard.fVel = 0; // Changed fallVelocity→fVel
     }
     const w = this.players.filter(p => p.hasW); // Changed hasWon→hasW
     this.allWon = w.length === this.players.length;
@@ -2344,7 +2494,7 @@ class GameScene extends Phaser.Scene {
       () => { this.drawCoor(); this.dialog.show('GUARD', `El equipo de ${nms} está presente?`, [GUARD_SPRITES.F]); this.waitDlg = true; },
       () => {
         this.cGfx.clear();
-        all ? this.dialog.show('UNISON', 'Sí, estamos aquí!', this.players.map(p => p.sprites.F)) : this.dialog.show('PLAYER', 'Disculpe... no estamos completos...', [w[0].sprites.F]);
+        all ? this.dialog.show('UNISON', 'Sí, estamos aquí!', this.players.map(p => p.spr.F)) : this.dialog.show('PLAYER', 'Disculpe... no estamos completos...', [w[0].spr.F]); // Changed sprites→spr
         this.waitDlg = true;
       },
       () => { this.dialog.hide(); this.cGfx.clear(); this.showVictEnd(); }
@@ -2535,7 +2685,7 @@ class GameScene extends Phaser.Scene {
       if (!this.is1P) setInp(this.players[1], { up: false, down: false, left: false, right: false });
       if (this.guard) this.guard.update(d);
       // Auto-advance victory dialogs after text completes
-      if (this.waitDlg && this.dialog.isTextComplete && !this.dlgAutoT) {
+      if (this.waitDlg && this.dialog.tCmp && !this.dlgAutoT) {
         this.dlgAutoT = this.time.delayedCall(2000, () => {
           this.waitDlg = false;
           this.dlgAutoT = null;
@@ -2617,6 +2767,30 @@ class GameScene extends Phaser.Scene {
       this.bGfx.lineStyle(3, COLORS.METAL1, 0.9).lineBetween(x, topY, x, botY);
       this.bGfx.lineStyle(1, COLORS.METAL2, 0.6).lineBetween(x - 1, topY, x - 1, botY);
     }
+
+    // Draw "Platanus Hack 25" sign above goal floor (signY=sign Y position, signH=sign height)
+    const goalY = this.players[0].rowToY(C.GOAL);
+    const signY = goalY - C.RHEIGHT / 2 - 40; // Position above goal floor
+    const signW = C.BW * 0.8; // signW = sign width (80% of building width)
+    const signH = 28; // signH = sign height
+    const signX = (C.GW - signW) / 2; // signX = sign X (centered)
+
+    // Sign background (bright with border)
+    this.bGfx.fillStyle(P[7], 1).fillRect(signX, signY, signW, signH); // Yellow background
+    this.bGfx.lineStyle(3, P[73], 1).strokeRect(signX, signY, signW, signH); // Orange border
+
+    // Position sign text at center of sign
+    this.signTxt.setPosition(C.GW / 2, signY + signH / 2);
+
+    // Add decorative lights around sign (flashing effect based on time)
+    const flsh = Math.floor(this.time.now / 300) % 2; // flsh = flash state (alternates every 300ms)
+    const lCol = flsh ? P[73] : P[7]; // lCol = light color (orange/yellow alternating)
+    for (let i = 0; i < 8; i++) {
+      const lX = signX + (i * signW / 7); // lX = light X position
+      this.bGfx.fillStyle(lCol, 1).fillCircle(lX, signY - 3, 2); // Top lights
+      this.bGfx.fillStyle(lCol, 1).fillCircle(lX, signY + signH + 3, 2); // Bottom lights
+    }
+
     // Ground with concrete texture (gY=ground Y, gH=ground height, s=seed for pattern)
     const gY = C.GH - 10;
     const gH = 50;
